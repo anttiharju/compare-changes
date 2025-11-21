@@ -28,8 +28,8 @@
 
       devPackages =
         pkgs: pkgs-unstable: anttiharju: system: with pkgs; [
-          rustc
           cargo
+          rustc
           rustfmt
           rust-analyzer
           clippy
