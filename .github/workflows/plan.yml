@@ -134,25 +134,6 @@ jobs:
         run: |
           git ls-files -z | xargs -0 editorconfig-checker
 
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || github.event_name == 'push')
-        name: Ensure go.mod has matching Go version
-        uses: ./.github/actions/match-go-version
-
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || github.event_name == 'push')
-        name: go build
-        run: |
-          go build
-
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || github.event_name == 'push')
-        name: go test
-        shell: sh
-        run: |
-          go test ./...
-
-      - if: always() && !cancelled() && (steps.changed.outputs.go_code == 'true' || github.event_name == 'push')
-        name: golangci-lint
-        run: golangci-lint run
-
       - if: always() && !cancelled()
         name: Keep .yml
         run: |

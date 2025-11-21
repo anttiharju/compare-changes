@@ -12,16 +12,6 @@ runs:
       with:
         wildcard: actionlint
         changes: ${{ inputs.changes }}
-    - id: binary
-      uses: anttiharju/actions/compare-changes@v0
-      with:
-        wildcard: go-binary
-        changes: ${{ inputs.changes }}
-    - id: go_code
-      uses: anttiharju/actions/compare-changes@v0
-      with:
-        wildcard: golangci-lint
-        changes: ${{ inputs.changes }}
     - id: brew
       uses: anttiharju/actions/compare-changes@v0
       with:
@@ -56,12 +46,6 @@ outputs:
   github_actions_workflows:
     description: "Whether GitHub Actions workflows have changed"
     value: ${{ steps.github_actions_workflows.outputs.changed }}
-  binary:
-    description: "Whether the binary has changed"
-    value: ${{ steps.binary.outputs.changed }}
-  go_code:
-    description: "Whether Go code has changed"
-    value: ${{ steps.go_code.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
     value: ${{ steps.brew.outputs.changed }}

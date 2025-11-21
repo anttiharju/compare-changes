@@ -100,7 +100,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     env:
-      tag: "v${{ inputs.version }}" # Go expects version tags to be prefixed with "v"
+      tag: "v${{ inputs.version }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v5

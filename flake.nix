@@ -1,5 +1,5 @@
 {
-  description = "Go development environment";
+  description = "Rust development environment";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.05";
@@ -28,12 +28,10 @@
 
       devPackages =
         pkgs: pkgs-unstable: anttiharju: system: with pkgs; [
-          go
           action-validator
           actionlint
           anttiharju.relcheck
           editorconfig-checker
-          golangci-lint
           (python313.withPackages (
             ps: with ps; [
               mkdocs-material
