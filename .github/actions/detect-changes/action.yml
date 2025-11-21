@@ -1,0 +1,85 @@
+name: "Detect changes"
+description: "Decide what steps need running based on changes"
+inputs:
+  changes:
+    description: "JSON array of changed files"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - id: github_actions_workflows
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: actionlint
+        changes: ${{ inputs.changes }}
+    - id: binary
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: go-binary
+        changes: ${{ inputs.changes }}
+    - id: go_code
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: golangci-lint
+        changes: ${{ inputs.changes }}
+    - id: brew
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: brew
+        changes: ${{ inputs.changes }}
+    - id: github
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: github
+        changes: ${{ inputs.changes }}
+    - id: nix
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: nix
+        changes: ${{ inputs.changes }}
+    - id: documentation
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: mkdocs
+        changes: ${{ inputs.changes }}
+    - id: md_and_yml
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: prettier
+        changes: ${{ inputs.changes }}
+    - id: scripts
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: shellcheck
+        changes: ${{ inputs.changes }}
+outputs:
+  github_actions_workflows:
+    description: "Whether GitHub Actions workflows have changed"
+    value: ${{ steps.github_actions_workflows.outputs.changed }}
+  binary:
+    description: "Whether the binary has changed"
+    value: ${{ steps.binary.outputs.changed }}
+  go_code:
+    description: "Whether Go code has changed"
+    value: ${{ steps.go_code.outputs.changed }}
+  brew:
+    description: "Whether Brew has changed"
+    value: ${{ steps.brew.outputs.changed }}
+  github:
+    description: "Whether GitHub has changed"
+    value: ${{ steps.github.outputs.changed }}
+  nix:
+    description: "Whether Nix has changed"
+    value: ${{ steps.nix.outputs.changed }}
+  release:
+    description: "Whether any release has changed"
+    value: ${{ steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
+  documentation:
+    description: "Whether documentation has changed"
+    value: ${{ steps.documentation.outputs.changed }}
+  md_and_yml:
+    description: "Whether Markdown or YAML has changed"
+    value: ${{ steps.md_and_yml.outputs.changed }}
+  scripts:
+    description: "Whether scripts have changed"
+    value: ${{ steps.scripts.outputs.changed }}

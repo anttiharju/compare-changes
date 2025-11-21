@@ -1,0 +1,63 @@
+# EditorConfig is awesome: https://editorconfig.org
+# Maintained from https://github.com/anttiharju/editorconfig
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+
+[*.go]
+indent_style = tab
+indent_size = 4
+
+[*.yml]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = unset
+
+[*.sh,*.bash]
+indent_style = space
+indent_size = 2
+
+[*.{json,jsonc}]
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+tab_width = 4
+
+[*.rb]
+indent_style = space
+indent_size = 2
+
+[.gitconfig]
+indent_style = space
+indent_size = 4
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[**/.flox/env.json]
+insert_final_newline = false
+[**/.flox/env/manifest.lock]
+insert_final_newline = false
+
+[*.nix]
+indent_style = space
+indent_size = 2
+
+[*.rs]
+indent_style = space
+indent_size = 4
+
+[*.plist]
+indent_style = space
+indent_size = 4
