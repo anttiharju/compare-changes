@@ -28,6 +28,11 @@
 
       devPackages =
         pkgs: pkgs-unstable: anttiharju: system: with pkgs; [
+          rustc
+          cargo
+          rustfmt
+          rust-analyzer
+          clippy
           action-validator
           actionlint
           anttiharju.relcheck
