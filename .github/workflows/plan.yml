@@ -107,12 +107,12 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.release == 'true' || github.event_name == 'push')
         id: semantic
         name: Require semantic version label
         uses: anttiharju/actions/semver-label@v0
         with:
-          require: ${{ steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' }}
+          require: ${{ steps.changed.outputs.release == 'true' }}
 
       - if: always() && !cancelled()
         name: action-validator
