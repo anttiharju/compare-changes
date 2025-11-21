@@ -4,10 +4,10 @@ import (
 	"context"
 	"os"
 
-	"github.com/anttiharju/go-starter/internal/buildinfo"
-	"github.com/anttiharju/go-starter/internal/cli"
-	"github.com/anttiharju/go-starter/internal/exitcode"
-	"github.com/anttiharju/go-starter/internal/interrupt"
+	"github.com/anttiharju/rust-starter/internal/buildinfo"
+	"github.com/anttiharju/rust-starter/internal/cli"
+	"github.com/anttiharju/rust-starter/internal/exitcode"
+	"github.com/anttiharju/rust-starter/internal/interrupt"
 )
 
 var (

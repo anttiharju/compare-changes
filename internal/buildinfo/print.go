@@ -7,7 +7,7 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/anttiharju/go-starter/internal/exitcode"
+	"github.com/anttiharju/rust-starter/internal/exitcode"
 )
 
 func Print(info BuildInfo) exitcode.Exitcode {

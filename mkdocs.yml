@@ -1,4 +1,4 @@
-site_name: go-starter
+site_name: rust-starter
 theme:
   name: material
   features:

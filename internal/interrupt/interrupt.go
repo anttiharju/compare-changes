@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/anttiharju/go-starter/internal/exitcode"
+	"github.com/anttiharju/rust-starter/internal/exitcode"
 )
 
 func Listen(exitcode exitcode.Exitcode, signals ...os.Signal) {

@@ -11,7 +11,7 @@ on:
     outputs:
       version:
         description: "Version for the next release. Empty if no release is needed."
-        value: ${{ github.event.repository.name != 'go-starter' && jobs.validate.outputs.version || '' }}
+        value: ${{ github.event.repository.name != 'rust-starter' && jobs.validate.outputs.version || '' }}
       documentation:
         description: "Whether to update the documentation website"
         value: ${{ jobs.validate.outputs.documentation_changed == 'true' }}
@@ -21,7 +21,7 @@ on:
 
 jobs:
   container:
-    if: github.event.repository.name != 'go-starter'
+    if: github.event.repository.name != 'rust-starter'
     name: Container
     runs-on: ubuntu-24.04
     permissions:
