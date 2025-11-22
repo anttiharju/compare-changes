@@ -5,7 +5,7 @@
   nix-update-script,
 }:
 
-rustPlatform.buildRustPackage (finalAttrs: {
+rustPlatform.buildRustPackage rec {
   pname = "${PKG_REPO}";
   version = "${PKG_VERSION}";
   revision = "${PKG_REV}";
@@ -25,4 +25,4 @@ rustPlatform.buildRustPackage (finalAttrs: {
     maintainers = with lib.maintainers; [ ${PKG_OWNER} ];
     mainProgram = "${PKG_REPO}";
   };
-})
+}
