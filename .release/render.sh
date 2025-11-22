@@ -60,6 +60,5 @@ cd "$pkg"
 # shellcheck disable=SC1091
 source "values.cache"
 repository="${GITHUB_REPOSITORY##*/}"
-filename="${repository//-/_}"
-envsubst -i "template.$ext" -no-unset -no-empty > "$filename.$ext"
-cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files
+envsubst -i "template.$ext" -no-unset -no-empty > "$repository.$ext"
+cp "template.$ext" "$repository.tpl.$ext" # easier to visually diff two gitignored files

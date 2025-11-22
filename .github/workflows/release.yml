@@ -160,14 +160,11 @@ jobs:
           repository: anttiharju/homebrew-tap
           token: ${{ steps.generate-token.outputs.token }}
           path: homebrew-tap
-      - name: Output name with underscores
-        id: underscore
-        uses: ./.github/actions/underscore-name
       - name: Source values and render template # TODO: use release/render.sh for this, needs output param
         env:
           TAG: "v${{ inputs.version }}" # brew/values.sh expects TAG variable
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
-          output: homebrew-tap/Formula/${{ steps.underscore.outputs.filename }}.rb
+          output: homebrew-tap/Formula/${{ github.event.repository.name }}.rb
         run: |
           source .release/brew/values.sh
           mkdir -p "$(dirname "$output")"
