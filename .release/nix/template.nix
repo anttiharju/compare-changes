@@ -17,6 +17,8 @@ rustPlatform.buildRustPackage rec {
     hash = "${PKG_HASH}";
   };
 
+  cargoHash = lib.fakeHash;
+
   meta = {
     homepage = "${PKG_HOMEPAGE}";
     description = "${PKG_DESC}";
