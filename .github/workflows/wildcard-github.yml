@@ -6,7 +6,7 @@ on:
     branches:
       - wildcard
     paths:
-      - ".release/helpers/**/*"
+      - ".release/.helpers/**/*"
 
 jobs:
   wildcard:
