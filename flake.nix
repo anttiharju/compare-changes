@@ -35,16 +35,16 @@
         pkgs: pkgs-unstable: anttiharju: system: with pkgs;
         let
           rustToolchain = fenix.packages.${system}.combine [
-            (fenix.packages.${system}.complete.withComponents [
+            (fenix.packages.${system}.stable.withComponents [
               "cargo"
               "clippy"
               "rustc"
               "rustfmt"
               "rust-src"
             ])
-            fenix.packages.${system}.targets.aarch64-apple-darwin.latest.rust-std
-            fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.latest.rust-std
-            fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.latest.rust-std
+            fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
+            fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
+            fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.stable.rust-std
           ];
         in
         [
