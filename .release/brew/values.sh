@@ -27,7 +27,7 @@ fi
 
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
-pattern="$repo-*64.tar.gz"
+pattern="$repo-*.tar.gz"
 gh release download "$TAG" --pattern "$pattern" --clobber
 for binary in $pattern; do
   echo "# $binary"
