@@ -87,25 +87,6 @@ jobs:
     outputs:
       image: ${{ steps.tag.outputs.image }}
 
-  build:
-    name: Build
-    needs: container
-    strategy:
-      matrix:
-        os:
-          - macos-26
-          - ubuntu-24.04
-          - ubuntu-24.04-arm
-    container:
-      image: ${{ needs.container.outputs.image || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ github.token }}
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Hello world
-        run: echo "hello world!"
-
   validate:
     name: Validate
     needs: container
