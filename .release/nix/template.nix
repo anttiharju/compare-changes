@@ -5,7 +5,7 @@
   nix-update-script,
 }:
 
-rustPlatform.buildRustPackage (finalAttrs: {
+rustPlatform.buildRustPackage rec {
   pname = "${PKG_REPO}";
   version = "${PKG_VERSION}";
   revision = "${PKG_REV}";
@@ -17,6 +17,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     hash = "${PKG_HASH}";
   };
 
+  cargoLock = {
+    lockFile = "./Cargo.lock";
+  };
+
   meta = {
     homepage = "${PKG_HOMEPAGE}";
     description = "${PKG_DESC}";
@@ -25,4 +29,4 @@ rustPlatform.buildRustPackage (finalAttrs: {
     maintainers = with lib.maintainers; [ ${PKG_OWNER} ];
     mainProgram = "${PKG_REPO}";
   };
-})
+}

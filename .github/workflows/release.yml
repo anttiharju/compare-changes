@@ -76,11 +76,12 @@ jobs:
         env:
           TAG: "v${{ inputs.version }}" # nix/values.sh expects TAG variable
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
-          output: nur-packages/pkgs/${{ github.event.repository.name }}/default.nix
+          output: nur-packages/pkgs/${{ github.event.repository.name }}
         run: |
           source .release/nix/values.sh
-          mkdir -p "$(dirname "$output")"
-          envsubst -i .release/nix/template.nix -no-unset -no-empty > "$output"
+          mkdir -p "$output"
+          envsubst -i .release/nix/template.nix -no-unset -no-empty > "$output/default.nix"
+          cp Cargo.lock "$output/Cargo.lock"
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
         with:
