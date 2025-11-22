@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Convert Rust target triple to Zig target
+# Convert Rust target to Zig target
 case "$TARGET" in
   aarch64-apple-darwin)
     ZIG_TARGET="aarch64-macos"
