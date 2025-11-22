@@ -7,7 +7,7 @@ case "$TARGET" in
     ZIG_TARGET="aarch64-macos"
     ;;
   aarch64-unknown-linux-gnu)
-    ZIG_TARGET="aarch64-linux"
+    ZIG_TARGET="aarch64-linux-gnu"
     ;;
   x86_64-unknown-linux-gnu)
     ZIG_TARGET="x86_64-linux-gnu"
