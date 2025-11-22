@@ -43,6 +43,7 @@
               "rust-src"
             ])
             fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.latest.rust-std
+            fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.latest.rust-std
           ];
         in
         [
