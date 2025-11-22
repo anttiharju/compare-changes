@@ -29,7 +29,7 @@ hash_cache="$pkg.cache"
 tag="$(git tag --sort=-creatordate | head -n1)"
 tag="${tag:-v0.0.0}"
 export TAG="$tag" # also supplied by CI
-source github/actions_env_mock.sh
+source helpers/actions_env_mock.sh
 
 calculate_hash() {
   local file="$1"
