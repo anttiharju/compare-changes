@@ -33,6 +33,7 @@
           rustfmt
           rust-analyzer
           clippy
+          zig
           action-validator
           actionlint
           anttiharju.relcheck
