@@ -6,7 +6,8 @@ on:
     branches:
       - wildcard
     paths:
-      - ".release/github/**/*"
+      - ".release/actions_env_mock.sh"
+      - ".release/archive.sh"
 
 jobs:
   wildcard:

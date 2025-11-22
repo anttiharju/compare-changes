@@ -6,6 +6,10 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     nur-anttiharju.url = "github:anttiharju/nur-packages";
     nur-anttiharju.inputs.nixpkgs.follows = "nixpkgs";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -14,6 +18,7 @@
       nixpkgs,
       nixpkgs-unstable,
       nur-anttiharju,
+      fenix,
       ...
     }:
     let
@@ -27,12 +32,25 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
       devPackages =
-        pkgs: pkgs-unstable: anttiharju: system: with pkgs; [
-          cargo
-          rustc
-          rustfmt
-          rust-analyzer
-          clippy
+        pkgs: pkgs-unstable: anttiharju: system: with pkgs;
+        let
+          rustToolchain = fenix.packages.${system}.combine [
+            (fenix.packages.${system}.stable.withComponents [
+              "cargo"
+              "clippy"
+              "rustc"
+              "rustfmt"
+              "rust-src"
+            ])
+            fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
+            fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
+            fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.stable.rust-std
+          ];
+        in
+        [
+          rustToolchain
+          fenix.packages.${system}.rust-analyzer
+          zig
           action-validator
           actionlint
           anttiharju.relcheck
