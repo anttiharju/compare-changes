@@ -32,8 +32,6 @@ gh release download "$TAG" --pattern "$pattern" --clobber
 for binary in $pattern; do
   echo "# $binary"
 done
-mac_intel_sha="$(shasum -a 256 "$repo-darwin-amd64.tar.gz" | cut -d ' ' -f1)"
-capture PKG_MAC_INTEL_SHA "$mac_intel_sha"
 mac_arm_sha="$(shasum -a 256 "$repo-darwin-arm64.tar.gz" | cut -d ' ' -f1)"
 capture PKG_MAC_ARM_SHA "$mac_arm_sha"
 linux_intel_sha="$(shasum -a 256 "$repo-linux-amd64.tar.gz" | cut -d ' ' -f1)"
