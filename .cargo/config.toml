@@ -6,5 +6,7 @@ linker = "./.release/.helpers/zcc.sh"
 [target.x86_64-unknown-linux-gnu]
 linker = "./.release/.helpers/zcc.sh"
 
+# TODO: fix this build
+# TARGET=aarch64-unknown-linux-gnu CC="./.release/.helpers/zcc.sh" cargo build --target "$TARGET"
 [target.aarch64-unknown-linux-gnu]
 linker = "./.release/.helpers/zcc.sh"
