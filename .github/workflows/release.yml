@@ -110,28 +110,19 @@ jobs:
           git tag "$tag"
       - name: Create darwin-arm64 archive
         env:
-          GOOS: darwin
-          GOARCH: arm64
+          target: aarch64-apple-darwin
         run: |
-          ./.release/archive.sh "$tag" "$GOOS" "$GOARCH"
+          ./.release/archive.sh "$tag" "$target"
       - name: Create linux-amd64 archive
         env:
-          GOOS: linux
-          GOARCH: amd64
+          target: x86_64-unknown-linux-gnu
         run: |
-          ./.release/archive.sh "$tag" "$GOOS" "$GOARCH"
-      - name: Create darwin-amd64 archive
-        env:
-          GOOS: darwin
-          GOARCH: amd64
-        run: |
-          ./.release/archive.sh "$tag" "$GOOS" "$GOARCH"
+          ./.release/archive.sh "$tag" "$target"
       - name: Create linux-arm64 archive
         env:
-          GOOS: linux
-          GOARCH: arm64
+          target: aarch64-unknown-linux-gnu
         run: |
-          ./.release/archive.sh "$tag" "$GOOS" "$GOARCH"
+          ./.release/archive.sh "$tag" "$target"
       - name: Release
         shell: sh
         env:

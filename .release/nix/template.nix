@@ -1,10 +1,11 @@
 {
   lib,
-  buildGoModule,
+  rustPlatform,
   fetchFromGitHub,
+  nix-update-script,
 }:
 
-buildGoModule rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "${PKG_REPO}";
   version = "${PKG_VERSION}";
   revision = "${PKG_REV}";
@@ -16,16 +17,6 @@ buildGoModule rec {
     hash = "${PKG_HASH}";
   };
 
-  vendorHash = null;
-
-  ldflags = [
-    "-s"
-    "-w"
-    "-X main.revision=$${revision}"
-    "-X main.version=$${version}"
-    "-X main.time=${PKG_TIME}"
-  ];
-
   meta = {
     homepage = "${PKG_HOMEPAGE}";
     description = "${PKG_DESC}";
@@ -34,4 +25,4 @@ buildGoModule rec {
     maintainers = with lib.maintainers; [ ${PKG_OWNER} ];
     mainProgram = "${PKG_REPO}";
   };
-}
+})
