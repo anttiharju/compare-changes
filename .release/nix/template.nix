@@ -17,7 +17,9 @@ rustPlatform.buildRustPackage rec {
     hash = "${PKG_HASH}";
   };
 
-  cargoHash = lib.fakeHash;
+  cargoLock = {
+    lockFile = "./Cargo.lock";
+  };
 
   meta = {
     homepage = "${PKG_HOMEPAGE}";
