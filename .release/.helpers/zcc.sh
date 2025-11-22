@@ -13,7 +13,7 @@ case "$TARGET" in
     ZIG_TARGET="x86_64-linux-gnu"
     ;;
   *)
-    echo "zcc.sh: unsupported target: $TARGET" >&2
+    echo "$0: unsupported target: $TARGET" >&2
     exit 1
     ;;
 esac
