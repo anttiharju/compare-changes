@@ -6,8 +6,8 @@ on:
     branches:
       - wildcard
     paths:
-      - ".cargo/**"
-      - "src/**"
+      - ".cargo/**/*"
+      - "src/**/*"
       - "Cargo.lock"
       - "Cargo.toml"
 
