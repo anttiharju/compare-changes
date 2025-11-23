@@ -19,7 +19,7 @@ version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
 capture PKG_VERSION "$version"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
-if [[ "$TAG" = "v0.0.0" ]]; then
+if [[ "$version" = "0.0.0" ]]; then
   capture PKG_MAC_INTEL_SHA TBD
   capture PKG_MAC_ARM_SHA TBD
   capture PKG_LINUX_INTEL_SHA TBD
@@ -28,8 +28,9 @@ if [[ "$TAG" = "v0.0.0" ]]; then
 fi
 
 cd "$repo_root"
+tag="v$version"
 pattern="$repo-*.tar.gz"
-gh release download "$TAG" --pattern "$pattern" --clobber
+gh release download "$tag" --pattern "$pattern" --clobber
 for binary in $pattern; do
   echo "# $binary"
 done

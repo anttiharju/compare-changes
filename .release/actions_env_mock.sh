@@ -14,9 +14,10 @@ repo="$(yq -p toml -oy '.package.name' "$repo_root/Cargo.toml")"
 
 export GITHUB_REPOSITORY="$owner/$repo"
 
-if [[ "$TAG" = "v0.0.0" ]]; then
-  rev="$(gh api "repos/$GITHUB_REPOSITORY/commits/HEAD" --jq '.sha')"
+tag="v$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
+if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
+  rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')"
 else
-  rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" --jq '.object.sha')"
+  rev="$(gh api "repos/$GITHUB_REPOSITORY/commits/HEAD" --jq '.sha')"
 fi
 export GITHUB_SHA="$rev"

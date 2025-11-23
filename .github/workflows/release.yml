@@ -74,7 +74,6 @@ jobs:
           path: nur-packages
       - name: Source values and render template # TODO: use release/render.sh for this, needs output param
         env:
-          TAG: "v${{ inputs.version }}" # nix/values.sh expects TAG variable
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
           output: nur-packages/pkgs/${{ github.event.repository.name }}
         run: |
@@ -163,7 +162,6 @@ jobs:
           path: homebrew-tap
       - name: Source values and render template # TODO: use release/render.sh for this, needs output param
         env:
-          TAG: "v${{ inputs.version }}" # brew/values.sh expects TAG variable
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
           output: homebrew-tap/Formula/${{ github.event.repository.name }}.rb
         run: |
