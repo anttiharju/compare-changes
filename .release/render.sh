@@ -26,9 +26,6 @@ cache="$pkg/values.cache"
 hash_cache="$pkg.cache"
 
 # Setup env
-tag="$(git tag --sort=-creatordate | head -n1)"
-tag="${tag:-v0.0.0}"
-export TAG="$tag" # also supplied by CI
 source actions_env_mock.sh
 
 calculate_hash() {
