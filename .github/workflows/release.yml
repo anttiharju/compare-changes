@@ -85,7 +85,7 @@ jobs:
         uses: anttiharju/actions/commit-changes@v0
         with:
           working-directory: nur-packages
-          committer: "${{ github.actor }}[bot]"
+          committer: ${{ github.actor }}
           message: |
             Update ${{ github.event.repository.name }} to ${{ inputs.version }}
 
@@ -172,7 +172,7 @@ jobs:
         uses: anttiharju/actions/commit-changes@v0
         with:
           working-directory: homebrew-tap
-          committer: "${{ github.actor }}[bot]"
+          committer: ${{ github.actor }}
           message: |
             Update ${{ github.event.repository.name }} to ${{ inputs.version }}
 

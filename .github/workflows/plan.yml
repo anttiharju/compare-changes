@@ -136,7 +136,7 @@ jobs:
           cargo build --target x86_64-unknown-linux-gnu
           readelf --dynamic "target/$TARGET/debug/compare-changes"
 
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.actor, '[bot]')
+      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
         name: Require semantic version label
         uses: anttiharju/actions/semver-label@v0
@@ -192,7 +192,7 @@ jobs:
         run: |
           git ls-files -z '*.sh' | xargs -0 shellcheck --color=always
 
-      - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.actor, '[bot]')
+      - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.event.head_commit.author.name, '[bot]')
         name: Create release commit
         uses: ./.github/actions/commit-release
         with:
@@ -200,13 +200,14 @@ jobs:
           ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }}
           ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
-      - if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && endsWith(github.actor, '[bot]')
+      - if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && endsWith(github.event.head_commit.author.name, '[bot]')
         id: parse
         name: Parse release commit
+        env:
+          expected_bot: ${{ github.event.head_commit.author.name }}
         run: |
           commit_author="$(git log -1 --pretty=format:'%an')"
           commit_committer="$(git log -1 --pretty=format:'%cn')"
-          expected_bot="${{ github.actor }}"
 
           if [[ "$commit_author" == "$expected_bot" && "$commit_committer" == "$expected_bot" ]]; then
             commit_message="$(git log -1 --pretty=format:'%s')"
