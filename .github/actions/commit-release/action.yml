@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Generate commit token
       uses: actions/create-github-app-token@v1
-      id: generate-token
+      id: generate
       with:
         app-id: ${{ inputs.ANTTIHARJU_BOT_ID }}
         private-key: ${{ inputs.ANTTIHARJU_BOT_PRIVATE_KEY }}
@@ -34,3 +34,4 @@ runs:
       with:
         committer: "${{ github.actor }}[bot]"
         message: ${{ inputs.version }}
+        token: ${{ steps.generate.outputs.token }}
