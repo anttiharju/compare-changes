@@ -21,10 +21,16 @@ runs:
         app-id: ${{ inputs.ANTTIHARJU_BOT_ID }}
         private-key: ${{ inputs.ANTTIHARJU_BOT_PRIVATE_KEY }}
         repositories: ${{ github.event.repository.name }}
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        token: ${{ steps.generate.outputs.token }}
+        path: release
     - name: Create release commit
+      working-directory: release
+      shell: sh
       env:
         version: ${{ inputs.version }}
-      shell: sh
       run: |
         git reset --hard && git clean -df
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
@@ -32,6 +38,6 @@ runs:
     - name: Commit changes
       uses: anttiharju/actions/commit-changes@v0
       with:
+        working-directory: release
         committer: "${{ github.actor }}[bot]"
         message: ${{ inputs.version }}
-        token: ${{ steps.generate.outputs.token }}
