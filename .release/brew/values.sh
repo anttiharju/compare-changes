@@ -6,7 +6,8 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-repo="$(yq -p toml -oy '.package.name' Cargo.toml)"
+repo_root="$(git rev-parse --show-toplevel)"
+repo="$(yq -p toml -oy '.package.name' "$repo_root/Cargo.toml")"
 capture PKG_REPO "$repo"
 class="$(echo "$repo" | awk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
 capture PKG_CLASS "$class"
@@ -25,7 +26,6 @@ if [[ "$TAG" = "v0.0.0" ]]; then
   exit 0
 fi
 
-repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 pattern="$repo-*.tar.gz"
 gh release download "$TAG" --pattern "$pattern" --clobber
