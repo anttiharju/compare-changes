@@ -18,6 +18,11 @@ on:
       container:
         description: "Image in which all CI jobs should be ran"
         value: ${{ jobs.container.outputs.image }}
+    secrets:
+      ANTTIHARJU_BOT_ID:
+        required: true
+      ANTTIHARJU_BOT_PRIVATE_KEY:
+        required: true
 
 jobs:
   container:
@@ -102,9 +107,19 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
+      - if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.actor, '[bot]')
+        name: Generate commit token
+        uses: actions/create-github-app-token@v1
+        id: generate
+        with:
+          app-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
       - name: Find changes
         id: changes
         uses: anttiharju/actions/find-changes@v0
+        with:
+          token: ${{ steps.generate.outputs.token }}
 
       - name: Detect changes
         id: changed
@@ -192,8 +207,6 @@ jobs:
         uses: ./.github/actions/commit-release
         with:
           version: ${{ steps.semantic.outputs.version }}
-          ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }}
-          ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
     outputs:
       version: ${{ steps.semantic.outputs.version }}
       documentation_changed: ${{ steps.changed.outputs.documentation }}
