@@ -109,18 +109,18 @@ jobs:
         shell: sh
         run: |
           git tag "$tag"
-      - name: Create darwin-arm64 archive
+      - name: Create aarch64-apple-darwin archive
         env:
           target: aarch64-apple-darwin
           SDKROOT: /dev/null
         run: |
           ./.release/archive.sh "$tag" "$target"
-      - name: Create linux-amd64 archive
+      - name: Create x86_64-unknown-linux-gnu archive
         env:
           target: x86_64-unknown-linux-gnu
         run: |
           ./.release/archive.sh "$tag" "$target"
-      - name: Create linux-arm64 archive
+      - name: Create aarch64-unknown-linux-gnu archive
         env:
           target: aarch64-unknown-linux-gnu
         run: |
