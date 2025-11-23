@@ -121,13 +121,13 @@ jobs:
           CC: ./.release/zcc.sh
         run: |
           cargo build --target aarch64-unknown-linux-gnu
-          readelf -d "target/$TARGET/debug/compare-changes"
+          readelf --dynamic "target/$TARGET/debug/compare-changes"
       - env:
           TARGET: x86_64-unknown-linux-gnu
           CC: ./.release/zcc.sh
         run: |
           cargo build --target x86_64-unknown-linux-gnu
-          readelf -d "target/$TARGET/debug/compare-changes"
+          readelf --dynamic "target/$TARGET/debug/compare-changes"
 
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push')
         id: semantic
