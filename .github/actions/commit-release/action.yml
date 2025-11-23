@@ -24,6 +24,7 @@ runs:
     - name: Create release commit
       env:
         version: ${{ inputs.version }}
+      shell: sh
       run: |
         git reset --hard && git clean -df
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
