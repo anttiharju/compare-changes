@@ -107,6 +107,13 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
+      - name: debug
+        env:
+          actor: ${{ github.actor }}
+          author: ${{ github.event.head_commit.author.name }}
+        run: |
+          echo "$actor"
+          echo "$author"
       - name: Find changes
         id: changes
         uses: anttiharju/find-changes-action@v1
@@ -136,7 +143,7 @@ jobs:
           cargo build --target x86_64-unknown-linux-gnu
           readelf --dynamic "target/$TARGET/debug/compare-changes"
 
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push' && github.event.head_commit.author.name != format('{0}[bot]', github.actor))
+      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && github.event.head_commit.author.name != format('{0}[bot]', github.actor)
         id: semantic
         name: Require semantic version label
         uses: anttiharju/actions/semver-label@v0
