@@ -1,0 +1,36 @@
+name: "Commit release"
+description: "Creates a release commit"
+inputs:
+  version:
+    description: "Release version"
+    required: true
+  ANTTIHARJU_BOT_ID:
+    description: "GitHub App ID for anttiharju[bot]"
+    required: true
+  ANTTIHARJU_BOT_PRIVATE_KEY:
+    description: "GitHub App Private Key for anttiharju[bot]"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate commit token
+      uses: actions/create-github-app-token@v1
+      id: generate-token
+      with:
+        app-id: ${{ inputs.ANTTIHARJU_BOT_ID }}
+        private-key: ${{ inputs.ANTTIHARJU_BOT_PRIVATE_KEY }}
+        repositories: ${{ github.event.repository.name }}
+    - name: Create release commit
+      env:
+        version: ${{ inputs.version }}
+      shell: sh
+      run: |
+        git reset --hard && git clean -df
+        toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
+        toml set Cargo.lock package.version "$version" > Cargo.lock.tmp && mv Cargo.lock.tmp Cargo.lock
+    - name: Commit changes
+      uses: anttiharju/actions/commit-changes@v0
+      with:
+        committer: "${{ github.actor }}[bot]"
+        message: ${{ inputs.version }}
