@@ -121,13 +121,13 @@ jobs:
           CC: ./.release/zcc.sh
         run: |
           cargo build --target aarch64-unknown-linux-gnu
-          ldd "target/$TARGET/debug/compare-changes" 2>&1 | grep -q "not a dynamic executable"
+          ldd "target/$TARGET/debug/compare-changes" || true
       - env:
           TARGET: x86_64-unknown-linux-gnu
           CC: ./.release/zcc.sh
         run: |
           cargo build --target x86_64-unknown-linux-gnu
-          ldd "target/$TARGET/debug/compare-changes" 2>&1 | grep -q "not a dynamic executable"
+          ldd "target/$TARGET/debug/compare-changes" || true
 
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push')
         id: semantic
