@@ -112,6 +112,7 @@ jobs:
       - name: Create darwin-arm64 archive
         env:
           target: aarch64-apple-darwin
+          SDKROOT: /dev/null
         run: |
           ./.release/archive.sh "$tag" "$target"
       - name: Create linux-amd64 archive
