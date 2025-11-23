@@ -113,6 +113,7 @@ jobs:
       - env:
           TARGET: aarch64-apple-darwin
           CC: ./.release/zcc.sh
+          SDKROOT: /dev/null
         run: |
           cargo build --target aarch64-apple-darwin
       - env:
