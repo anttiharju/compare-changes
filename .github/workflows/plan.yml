@@ -1,6 +1,6 @@
 name: Plan
 permissions:
-  contents: none
+  contents: write
   pull-requests: none
 on:
   pull_request:
