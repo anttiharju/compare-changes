@@ -38,6 +38,7 @@ runs:
     - name: Commit changes
       uses: anttiharju/actions/commit-changes@v0
       with:
-        working-directory: release
+        author: "${{ github.actor }}[bot]"
         committer: "${{ github.actor }}[bot]"
         message: ${{ inputs.version }}
+        working-directory: release
