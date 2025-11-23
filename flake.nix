@@ -65,6 +65,7 @@
           shellcheck
           gh
           binutils # for readelf
+          yq-go
           # Everything below is required by GitHub Actions
           coreutils
           bash
