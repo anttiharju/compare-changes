@@ -136,7 +136,7 @@ jobs:
           cargo build --target x86_64-unknown-linux-gnu
           readelf --dynamic "target/$TARGET/debug/compare-changes"
 
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && github.event.head_commit.author.name != format('{0}[bot]', github.actor)
+      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.actor, '[bot]')
         id: semantic
         name: Require semantic version label
         uses: anttiharju/actions/semver-label@v0
