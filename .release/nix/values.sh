@@ -6,8 +6,9 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-capture PKG_REPO "${GITHUB_REPOSITORY##*/}"
-capture PKG_VERSION "${TAG#v}"
+repo_root="$(git rev-parse --show-toplevel)"
+repo="$(yq -p toml -oy '.package.name' "$repo_root/Cargo.toml")"
+capture PKG_REPO "$repo"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 capture PKG_REV "$GITHUB_SHA"
 sha256="$(nix-prefetch-url --quiet --unpack "https://github.com/$GITHUB_REPOSITORY/archive/$GITHUB_SHA.tar.gz")"
