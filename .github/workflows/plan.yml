@@ -119,7 +119,7 @@ jobs:
         id: changes
         uses: anttiharju/find-changes-action@v1
         with:
-          token: ${{ steps.generate.outputs.token }}
+          token: ${{ steps.generate.outputs.token || github.token }}
 
       - name: Detect changes
         id: changed
