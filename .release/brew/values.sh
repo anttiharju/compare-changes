@@ -6,7 +6,7 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-repo="$(basename "$GITHUB_REPOSITORY")"
+repo="$(yq -p toml -oy '.package.name' Cargo.toml)"
 capture PKG_REPO "$repo"
 class="$(echo "$repo" | awk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
 capture PKG_CLASS "$class"
