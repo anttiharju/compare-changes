@@ -4,10 +4,23 @@ inputs:
   version:
     description: "Release version"
     required: true
+  ANTTIHARJU_BOT_ID:
+    description: "GitHub App ID for committing the release"
+    required: true
+  ANTTIHARJU_BOT_PRIVATE_KEY:
+    description: "GitHub App private key for committing the release"
+    required: true
 
 runs:
   using: "composite"
   steps:
+    - name: Generate commit token
+      uses: actions/create-github-app-token@v1
+      id: generate
+      with:
+        app-id: ${{ inputs.ANTTIHARJU_BOT_ID }}
+        private-key: ${{ inputs.ANTTIHARJU_BOT_PRIVATE_KEY }}
+        repositories: ${{ github.event.repository.name }}
     - name: Create release commit
       env:
         version: ${{ inputs.version }}
