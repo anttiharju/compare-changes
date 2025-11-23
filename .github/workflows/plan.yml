@@ -94,6 +94,8 @@ jobs:
     name: Validate
     needs: container
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     container:
       image: ${{ needs.container.outputs.image || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
       credentials:
