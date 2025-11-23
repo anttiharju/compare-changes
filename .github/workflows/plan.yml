@@ -189,18 +189,11 @@ jobs:
 
       - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.actor, '[bot]')
         name: Create release commit
-        env:
-          version: ${{ steps.semantic.outputs.version }}
-        run: |
-          git reset --hard && git clean -df
-          toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
-          toml set Cargo.lock package.version "$version" > Cargo.lock.tmp && mv Cargo.lock.tmp Cargo.lock
-      - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.actor, '[bot]')
-        name: Commit changes
-        uses: anttiharju/actions/commit-changes@v0
+        uses: ./.github/actions/commit-release
         with:
-          committer: "${{ github.actor }}[bot]"
-          message: ${{ steps.semantic.outputs.version }}
+          version: ${{ steps.semantic.outputs.version }}
+          ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
     outputs:
       version: ${{ steps.semantic.outputs.version }}
       documentation_changed: ${{ steps.changed.outputs.documentation }}
