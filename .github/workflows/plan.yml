@@ -110,6 +110,22 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
+      - env:
+          TARGET: aarch64-apple-darwin
+          CC: ./.release/zcc.sh
+        run: |
+          cargo build --target aarch64-apple-darwin
+      - env:
+          TARGET: aarch64-unknown-linux-gnu
+          CC: ./.release/zcc.sh
+        run: |
+          cargo build --target aarch64-unknown-linux-gnu
+      - env:
+          TARGET: x86_64-unknown-linux-gnu
+          CC: ./.release/zcc.sh
+        run: |
+          cargo build --target x86_64-unknown-linux-gnu
+
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push')
         id: semantic
         name: Require semantic version label
