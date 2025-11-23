@@ -121,6 +121,7 @@
               pkgs.sudo
               pkgs.nix.out
               pkgs.dockerTools.usrBinEnv
+              pkgs.glibc.bin # for ldd
             ];
             config = {
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
