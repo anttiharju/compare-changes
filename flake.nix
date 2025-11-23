@@ -64,6 +64,7 @@
           rubocop
           shellcheck
           gh
+          binutils # for readelf
           # Everything below is required by GitHub Actions
           coreutils
           bash

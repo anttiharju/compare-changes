@@ -6,10 +6,11 @@ output:
 pre-commit:
   parallel: true
   jobs:
-    - glob: "{src/*,Cargo.lock,Cargo.toml}"
+    - glob: "{.cargo/*,src/*,Cargo.lock,Cargo.toml}"
       env:
         TARGET: aarch64-apple-darwin
         CC: ./.release/zcc.sh
+        SDKROOT: /dev/null
       run: cargo build --target aarch64-apple-darwin
     # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
     # - name: action-validator
