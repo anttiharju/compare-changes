@@ -15,7 +15,8 @@ desc="$(gh repo view --json description --jq .description)"
 capture PKG_DESC "$desc"
 homepage="$(gh api "repos/$GITHUB_REPOSITORY" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
-capture PKG_VERSION "${TAG#v}"
+version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
+capture PKG_VERSION "$version"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
 if [[ "$TAG" = "v0.0.0" ]]; then

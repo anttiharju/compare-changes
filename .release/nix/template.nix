@@ -5,12 +5,9 @@
   nix-update-script,
 }:
 
-let
-  cargoToml = fromTOML (builtins.readFile ./Cargo.toml);
-in
 rustPlatform.buildRustPackage rec {
-  pname = cargoToml.package.name;
-  version = cargoToml.package.version;
+  pname = "${PKG_REPO}";
+  version = "${PKG_VERSION}";
   revision = "${PKG_REV}";
 
   src = fetchFromGitHub {
