@@ -17,7 +17,7 @@ jobs:
   release:
     name: Release
     needs: plan
-    if: needs.plan.outputs.version != ''
+    if: endsWith(github.actor, '[bot]') && needs.plan.outputs.version != ''
     uses: ./.github/workflows/release.yml
     with:
       version: ${{ needs.plan.outputs.version }}
