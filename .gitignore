@@ -50,3 +50,6 @@ tmp
 # Rust
 target
 !Cargo.lock
+
+# Release automation
+release
