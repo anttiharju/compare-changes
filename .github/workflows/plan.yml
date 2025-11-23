@@ -107,13 +107,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
-      - name: debug
-        env:
-          actor: ${{ github.actor }}
-          author: ${{ github.event.head_commit.author.name }}
-        run: |
-          echo "$actor"
-          echo "$author"
       - name: Find changes
         id: changes
         uses: anttiharju/find-changes-action@v1
