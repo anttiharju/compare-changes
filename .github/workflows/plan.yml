@@ -18,6 +18,11 @@ on:
       container:
         description: "Image in which all CI jobs should be ran"
         value: ${{ jobs.container.outputs.image }}
+    secrets:
+      ANTTIHARJU_BOT_ID:
+        required: true
+      ANTTIHARJU_BOT_PRIVATE_KEY:
+        required: true
 
 jobs:
   container:
