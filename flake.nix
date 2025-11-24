@@ -1,6 +1,9 @@
 {
   description = "Rust development environment";
 
+  nixConfig.extra-substituters = [
+    "https://nix-community.cachix.org"
+  ];
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -32,7 +35,8 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
       devPackages =
-        pkgs: pkgs-unstable: anttiharju: system: with pkgs;
+        pkgs: pkgs-unstable: anttiharju: system:
+        with pkgs;
         let
           rustToolchain = fenix.packages.${system}.combine [
             (fenix.packages.${system}.stable.withComponents [
