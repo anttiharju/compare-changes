@@ -64,7 +64,6 @@
           rubocop
           shellcheck
           gh
-          binutils # for readelf
           yq-go
           toml-cli
           # Everything below is required by GitHub Actions
