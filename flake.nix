@@ -67,7 +67,7 @@
           yq-go
           toml-cli
           # Everything below is required by GitHub Actions
-          coreutils
+          uutils-coreutils-noprefix
           bash
           git
           findutils
@@ -77,7 +77,6 @@
           gzip
           envsubst
           gawkInteractive
-          perl # for shasum
           xz
           gnugrep
         ];

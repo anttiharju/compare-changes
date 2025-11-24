@@ -31,7 +31,7 @@ source actions_env_mock.sh
 calculate_hash() {
   local file="$1"
   branch=$(git rev-parse --abbrev-ref HEAD)
-  hash=$(shasum -a 256 "$file" | cut -d' ' -f1)
+  hash=$(hashsum --sha256 "$file" | cut -d' ' -f1)
   echo "$branch-$hash"
 }
 
