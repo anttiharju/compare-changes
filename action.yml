@@ -3,7 +3,6 @@ description: "Compare the changes input to the on.push.paths of the github-workf
 branding:
   icon: minimize-2
   color: orange
-
 inputs:
   github-workflows-wildcard:
     description: "Name of the GitHub Workflow wildcard .github/workflows/wildcard-*"
@@ -15,7 +14,6 @@ inputs:
     description: "compare-changes version to use, semver format without v prefix"
     required: false
     default: "0.1.10"
-
 runs:
   using: "composite"
   steps:
@@ -57,7 +55,6 @@ runs:
         changes: ${{ inputs.changes }}
       run: |
         compare-changes --wildcard "$wildcard" --changes "$changes" >> "$GITHUB_OUTPUT"
-
 outputs:
   changed:
     description: "Boolean indicating if any changed files match paths in the wildcard file"
