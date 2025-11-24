@@ -54,6 +54,7 @@ runs:
         wildcard: ${{ inputs.github-workflows-wildcard }}
         changes: ${{ inputs.changes }}
       run: |
+        compare-changes
         compare-changes --wildcard "$wildcard" --changes "$changes" >> "$GITHUB_OUTPUT"
 outputs:
   changed:
