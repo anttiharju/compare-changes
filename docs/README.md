@@ -1,1 +1,3 @@
-../README.md
+# compare-changes
+
+This is the project-focused README.

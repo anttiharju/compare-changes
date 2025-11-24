@@ -1,3 +1,3 @@
-# Introduction
+# compare-changes
 
-`rust-starter` is a template for my Rust projects to make it easier to start new ones.
+This is the Github Action-focused README.
