@@ -4,7 +4,6 @@ use clap::{arg, command, value_parser, ArgAction, Command};
 
 fn main() {
     let matches = command!()
-        .arg(arg!([name] "Optional name to operate on"))
         .arg(
             arg!(
                 -c --config <FILE> "Sets a custom config file"
@@ -22,11 +21,6 @@ fn main() {
                 .arg(arg!(-l --list "lists test values").action(ArgAction::SetTrue)),
         )
         .get_matches();
-
-    // You can check the value provided by positional arguments, or option arguments
-    if let Some(name) = matches.get_one::<String>("name") {
-        println!("Value for name: {name}");
-    }
 
     if let Some(config_path) = matches.get_one::<PathBuf>("config") {
         println!("Value for config: {}", config_path.display());
