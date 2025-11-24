@@ -124,17 +124,15 @@ jobs:
         run: |
           cargo build --target aarch64-apple-darwin
       - env:
-          TARGET: aarch64-unknown-linux-gnu
-          CC: ./.release/zcc.sh
-        run: |
-          cargo build --target aarch64-unknown-linux-gnu
-          readelf --dynamic "target/$TARGET/debug/compare-changes"
-      - env:
           TARGET: x86_64-unknown-linux-gnu
           CC: ./.release/zcc.sh
         run: |
           cargo build --target x86_64-unknown-linux-gnu
-          readelf --dynamic "target/$TARGET/debug/compare-changes"
+      - env:
+          TARGET: aarch64-unknown-linux-gnu
+          CC: ./.release/zcc.sh
+        run: |
+          cargo build --target aarch64-unknown-linux-gnu
 
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic

@@ -43,8 +43,8 @@
               "rust-src"
             ])
             fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
-            fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
             fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.stable.rust-std
+            fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
           ];
         in
         [
@@ -64,11 +64,10 @@
           rubocop
           shellcheck
           gh
-          binutils # for readelf
           yq-go
           toml-cli
           # Everything below is required by GitHub Actions
-          coreutils
+          uutils-coreutils-noprefix
           bash
           git
           findutils
@@ -78,7 +77,6 @@
           gzip
           envsubst
           gawkInteractive
-          perl # for shasum
           xz
           gnugrep
         ];
