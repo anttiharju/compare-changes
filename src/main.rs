@@ -28,7 +28,7 @@ fn main() {
         .styles(get_styles())
         .arg(
             arg!(
-                -w --wildcard <FILE> "Wildcard name, the * in .github/workflows/wildcard-*"
+                -w --wildcard <FILE> "Wildcard name, * in .github/workflows/wildcard-*"
             )
             .required(true)
             .value_parser(value_parser!(PathBuf)),
