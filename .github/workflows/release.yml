@@ -140,7 +140,7 @@ jobs:
           version: ${{ inputs.version }}
         run: |
           major_version=$(echo "$version" | cut -d. -f1)
-          major_tag="v${major_version}"
+          major_tag="v$major_version"
           git tag "$major_tag"
           git push origin "$major_tag" --force
 
