@@ -47,7 +47,7 @@ runs:
         target: ${{ steps.convert.outputs.target }}
       run: |
         gh release download "v$version" --repo anttiharju/compare-changes --pattern "compare-changes-$target.tar.gz"
-        tar -xzf "compare-changes-$target.tar.gz"
+        tar -xzf "compare-changes-$target.tar.gz" compare-changes
         mv compare-changes /usr/local/bin
     - name: Run
       shell: sh
