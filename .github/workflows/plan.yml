@@ -47,8 +47,8 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-25.05
           extra_nix_config: |
-            extra-substituters = https://nix-community.cachix.org
-            extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+            extra-substituters = https://nix-community.cachix.org https://anttiharju.cachix.org
+            extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= anttiharju.cachix.org-1:1/w1vNdGsG6EynEoWhjJLJ2rxqde2BP+wkKM+YdOxMQ=
       - if: steps.flake.outputs.changed == 'true'
         name: Parse container version
         id: container
