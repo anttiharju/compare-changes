@@ -35,6 +35,7 @@ runs:
         git reset --hard && git clean -df
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
         toml set Cargo.lock "package[0].version" "$version" > Cargo.lock.tmp && mv Cargo.lock.tmp Cargo.lock
+        yq -i ".inputs.version.default = \"$version\"" action.yml
     - name: Commit changes
       uses: anttiharju/actions/commit-changes@v0
       with:
