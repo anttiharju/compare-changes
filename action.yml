@@ -55,7 +55,7 @@ runs:
         changes: ${{ inputs.changes }}
       run: |
         compare-changes
-        compare-changes --wildcard "$wildcard" --changes "$changes" >> "$GITHUB_OUTPUT"
+        # compare-changes --wildcard "$wildcard" --changes "$changes" >> "$GITHUB_OUTPUT"
 outputs:
   changed:
     description: "Boolean indicating if any changed files match paths in the wildcard file"
