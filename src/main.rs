@@ -24,7 +24,7 @@ fn get_styles() -> Styles {
 
 fn main() {
     command!()
-        .about("Compare an array of JSON changes to on.push.paths of a .github/workflows/wildcard-* file.")
+        .about("Outputs changed=true on first match of the wildcard's on.push.paths. Otherwise outputs changed=false.")
         .styles(get_styles())
         .arg(
             arg!(
