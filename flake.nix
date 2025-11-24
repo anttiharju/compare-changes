@@ -3,6 +3,7 @@
 
   nixConfig.extra-substituters = [
     "https://nix-community.cachix.org"
+    "https://anttiharju.cachix.org"
   ];
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.05";
