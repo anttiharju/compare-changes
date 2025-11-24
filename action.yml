@@ -1,0 +1,63 @@
+name: "Compare changes"
+description: "Compare the changes input to the on.push.paths of the github-workflows-wildcard file"
+branding:
+  icon: minimize-2
+  color: orange
+inputs:
+  github-workflows-wildcard:
+    description: "Name of the GitHub Workflow wildcard .github/workflows/wildcard-*"
+    required: true
+  changes:
+    description: "JSON array of changed files (from anttiharju/find-changes-action)"
+    required: true
+  version:
+    description: "compare-changes version to use, semver format without v prefix"
+    required: false
+    default: "0.1.10"
+runs:
+  using: "composite"
+  steps:
+    - name: Convert target
+      id: convert
+      shell: sh
+      env:
+        os: ${{ runner.os }} # Possible values are Linux, Windows, or macOS.
+        arch: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
+      run: |
+        target="$os-$arch"
+        case "$target" in
+          Linux-X64) echo "target=x86_64-unknown-linux-gnu" >> "$GITHUB_OUTPUT" ;;
+          Linux-ARM64) echo "target=aarch64-unknown-linux-gnu" >> "$GITHUB_OUTPUT" ;;
+          macOS-ARM64) echo "target=aarch64-apple-darwin" >> "$GITHUB_OUTPUT" ;;
+          *) echo "Unsupported os-arch target: $target" >&2; exit 1 ;;
+        esac
+    - name: Cache
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: /usr/local/bin/compare-changes
+        key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
+    - if: steps.cache.outputs.cache-hit != 'true'
+      name: Install
+      working-directory: ${{ runner.temp }}
+      shell: sh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        version: ${{ inputs.version }}
+        target: ${{ steps.convert.outputs.target }}
+      run: |
+        gh release download "v$version" --repo anttiharju/compare-changes --pattern "compare-changes-$target.tar.gz"
+        tar -xzf "compare-changes-$target.tar.gz" compare-changes
+        mv compare-changes /usr/local/bin
+    - name: Run
+      shell: sh
+      env:
+        wildcard: ${{ inputs.github-workflows-wildcard }}
+        changes: ${{ inputs.changes }}
+      run: |
+        compare-changes
+        # compare-changes --wildcard "$wildcard" --changes "$changes" >> "$GITHUB_OUTPUT"
+outputs:
+  changed:
+    description: "Boolean indicating if any changed files match paths in the wildcard file"
+    value: ${{ steps.wildcard.outputs.changed }}
