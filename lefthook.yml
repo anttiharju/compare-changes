@@ -36,7 +36,7 @@ pre-commit:
 
     - name: prettier
       glob: "{*.yml,*.md}"
-      run: prettier --write {staged_files}
+      run: prettier --write --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
 
     - name: rubocop
