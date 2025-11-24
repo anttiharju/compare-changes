@@ -13,7 +13,7 @@ inputs:
   version:
     description: "compare-changes version to use, semver format without v prefix"
     required: false
-    default: "0.1.10"
+    default: "0.1.11"
 runs:
   using: "composite"
   steps:
