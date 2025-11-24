@@ -53,7 +53,7 @@
         in
         [
           rustToolchain
-          fenix.packages.${system}.rust-analyzer
+          fenix.packages.${system}.stable.rust-analyzer
           zig
           action-validator
           actionlint
