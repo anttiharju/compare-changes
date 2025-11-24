@@ -39,14 +39,14 @@ runs:
         key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
     - if: steps.cache.outputs.cache-hit != 'true'
       name: Install
+      working-directory: /usr/local/bin
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
         version: ${{ inputs.version }}
         target: ${{ steps.convert.outputs.target }}
-        output: /usr/local/bin/compare-changes
       run: |
-        gh release download "v$version" --repo anttiharju/compare-changes --pattern "compare-changes-$target.tar.gz" --output "$output"
+        gh release download "v$version" --repo anttiharju/compare-changes --pattern "compare-changes-$target.tar.gz"
         tar -xzf "compare-changes-$target.tar.gz"
     - name: Run
       shell: sh
