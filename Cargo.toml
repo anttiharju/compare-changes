@@ -4,4 +4,4 @@ version = "0.1.13"
 edition = "2021"
 
 [dependencies]
-clap = "4.5.53"
+clap = { version = "4.5.53", features = ["cargo"] }
