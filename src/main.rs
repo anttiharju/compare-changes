@@ -6,7 +6,7 @@ fn main() {
     let matches = command!()
         .arg(
             arg!(
-                -c --config <FILE> "Sets a custom config file"
+                -w --wildcard <FILE> "Wildcard name, the * in .github/workflows/wildcard-*"
             )
             // We don't have syntax yet for optional options, so manually calling `required`
             .required(false)
