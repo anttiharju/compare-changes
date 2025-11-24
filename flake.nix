@@ -53,7 +53,6 @@
         in
         [
           rustToolchain
-          fenix.packages.${system}.stable.rust-analyzer
           zig
           action-validator
           actionlint
@@ -96,7 +95,9 @@
         in
         {
           default = pkgs.mkShell {
-            packages = devPackages pkgs pkgs-unstable anttiharju system;
+            packages = (devPackages pkgs pkgs-unstable anttiharju system) ++ [
+              fenix.packages.${system}.stable.rust-analyzer
+            ];
 
             shellHook = "lefthook install";
           };
