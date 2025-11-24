@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{arg, command, value_parser, ArgAction, Command};
 
 fn main() {
-    let matches = command!() // requires `cargo` feature
+    let matches = command!()
         .arg(arg!([name] "Optional name to operate on"))
         .arg(
             arg!(
