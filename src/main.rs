@@ -8,8 +8,7 @@ fn main() {
             arg!(
                 -w --wildcard <FILE> "Wildcard name, the * in .github/workflows/wildcard-*"
             )
-            // We don't have syntax yet for optional options, so manually calling `required`
-            .required(false)
+            .required(true)
             .value_parser(value_parser!(PathBuf)),
         )
         .arg(arg!(
