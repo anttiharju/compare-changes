@@ -10,8 +10,7 @@ fn main() {
         println!("- {}", path);
     }
 
-    let changes =
-        parse::get_changes(&args.changes_json).expect("Failed to parse the changes JSON array");
+    let changes = parse::get_changes(&args.changes_json).expect("Failed to parse the changes JSON array");
     println!("changes:");
     for change in &changes {
         println!("- {}", change);

@@ -16,11 +16,7 @@ fn test_changes_output() {
 
     // Inject test paths into the YAML file
     let test_paths = ["1", "2", "3"];
-    let paths_yaml = test_paths
-        .iter()
-        .map(|p| format!("      - \"{}\"", p))
-        .collect::<Vec<_>>()
-        .join("\n");
+    let paths_yaml = test_paths.iter().map(|p| format!("      - \"{}\"", p)).collect::<Vec<_>>().join("\n");
     let mut yaml = fs::read_to_string(&dst).unwrap();
     yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
     fs::write(&dst, yaml).unwrap();
@@ -40,10 +36,6 @@ fn test_changes_output() {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     for expected in ["1", "2", "3", "foo/bar", "baz"] {
-        assert!(
-            stdout.contains(expected),
-            "Expected output to contain '{}'",
-            expected
-        );
+        assert!(stdout.contains(expected), "Expected output to contain '{}'", expected);
     }
 }
