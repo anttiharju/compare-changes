@@ -1,8 +1,6 @@
 mod cli;
 mod wildcard;
 
-use serde_json;
-
 fn main() {
     let args = cli::parse_args();
 
