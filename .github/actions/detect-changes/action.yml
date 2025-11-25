@@ -20,7 +20,7 @@ runs:
     - id: rust_code
       uses: anttiharju/actions/compare-changes@v0
       with:
-        wildcard: rust
+        wildcard: rs
         changes: ${{ inputs.changes }}
     - id: brew
       uses: anttiharju/actions/compare-changes@v0
