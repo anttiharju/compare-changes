@@ -11,7 +11,17 @@ fn test_changes_output() {
 
     let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/wildcard-template.yml");
     let dst = workflows.join("wildcard-template.yml");
-    fs::copy(src, dst).unwrap();
+    fs::copy(&src, &dst).unwrap();
+
+    // Inject test paths into the YAML file
+    let test_paths = ["1", "2", "3"];
+    let mut yaml = fs::read_to_string(&dst).unwrap();
+    let paths_yaml = format!(
+        "      - \"{}\"\n      - \"{}\"\n      - \"{}\"",
+        test_paths[0], test_paths[1], test_paths[2]
+    );
+    yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
+    fs::write(&dst, yaml).unwrap();
 
     let output = cargo_bin_cmd!("compare-changes")
         .current_dir(&temp)
