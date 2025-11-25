@@ -35,7 +35,7 @@ fn main() {
         )
         .arg(
             arg!(
-                -c --changes <JSON> "JSON array string, for example '[\"foo/bar\", \"baz\"]'"
+                -c --changes <JSON> r#"JSON array string, for example '["foo/bar", "baz"]'"#
             )
             .required(true)
             .value_parser(value_parser!(String)),
