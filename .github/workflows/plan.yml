@@ -134,9 +134,11 @@ jobs:
 
       - run: cargo test
 
-      - run: cargo fmt --check
+      - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
+        run: cargo fmt --check
 
-      - env:
+      - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
+        env:
           RUSTFLAGS: -Dwarnings
         run: cargo clippy
 
