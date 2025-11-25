@@ -9,7 +9,7 @@ pre-commit:
     - glob: "{.cargo/*,src/*,Cargo.lock,Cargo.toml}"
       env:
         SDKROOT: /dev/null
-      run: cargo build --target aarch64-apple-darwin
+      run: cargo build
     # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
     # - name: action-validator
     #   run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs -0 action-validator --verbose
