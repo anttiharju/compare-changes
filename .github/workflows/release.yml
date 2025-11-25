@@ -81,6 +81,8 @@ jobs:
           mkdir -p "$output"
           envsubst -i .release/nix/template.nix -no-unset -no-empty > "$output/default.nix"
           cp Cargo.lock "$output/Cargo.lock"
+      - working-directory: nur-packages
+        run: nix flake update
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
         with:
