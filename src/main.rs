@@ -1,10 +1,10 @@
-mod args;
+mod cli;
 mod wildcard;
 
 use serde_json;
 
 fn main() {
-    let args = args::parse_args();
+    let args = cli::parse_args();
 
     let paths = wildcard::get_paths(&args.wildcard).expect("No on.push.paths found.");
     println!("paths:");
