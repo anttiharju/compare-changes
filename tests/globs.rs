@@ -1,5 +1,14 @@
 use compare_changes::match_path;
 
+fn assert_glob_match(pattern: &str, paths: &[&str], expected: bool) {
+    let matches = match_path(pattern, paths);
+    assert_eq!(
+        matches, expected,
+        "Pattern '{}' vs '{:?}' -> {} (expected {})",
+        pattern, paths, matches, expected
+    );
+}
+
 // I am aware that the test cases are repetitive, but extracting patterns to a variable breaks single-line readability.
 
 #[test]
@@ -162,13 +171,4 @@ fn test_migrate_prefix_pattern() {
     assert_glob_match("**/migrate-*.sql", &["migrate.sql"], false); // missing dash after migrate
     assert_glob_match("**/migrate-*.sql", &["db/migrate-v1.sql.backup"], false);
     // extra suffix after .sql
-}
-
-fn assert_glob_match(pattern: &str, paths: &[&str], expected: bool) {
-    let matches = match_path(pattern, paths);
-    assert_eq!(
-        matches, expected,
-        "Pattern '{}' vs '{:?}' -> {} (expected {})",
-        pattern, paths, matches, expected
-    );
 }
