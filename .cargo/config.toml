@@ -1,11 +1,11 @@
-# CC=".release/.zcc/aarch64-macos.sh" cargo build --target aarch64-apple-darwin
+# CC=".release/.zcc/aarch64-apple-darwin.sh" cargo build --target aarch64-apple-darwin
 [target.aarch64-apple-darwin]
 linker = ".release/.zcc/aarch64-apple-darwin.sh"
 
-# CC=".release/.zcc/x86_64-linux-gnu.sh" cargo build --target x86_64-unknown-linux-gnu
+# CC=".release/.zcc/x86_64-unknown-linux-gnu.sh" cargo build --target x86_64-unknown-linux-gnu
 [target.x86_64-unknown-linux-gnu]
-linker = ".release/.zcc/x86_64-linux-gnu.sh"
+linker = ".release/.zcc/x86_64-unknown-linux-gnu.sh"
 
-# CC=".release/.zcc/aarch64-linux-gnu.sh" cargo build --target aarch64-unknown-linux-gnu
+# CC=".release/.zcc/aarch64-unknown-linux-gnu.sh" cargo build --target aarch64-unknown-linux-gnu
 [target.aarch64-unknown-linux-gnu]
-linker = ".release/.zcc/aarch64-linux-gnu.sh"
+linker = ".release/.zcc/aarch64-unknown-linux-gnu.sh"

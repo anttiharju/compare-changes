@@ -118,16 +118,16 @@ jobs:
           changes: ${{ steps.changes.outputs.array }}
 
       - env:
-          CC: .release/.zcc/aarch64-macos.sh
+          CC: .release/.zcc/aarch64-apple-darwin.sh
           SDKROOT: /dev/null
         run: |
           cargo build --target aarch64-apple-darwin
       - env:
-          CC: .release/.zcc/x86_64-linux-gnu.sh
+          CC: .release/.zcc/x86_64-unknown-linux-gnu.sh
         run: |
           cargo build --target x86_64-unknown-linux-gnu
       - env:
-          CC: .release/.zcc/aarch64-linux-gnu.sh
+          CC: .release/.zcc/aarch64-unknown-linux-gnu.sh
         run: |
           cargo build --target aarch64-unknown-linux-gnu
 
