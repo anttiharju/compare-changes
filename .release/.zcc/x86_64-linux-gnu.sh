@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+zig cc -target x86_64-linux-gnu "$@"

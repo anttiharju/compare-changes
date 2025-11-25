@@ -33,6 +33,7 @@ nur-packages
 .release/brew/*.rb
 .release/nix/*.nix
 !.release/*/template.*
+!.release/zcc/*
 
 # Binary archives
 *.tar.gz
