@@ -118,18 +118,10 @@ jobs:
           changes: ${{ steps.changes.outputs.array }}
 
       - env:
-          CC: .release/.zcc/aarch64-apple-darwin.sh
           SDKROOT: /dev/null
-        run: |
-          cargo build --target aarch64-apple-darwin
-      - env:
-          CC: .release/.zcc/x86_64-unknown-linux-gnu.sh
-        run: |
-          cargo build --target x86_64-unknown-linux-gnu
-      - env:
-          CC: .release/.zcc/aarch64-unknown-linux-gnu.sh
-        run: |
-          cargo build --target aarch64-unknown-linux-gnu
+        run: cargo build --target aarch64-apple-darwin
+      - run: cargo build --target x86_64-unknown-linux-gnu
+      - run: cargo build --target aarch64-unknown-linux-gnu
 
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
