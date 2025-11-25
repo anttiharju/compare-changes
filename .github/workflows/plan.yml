@@ -117,6 +117,12 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo
+          key: cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock') }}
+
       - env:
           SDKROOT: /dev/null
         run: cargo build --target aarch64-apple-darwin
