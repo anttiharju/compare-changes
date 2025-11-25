@@ -148,10 +148,8 @@ fn match_segments(segments: &[Segment], path_parts: &[&str], seg_idx: usize, pat
 
         Segment::DoubleStarWithSuffix(suffix) => {
             for i in path_idx..path_parts.len() {
-                if path_parts[i].ends_with(suffix) {
-                    if match_segments(segments, path_parts, seg_idx + 1, i + 1) {
-                        return true;
-                    }
+                if path_parts[i].ends_with(suffix) && match_segments(segments, path_parts, seg_idx + 1, i + 1) {
+                    return true;
                 }
             }
             false
