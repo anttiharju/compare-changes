@@ -10,8 +10,8 @@ fn main() {
         println!("- {}", path);
     }
 
-    let changes: Vec<String> =
-        serde_json::from_str(&args.changes_json).expect("Failed to parse the changes JSON array");
+    let changes =
+        parse::get_changes(&args.changes_json).expect("Failed to parse the changes JSON array");
     println!("changes:");
     for change in &changes {
         println!("- {}", change);

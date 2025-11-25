@@ -1,3 +1,4 @@
+use serde_json;
 use serde_yaml::Value;
 use std::fs;
 use std::path::Path;
@@ -28,4 +29,9 @@ pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
     } else {
         Ok(paths)
     }
+}
+
+pub fn get_changes(changes_json: &str) -> Result<Vec<String>, String> {
+    serde_json::from_str::<Vec<String>>(changes_json)
+        .map_err(|e| format!("Failed to parse changes JSON array: {}", e))
 }
