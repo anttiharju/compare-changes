@@ -31,10 +31,11 @@ runs:
       shell: sh
       env:
         version: ${{ inputs.version }}
+        package: ${{ github.event.repository.name }}
       run: |
         git reset --hard && git clean -df
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
-        toml set Cargo.lock "package[0].version" "$version" > Cargo.lock.tmp && mv Cargo.lock.tmp Cargo.lock
+        cargo update --package "$package"
         yq -i ".inputs.version.default = \"$version\"" action.yml
     - name: Commit changes
       uses: anttiharju/actions/commit-changes@v0
