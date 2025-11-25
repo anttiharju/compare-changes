@@ -100,7 +100,17 @@
               fenix.packages.${system}.stable.rust-analyzer
             ];
 
-            shellHook = "lefthook install";
+            shellHook = ''
+              lefthook install
+            ''
+            + (
+              if pkgs.stdenv.isDarwin then
+                ''
+                  export CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER="$(xcrun --find cc)" # https://github.com/anttiharju/compare-changes/issues/35
+                ''
+              else
+                ""
+            );
           };
         }
       );

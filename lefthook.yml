@@ -8,10 +8,8 @@ pre-commit:
   jobs:
     - glob: "{.cargo/*,src/*,Cargo.lock,Cargo.toml}"
       env:
-        TARGET: aarch64-apple-darwin
-        CC: ./.release/zcc.sh
         SDKROOT: /dev/null
-      run: cargo build --target aarch64-apple-darwin
+      run: cargo build
     # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
     # - name: action-validator
     #   run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs -0 action-validator --verbose
@@ -41,7 +39,7 @@ pre-commit:
 
     - name: rubocop
       glob: "{*.rb}"
-      run: ./.release/render.sh brew && find .release/brew -name "*.rb" -type f -not -name "*template.rb" -and -not -name "*.tpl.rb" -exec rubocop {} \;
+      run: .release/render.sh brew && find .release/brew -name "*.rb" -type f -not -name "*template.rb" -and -not -name "*.tpl.rb" -exec rubocop {} \;
 
     - name: shellcheck
       glob: "{*.sh,.shellcheckrc}"
