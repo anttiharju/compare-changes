@@ -133,6 +133,8 @@ jobs:
 
       - run: cargo test
 
+      - run: cargo fmt --check
+
       - env:
           RUSTFLAGS: -Dwarnings
         run: cargo clippy
