@@ -4,7 +4,7 @@ use assert_cmd::cargo::cargo_bin_cmd;
 fn test_changes_output() {
     let mut cmd = cargo_bin_cmd!("compare-changes");
     cmd.arg("--wildcard")
-        .arg("foo")
+        .arg("test.yml")
         .arg("--changes")
         .arg(r#"["foo/bar", "baz"]"#);
 
