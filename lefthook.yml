@@ -49,3 +49,8 @@ pre-commit:
       glob: "*.nix"
       run: nixfmt {staged_files}
       stage_fixed: true
+
+    - name: rustfmt
+      glob: "*.rs"
+      run: rustfmt {staged_files}
+      stage_fixed: true
