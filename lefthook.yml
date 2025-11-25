@@ -63,5 +63,5 @@ pre-commit:
     - glob: "*.rs"
       env:
         RUSTFLAGS: -Dwarnings
-      run: cargo clippy
+      run: cargo clippy --fix
       stage_fixed: true
