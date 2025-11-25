@@ -6,7 +6,11 @@ on:
     branches:
       - wildcard
     paths:
-      - "**/*.rs"
+      - ".cargo/**/*"
+      - "src/**/*"
+      - "tests/**/*"
+      - "Cargo.lock"
+      - "Cargo.toml"
 
 jobs:
   wildcard:

@@ -2,11 +2,17 @@ output:
   - success
   - failure
 
+pre-push:
+  parallel: true
+  jobs:
+    - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
+      run: cargo test
+
 # Match to plan.yml
 pre-commit:
   parallel: true
   jobs:
-    - glob: "{.cargo/*,src/*,Cargo.lock,Cargo.toml}"
+    - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
       env:
         SDKROOT: /dev/null
       run: cargo build
@@ -50,7 +56,12 @@ pre-commit:
       run: nixfmt {staged_files}
       stage_fixed: true
 
-    - name: rustfmt
-      glob: "*.rs"
-      run: rustfmt {staged_files}
+    - glob: "*.rs"
+      run: cargo fmt
+      stage_fixed: true
+
+    - glob: "*.rs"
+      env:
+        RUSTFLAGS: -Dwarnings
+      run: cargo clippy --fix --allow-staged
       stage_fixed: true

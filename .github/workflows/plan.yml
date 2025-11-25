@@ -118,7 +118,8 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
-      - name: Cache
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        name: Cache
         uses: actions/cache@v4
         with:
           path: |
@@ -126,26 +127,32 @@ jobs:
             ~/.cache/zig
           key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
 
-      - env:
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        env:
           SDKROOT: /dev/null
         run: cargo build --target aarch64-apple-darwin
-      - run: cargo build --target x86_64-unknown-linux-gnu
-      - run: cargo build --target aarch64-unknown-linux-gnu
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        run: cargo build --target aarch64-unknown-linux-gnu
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        run: cargo build --target x86_64-unknown-linux-gnu
 
-      - run: cargo test
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        run: cargo test
 
-      - run: cargo fmt --check
+      - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
+        run: cargo fmt --check
 
-      - env:
+      - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
+        env:
           RUSTFLAGS: -Dwarnings
         run: cargo clippy
 
-      - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
         name: Require semantic version label
         uses: anttiharju/actions/semver-label@v0
         with:
-          require: ${{ steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' }}
+          require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
 
       - if: always() && !cancelled()
         name: action-validator
