@@ -31,8 +31,8 @@ fi
 cd "$repo_root"
 pattern="$repo-*.tar.gz"
 gh release download "$tag" --pattern "$pattern" --clobber
-for binary in $pattern; do
-  echo "# $binary"
+for archive in $pattern; do
+  echo "# $archive"
 done
 mac_arm_sha="$(hashsum --sha256 "$repo-aarch64-apple-darwin.tar.gz" | cut -d ' ' -f1)"
 capture PKG_MAC_ARM_SHA "$mac_arm_sha"

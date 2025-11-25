@@ -12,10 +12,10 @@ runs:
       with:
         wildcard: actionlint
         changes: ${{ inputs.changes }}
-    - id: binary
+    - id: rust
       uses: anttiharju/actions/compare-changes@v0
       with:
-        wildcard: rust-binary
+        wildcard: rust
         changes: ${{ inputs.changes }}
     - id: rs
       uses: anttiharju/actions/compare-changes@v0
@@ -56,11 +56,11 @@ outputs:
   github_actions_workflows:
     description: "Whether GitHub Actions workflows have changed"
     value: ${{ steps.github_actions_workflows.outputs.changed }}
-  binary:
-    description: "Whether the binary has changed"
-    value: ${{ steps.binary.outputs.changed }}
+  rust:
+    description: "Whether Rust has changed"
+    value: ${{ steps.rust.outputs.changed }}
   rs:
-    description: "Whether Rust code has changed"
+    description: "Whether *.rs has changed"
     value: ${{ steps.rs.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
