@@ -123,6 +123,8 @@ jobs:
       - run: cargo build --target x86_64-unknown-linux-gnu
       - run: cargo build --target aarch64-unknown-linux-gnu
 
+      - run: cargo test
+
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
         name: Require semantic version label
