@@ -44,7 +44,7 @@ fn main() {
         )
         .get_matches();
 
-    let wildcard = matches.get_one::<PathBuf>("wildcard").unwrap(); // Safe unwrap due to required argument
+    let wildcard = matches.get_one::<PathBuf>("wildcard").unwrap();
     let wildcard_path =
         PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
     let wildcard_contents =
@@ -66,7 +66,7 @@ fn main() {
         println!("No on.push.paths found.");
     }
 
-    let changes_json = matches.get_one::<String>("changes").unwrap(); // Safe unwrap due to required argument
+    let changes_json = matches.get_one::<String>("changes").unwrap();
     let changes: Vec<String> =
         serde_json::from_str(changes_json).expect("Failed to parse changes JSON array");
     println!("changes:");
