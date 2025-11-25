@@ -33,6 +33,12 @@ fn main() {
             .required(true)
             .value_parser(value_parser!(PathBuf)),
         )
-        // JSON format for -c --changes: ["foo/bar", "baz"]
+        .arg(
+            arg!(
+                -c --changes <JSON> "JSON array string, for example '[\"foo/bar\", \"baz\"]'"
+            )
+            .required(true)
+            .value_parser(value_parser!(PathBuf)),
+        )
         .get_matches();
 }
