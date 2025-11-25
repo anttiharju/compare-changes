@@ -17,7 +17,7 @@ runs:
       with:
         wildcard: rust-binary
         changes: ${{ inputs.changes }}
-    - id: rust_code
+    - id: rs
       uses: anttiharju/actions/compare-changes@v0
       with:
         wildcard: rs
@@ -59,9 +59,9 @@ outputs:
   binary:
     description: "Whether the binary has changed"
     value: ${{ steps.binary.outputs.changed }}
-  rust_code:
+  rs:
     description: "Whether Rust code has changed"
-    value: ${{ steps.rust_code.outputs.changed }}
+    value: ${{ steps.rs.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
     value: ${{ steps.brew.outputs.changed }}
