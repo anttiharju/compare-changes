@@ -42,12 +42,12 @@ fn main() {
         )
         .get_matches();
 
-    let wildcard_path = matches.get_one::<PathBuf>("wildcard").unwrap();
+    let wildcard_path = matches.get_one::<PathBuf>("wildcard").unwrap(); // Safe unwrap due to required argument
     let full_path =
         PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard_path.display()));
     println!("Wildcard file path: {:?}", full_path);
 
-    let changes_json = matches.get_one::<String>("changes").unwrap();
+    let changes_json = matches.get_one::<String>("changes").unwrap(); // Safe unwrap due to required argument
     let changes: Vec<String> =
         serde_json::from_str(changes_json).expect("Failed to parse changes JSON array");
     println!("changes:");
