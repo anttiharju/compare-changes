@@ -54,3 +54,9 @@ pre-commit:
       glob: "*.rs"
       run: rustfmt {staged_files}
       stage_fixed: true
+
+    - glob: "*.rs"
+      env:
+        RUSTFLAGS: -Dwarnings
+      run: cargo clippy
+      stage_fixed: true
