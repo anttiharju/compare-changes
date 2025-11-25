@@ -6,7 +6,7 @@ output:
 pre-commit:
   parallel: true
   jobs:
-    - glob: "{.cargo/*,src/*,Cargo.lock,Cargo.toml}"
+    - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
       env:
         SDKROOT: /dev/null
       run: cargo build
