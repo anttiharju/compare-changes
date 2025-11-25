@@ -131,7 +131,9 @@ jobs:
 
       - run: cargo test
 
-      - run: cargo clippy
+      - env:
+          RUSTFLAGS: -Dwarnings
+        run: cargo clippy
 
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
