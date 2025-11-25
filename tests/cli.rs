@@ -1,16 +1,49 @@
 use assert_cmd::cargo::cargo_bin_cmd;
+use serde_json;
+use std::fs;
+use std::path::Path;
+use tempfile::tempdir;
 
 #[test]
 fn test_changes_output() {
-    let mut cmd = cargo_bin_cmd!("compare-changes");
-    cmd.arg("--wildcard")
-        .arg("foo")
+    let temp = tempdir().unwrap();
+    let workflows = temp.path().join(".github/workflows");
+    fs::create_dir_all(&workflows).unwrap();
+
+    let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/wildcard-template.yml");
+    let dst = workflows.join("wildcard-template.yml");
+    fs::copy(&src, &dst).unwrap();
+
+    // Inject test paths into the YAML file
+    let test_paths = ["1", "2", "3"];
+    let paths_yaml = test_paths
+        .iter()
+        .map(|p| format!("      - \"{}\"", p))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let mut yaml = fs::read_to_string(&dst).unwrap();
+    yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
+    fs::write(&dst, yaml).unwrap();
+
+    let test_changes = ["foo/bar", "baz"];
+    let changes_json = serde_json::to_string(&test_changes).unwrap();
+
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(&temp)
+        .arg("--wildcard")
+        .arg("template.yml")
         .arg("--changes")
-        .arg(r#"["foo/bar", "baz"]"#);
+        .arg(&changes_json)
+        .output()
+        .unwrap();
 
-    let output = cmd.assert().success().get_output().stdout.clone();
-    let output_str = String::from_utf8_lossy(&output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
 
-    assert!(output_str.contains("foo/bar"));
-    assert!(output_str.contains("baz"));
+    for expected in ["1", "2", "3", "foo/bar", "baz"] {
+        assert!(
+            stdout.contains(expected),
+            "Expected output to contain '{}'",
+            expected
+        );
+    }
 }

@@ -1,52 +1,21 @@
-use anstyle::{AnsiColor, Color, Style};
-use clap::{arg, builder::Styles, command, value_parser};
-use std::path::PathBuf;
+mod cli;
+mod wildcard;
 
-fn get_styles() -> Styles {
-    Styles::styled()
-        .usage(
-            Style::new()
-                .bold()
-                .fg_color(Some(Color::Ansi(AnsiColor::Green))),
-        )
-        .header(
-            Style::new()
-                .bold()
-                .fg_color(Some(Color::Ansi(AnsiColor::Green))),
-        )
-        .literal(
-            Style::new()
-                .bold()
-                .fg_color(Some(Color::Ansi(AnsiColor::Cyan))),
-        )
-        .placeholder(Style::new().fg_color(Some(Color::Ansi(AnsiColor::Cyan))))
-}
+use serde_json;
 
 fn main() {
-    let matches = command!()
-        .about("Outputs changed=true on first match of the wildcard's on.push.paths. Otherwise outputs changed=false.")
-        .styles(get_styles())
-        .arg(
-            arg!(
-                -w --wildcard <FILE> "Wildcard name, * in .github/workflows/wildcard-*"
-            )
-            .required(true)
-            .value_parser(value_parser!(PathBuf)),
-        )
-        .arg(
-            arg!(
-                -c --changes <JSON> r#"JSON array string, for example '["foo/bar", "baz"]'"#
-            )
-            .required(true)
-            .value_parser(value_parser!(String)),
-        )
-        .get_matches();
+    let args = cli::parse_args();
 
-    let changes_json = matches.get_one::<String>("changes").unwrap();
+    let paths = wildcard::get_paths(&args.wildcard).expect("No on.push.paths found.");
+    println!("paths:");
+    for path in &paths {
+        println!("- {}", path);
+    }
+
     let changes: Vec<String> =
-        serde_json::from_str(changes_json).expect("Failed to parse changes JSON array");
-
+        serde_json::from_str(&args.changes_json).expect("Failed to parse the changes JSON array");
+    println!("changes:");
     for change in &changes {
-        println!("{}", change);
+        println!("- {}", change);
     }
 }
