@@ -2,6 +2,12 @@ output:
   - success
   - failure
 
+pre-push:
+  parallel: true
+  jobs:
+    - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
+      run: cargo test
+
 # Match to plan.yml
 pre-commit:
   parallel: true
