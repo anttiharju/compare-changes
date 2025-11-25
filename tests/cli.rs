@@ -1,4 +1,5 @@
 use assert_cmd::cargo::cargo_bin_cmd;
+use serde_json;
 use std::fs;
 use std::path::Path;
 use tempfile::tempdir;
@@ -24,12 +25,15 @@ fn test_changes_output() {
     yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
     fs::write(&dst, yaml).unwrap();
 
+    let test_changes = ["foo/bar", "baz"];
+    let changes_json = serde_json::to_string(&test_changes).unwrap();
+
     let output = cargo_bin_cmd!("compare-changes")
         .current_dir(&temp)
         .arg("--wildcard")
         .arg("template.yml")
         .arg("--changes")
-        .arg(r#"["foo/bar", "baz"]"#)
+        .arg(&changes_json)
         .output()
         .unwrap();
 
