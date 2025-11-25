@@ -9,14 +9,14 @@ fn test_changes_output() {
     let workflows = temp.path().join(".github/workflows");
     fs::create_dir_all(&workflows).unwrap();
 
-    let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/wildcard-test.yml");
-    let dst = workflows.join("wildcard-test.yml");
+    let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/wildcard-template.yml");
+    let dst = workflows.join("wildcard-template.yml");
     fs::copy(src, dst).unwrap();
 
     let output = cargo_bin_cmd!("compare-changes")
         .current_dir(&temp)
         .arg("--wildcard")
-        .arg("test.yml")
+        .arg("template.yml")
         .arg("--changes")
         .arg(r#"["foo/bar", "baz"]"#)
         .output()
