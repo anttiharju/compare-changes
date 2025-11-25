@@ -15,11 +15,12 @@ fn test_changes_output() {
 
     // Inject test paths into the YAML file
     let test_paths = ["1", "2", "3"];
+    let paths_yaml = test_paths
+        .iter()
+        .map(|p| format!("      - \"{}\"", p))
+        .collect::<Vec<_>>()
+        .join("\n");
     let mut yaml = fs::read_to_string(&dst).unwrap();
-    let paths_yaml = format!(
-        "      - \"{}\"\n      - \"{}\"\n      - \"{}\"",
-        test_paths[0], test_paths[1], test_paths[2]
-    );
     yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
     fs::write(&dst, yaml).unwrap();
 
