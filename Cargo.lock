@@ -155,6 +155,7 @@ dependencies = [
  "anstyle",
  "assert_cmd",
  "clap",
+ "serde",
  "serde-saphyr",
  "serde_json",
  "serde_yaml",
