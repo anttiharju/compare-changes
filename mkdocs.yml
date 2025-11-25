@@ -1,4 +1,4 @@
-site_name: rust-starter
+site_name: compare-changes
 theme:
   name: material
   features:
