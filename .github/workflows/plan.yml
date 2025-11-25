@@ -117,6 +117,14 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo
+            ~/.cache/zig
+          key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+
       - env:
           SDKROOT: /dev/null
         run: cargo build --target aarch64-apple-darwin
@@ -125,7 +133,11 @@ jobs:
 
       - run: cargo test
 
-      - run: cargo clippy
+      - run: cargo fmt --check
+
+      - env:
+          RUSTFLAGS: -Dwarnings
+        run: cargo clippy
 
       - if: always() && !cancelled() && (steps.changed.outputs.binary == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic

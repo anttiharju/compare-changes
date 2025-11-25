@@ -1,8 +1,9 @@
 use serde_yaml::Value;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 
-pub fn get_paths(wildcard: &PathBuf) -> Result<Vec<String>, String> {
+pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
     let wildcard_path =
         PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
     let wildcard_contents = fs::read_to_string(&wildcard_path)
