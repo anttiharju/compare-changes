@@ -1,23 +1,8 @@
 use anstyle::{AnsiColor, Color, Style};
 use clap::{arg, builder::Styles, command, value_parser};
-use serde::Deserialize;
+use serde_yaml::Value;
 use std::fs;
 use std::path::PathBuf;
-
-#[derive(Debug, Deserialize)]
-struct Wildcard {
-    on: Option<On>,
-}
-
-#[derive(Debug, Deserialize)]
-struct On {
-    push: Option<Push>,
-}
-
-#[derive(Debug, Deserialize)]
-struct Push {
-    paths: Option<Vec<String>>,
-}
 
 fn get_styles() -> Styles {
     Styles::styled()
@@ -64,17 +49,18 @@ fn main() {
         PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
     let wildcard_contents =
         fs::read_to_string(&wildcard_path).expect("Failed to read wildcard file");
-
-    let wildcard: Wildcard =
-        serde_saphyr::from_str(&wildcard_contents).expect("Failed to parse YAML");
-
+    let yaml: Value = serde_yaml::from_str(&wildcard_contents).expect("Failed to parse YAML");
     println!("{:#?}.on.push.paths:", wildcard_path);
-    if let Some(paths) = wildcard
-        .on
-        .and_then(|on| on.push.and_then(|push| push.paths))
+    if let Some(paths) = yaml
+        .get("on")
+        .and_then(|on| on.get("push"))
+        .and_then(|push| push.get("paths"))
+        .and_then(|paths| paths.as_sequence())
     {
         for path in paths {
-            println!("- {}", path);
+            if let Some(path_str) = path.as_str() {
+                println!("- {}", path_str);
+            }
         }
     } else {
         println!("No on.push.paths found.");
