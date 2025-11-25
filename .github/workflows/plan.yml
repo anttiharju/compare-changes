@@ -118,7 +118,8 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
-      - name: Cache
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        name: Cache
         uses: actions/cache@v4
         with:
           path: |
@@ -126,13 +127,17 @@ jobs:
             ~/.cache/zig
           key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
 
-      - env:
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        env:
           SDKROOT: /dev/null
         run: cargo build --target aarch64-apple-darwin
-      - run: cargo build --target x86_64-unknown-linux-gnu
-      - run: cargo build --target aarch64-unknown-linux-gnu
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        run: cargo build --target x86_64-unknown-linux-gnu
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        run: cargo build --target aarch64-unknown-linux-gnu
 
-      - run: cargo test
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+        run: cargo test
 
       - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
         run: cargo fmt --check
