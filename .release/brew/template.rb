@@ -38,6 +38,6 @@ class ${PKG_CLASS} < Formula
   end
 
   test do
-    system "#{bin}/${PKG_REPO}"
+    system "#{bin}/${PKG_REPO} --version"
   end
 end
