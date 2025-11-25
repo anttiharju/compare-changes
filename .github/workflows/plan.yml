@@ -117,7 +117,7 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
-      - name: Cache Cargo
+      - name: Cache
         uses: actions/cache@v4
         with:
           path: |
