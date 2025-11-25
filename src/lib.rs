@@ -47,10 +47,9 @@ enum Segment {
 }
 
 fn parse_pattern(pattern: &str) -> Vec<(Pattern, bool)> {
-    let (actual_pattern, is_negation) = if pattern.starts_with('!') {
-        (&pattern[1..], true)
-    } else {
-        (pattern, false)
+    let (actual_pattern, is_negation) = match pattern.strip_prefix('!') {
+        Some(rest) => (rest, true),
+        None => (pattern, false),
     };
 
     // Expand optionals into multiple patterns
