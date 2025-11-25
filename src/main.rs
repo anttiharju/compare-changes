@@ -1,10 +1,10 @@
 mod cli;
-mod wildcard;
+mod parse;
 
 fn main() {
     let args = cli::parse_args();
 
-    let paths = wildcard::get_paths(&args.wildcard).expect("No on.push.paths found.");
+    let paths = parse::get_paths(&args.wildcard).expect("No on.push.paths found.");
     println!("paths:");
     for path in &paths {
         println!("- {}", path);
