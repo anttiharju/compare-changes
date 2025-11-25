@@ -62,8 +62,7 @@ fn parse_pattern(pattern: &str) -> Vec<(Pattern, bool)> {
             for part in parts {
                 if part == "**" {
                     segments.push(Segment::DoubleStar);
-                } else if part.starts_with("**") {
-                    let suffix = &part[2..];
+                } else if let Some(suffix) = part.strip_prefix("**") {
                     segments.push(Segment::DoubleStarWithSuffix(suffix.to_string()));
                 } else if part.contains('*') || part.contains('+') || part.contains('[') {
                     segments.push(Segment::Pattern(part.to_string()));
