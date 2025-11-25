@@ -1,5 +1,7 @@
 use anstyle::{AnsiColor, Color, Style};
 use clap::{arg, builder::Styles, command, value_parser};
+use serde_yaml::Value;
+use std::fs;
 use std::path::PathBuf;
 
 fn get_styles() -> Styles {
@@ -42,10 +44,27 @@ fn main() {
         )
         .get_matches();
 
-    let wildcard_path = matches.get_one::<PathBuf>("wildcard").unwrap(); // Safe unwrap due to required argument
-    let full_path =
-        PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard_path.display()));
-    println!("Wildcard file path: {:?}", full_path);
+    let wildcard = matches.get_one::<PathBuf>("wildcard").unwrap(); // Safe unwrap due to required argument
+    let wildcard_path =
+        PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
+    let wildcard_contents =
+        fs::read_to_string(&wildcard_path).expect("Failed to read wildcard file");
+    let yaml: Value = serde_yaml::from_str(&wildcard_contents).expect("Failed to parse YAML");
+    println!("{:#?}.on.push.paths:", wildcard_path);
+    if let Some(paths) = yaml
+        .get("on")
+        .and_then(|on| on.get("push"))
+        .and_then(|push| push.get("paths"))
+        .and_then(|paths| paths.as_sequence())
+    {
+        for path in paths {
+            if let Some(path_str) = path.as_str() {
+                println!("- {}", path_str);
+            }
+        }
+    } else {
+        println!("No on.push.paths found.");
+    }
 
     let changes_json = matches.get_one::<String>("changes").unwrap(); // Safe unwrap due to required argument
     let changes: Vec<String> =
