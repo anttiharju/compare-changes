@@ -72,6 +72,8 @@ jobs:
           repository: anttiharju/nur-packages
           token: ${{ steps.generate-token.outputs.token }}
           path: nur-packages
+      - working-directory: nur-packages
+        run: nix flake update
       - name: Source values and render template # TODO: use release/render.sh for this, needs output param
         env:
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
@@ -81,8 +83,6 @@ jobs:
           mkdir -p "$output"
           envsubst -i .release/nix/template.nix -no-unset -no-empty > "$output/default.nix"
           cp Cargo.lock "$output/Cargo.lock"
-      - working-directory: nur-packages
-        run: nix flake update
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
         with:
