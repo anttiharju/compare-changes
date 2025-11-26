@@ -1,4 +1,5 @@
 [package]
+license = "MIT"
 name = "compare-changes"
 version = "0.1.24"
 edition = "2021"
