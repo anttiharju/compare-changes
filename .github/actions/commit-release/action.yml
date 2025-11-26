@@ -50,5 +50,5 @@ runs:
       with:
         author: "${{ github.actor }}[bot]"
         committer: "${{ github.actor }}[bot]"
-        message: "${{ inputs.version }}${{ steps.pr.outputs.number && format(' (#{0})', steps.pr.outputs.number) || '' }}"
+        message: "${{ inputs.version }}${{ steps.pr.outputs.number && format(' #{0}', steps.pr.outputs.number) || '' }}"
         working-directory: release

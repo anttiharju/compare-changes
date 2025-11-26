@@ -89,7 +89,7 @@ jobs:
           working-directory: nur-packages
           committer: ${{ github.actor }}
           message: |
-            Update ${{ github.event.repository.name }} to ${{ inputs.version }}
+            ${{ github.event.repository.name }} ${{ inputs.version }}
 
             https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
 
@@ -180,6 +180,6 @@ jobs:
           working-directory: homebrew-tap
           committer: ${{ github.actor }}
           message: |
-            Update ${{ github.event.repository.name }} to ${{ inputs.version }}
+            ${{ github.event.repository.name }} ${{ inputs.version }}
 
             https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
