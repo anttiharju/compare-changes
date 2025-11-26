@@ -133,7 +133,7 @@ jobs:
         run: cargo build --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --target aarch64-unknown-linux-gnu
-      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --target x86_64-unknown-linux-gnu
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
