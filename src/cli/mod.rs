@@ -29,8 +29,11 @@ pub fn parse_args() -> Args {
         )
         .get_matches();
 
+    let raw_wildcard = matches.get_one::<PathBuf>("wildcard").unwrap().clone();
+    let prefixed = PathBuf::from(".github/workflows").join(format!("wildcard-{}", raw_wildcard.display()));
+
     Args {
-        wildcard: matches.get_one::<PathBuf>("wildcard").unwrap().clone(),
+        wildcard: prefixed,
         changes_json: matches.get_one::<String>("changes").unwrap().clone(),
     }
 }

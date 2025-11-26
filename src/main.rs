@@ -5,7 +5,7 @@ fn main() {
     let args = cli::parse_args();
 
     let patterns = parse::get_patterns(&args.wildcard).expect("No on.push.paths found.");
-    println!("patterns:");
+    println!("{}.on.push.paths:", args.wildcard.display());
     for pattern in &patterns {
         println!("- {}", pattern);
     }
