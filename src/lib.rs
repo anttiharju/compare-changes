@@ -1,24 +1,24 @@
-pub fn match_path(pattern: &str, files: &[&str]) -> bool {
+pub fn match_path(path: &str, files: &[&str]) -> bool {
     if files.is_empty() {
         return false;
     }
 
-    // Parse the single pattern, expanding optionals into multiple variants
-    let parsed_patterns: Vec<(Pattern, bool)> = parse_pattern(pattern);
+    // Parse the single path, expanding optionals into multiple variants
+    let parse_paths: Vec<(Path, bool)> = parse_path(path);
 
-    // Check if any file matches the pattern
+    // Check if any file matches the path
     for file in files {
         let file_segments = if file.is_empty() { vec![] } else { file.split('/').collect() };
 
-        // Process pre-parsed pattern variants sequentially - each variant can override previous results
+        // Process pre-parsed path variants sequentially - each variant can override previous results
         let mut matched = false;
 
-        for (parsed_pattern, is_negation) in &parsed_patterns {
-            if match_segments(&parsed_pattern.segments, &file_segments, 0, 0) {
+        for (parsed_path, is_negation) in &parse_paths {
+            if match_segments(&parsed_path.segments, &file_segments, 0, 0) {
                 if *is_negation {
-                    matched = false; // Negation pattern matched - exclude the file
+                    matched = false; // Negation path matched - exclude the file
                 } else {
-                    matched = true; // Positive pattern matched - include the file
+                    matched = true; // Positive path matched - include the file
                 }
             }
         }
@@ -29,12 +29,12 @@ pub fn match_path(pattern: &str, files: &[&str]) -> bool {
         }
     }
 
-    // No file matched the pattern
+    // No file matched the path
     false
 }
 
 #[derive(Debug, Clone)]
-struct Pattern {
+struct Path {
     segments: Vec<Segment>,
 }
 
@@ -46,7 +46,7 @@ enum Segment {
     DoubleStarWithSuffix(String), // "**.js"
 }
 
-fn parse_pattern(pattern: &str) -> Vec<(Pattern, bool)> {
+fn parse_path(pattern: &str) -> Vec<(Path, bool)> {
     let (actual_pattern, is_negation) = match pattern.strip_prefix('!') {
         Some(rest) => (rest, true),
         None => (pattern, false),
@@ -71,7 +71,7 @@ fn parse_pattern(pattern: &str) -> Vec<(Pattern, bool)> {
                 }
             }
 
-            (Pattern { segments }, is_negation)
+            (Path { segments }, is_negation)
         })
         .collect()
 }
