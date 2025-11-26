@@ -4,10 +4,10 @@ mod parse;
 fn main() {
     let args = cli::parse_args();
 
-    let paths = parse::get_paths(&args.wildcard).expect("No on.push.paths found.");
-    println!("paths:");
-    for path in &paths {
-        println!("- {}", path);
+    let patterns = parse::get_patterns(&args.wildcard).expect("No on.push.paths found.");
+    println!("patterns:");
+    for pattern in &patterns {
+        println!("- {}", pattern);
     }
 
     let changes = parse::get_changes(&args.changes_json).expect("Failed to parse the changes JSON array");

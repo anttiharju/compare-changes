@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
-pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
+pub fn get_patterns(wildcard: &Path) -> Result<Vec<String>, String> {
     let wildcard_path = PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
     let wildcard_contents = fs::read_to_string(&wildcard_path).map_err(|_| "Failed to read wildcard file".to_string())?;
     let yaml: Value = serde_yaml::from_str(&wildcard_contents).map_err(|_| "Failed to parse YAML".to_string())?;
