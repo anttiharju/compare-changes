@@ -4,15 +4,29 @@ mod parse;
 fn main() {
     let args = cli::parse_args();
 
-    let patterns = parse::get_patterns(&args.wildcard).expect("No on.push.paths found");
-    println!("{}.on.push.paths:", args.wildcard.display());
-    for pattern in &patterns {
-        println!("- {}", pattern);
+    match parse::get_patterns(&args.wildcard) {
+        Ok(patterns) => {
+            println!("{}.on.push.paths:", args.wildcard.display());
+            for pattern in &patterns {
+                println!("- {}", pattern);
+            }
+        }
+        Err(err) => {
+            eprintln!("{}", err);
+            std::process::exit(1);
+        }
     }
 
-    let paths = parse::get_paths(&args.changes_json).expect("Failed to parse the changes JSON array");
-    println!("paths:");
-    for path in &paths {
-        println!("- {}", path);
+    match parse::get_paths(&args.changes_json) {
+        Ok(paths) => {
+            println!("paths:");
+            for path in &paths {
+                println!("- {}", path);
+            }
+        }
+        Err(err) => {
+            eprintln!("{}", err);
+            std::process::exit(1);
+        }
     }
 }
