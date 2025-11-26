@@ -157,13 +157,13 @@ jobs:
         with:
           require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
 
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test action (release binary)
         uses: ./
         with:
           github-workflows-wildcard: action.yml
           changes: ${{ steps.changes.outputs.array }}
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test chained use (release binary)
         uses: ./
         with:
