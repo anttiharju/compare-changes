@@ -1,4 +1,4 @@
-pub fn match_path(path: &str, files: &[&str]) -> bool {
+pub fn path_matches_at_least_one_file(path: &str, files: &[&str]) -> bool {
     if files.is_empty() {
         return false;
     }
