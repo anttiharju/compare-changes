@@ -133,7 +133,7 @@ jobs:
         run: cargo build --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --target aarch64-unknown-linux-gnu
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action == 'true' )
         run: cargo build --target x86_64-unknown-linux-gnu
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
@@ -150,20 +150,38 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
         run: scripts/exitcode.sh
 
-      # This does assume that the CLI interface remains stable, but I'm willing to make that assumption.
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
-        name: Test compare-changes action (latest release)
-        uses: ./
-        with:
-          github-workflows-wildcard: action.yml # confusing but I really want to enforce the 'wildcard-' prefix.
-          changes: ${{ steps.changes.outputs.array }}
-
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
         name: Require semantic version label
         uses: anttiharju/actions/semver-label@v0
         with:
           require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
+
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
+        name: Test action (release binary)
+        uses: ./
+        with:
+          github-workflows-wildcard: action.yml
+          changes: ${{ steps.changes.outputs.array }}
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
+        name: Test chained use (release binary)
+        uses: ./
+        with:
+          github-workflows-wildcard: action.yml
+          changes: ${{ steps.changes.outputs.array }}
+
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+        name: Move compiled version to /usr/local/bin
+        env:
+          binary: ${{ github.event.repository.name }}
+        run: |
+          mv "target/x86_64-unknown-linux-gnu/debug/$binary" /usr/local/bin/
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+        name: Test action (compiled binary)
+        uses: ./
+        with:
+          github-workflows-wildcard: action.yml
+          changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled()
         name: action-validator
