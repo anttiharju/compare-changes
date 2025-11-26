@@ -10,7 +10,7 @@ temp="${normalized_url%/*}"
 owner="$(basename "$temp")"
 
 repo_root="$(git rev-parse --show-toplevel)"
-repo="$(yq -p toml -oy '.package.name' "$repo_root/Cargo.toml")"
+repo="$(basename --suffix .git "$remote_url")"
 
 export GITHUB_REPOSITORY="$owner/$repo"
 
