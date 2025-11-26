@@ -6,8 +6,7 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-repo_root="$(git rev-parse --show-toplevel)"
-repo="$(yq -p toml -oy '.package.name' "$repo_root/Cargo.toml")"
+repo="${GITHUB_REPOSITORY##*/}"
 capture PKG_REPO "$repo"
 class="$(echo "$repo" | awk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
 capture PKG_CLASS "$class"
@@ -15,6 +14,7 @@ desc="$(gh repo view --json description --jq .description)"
 capture PKG_DESC "$desc"
 homepage="$(gh api "repos/$GITHUB_REPOSITORY" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
+repo_root="$(git rev-parse --show-toplevel)"
 version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
 capture PKG_VERSION "$version"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"

@@ -1,7 +1,14 @@
 [package]
+license = "MIT"
+description = "Reimplementation of GitHub file paths pattern matcher" # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#patterns-to-match-file-paths
+homepage = "https://anttiharju.dev/compare-changes/"
+repository = "https://github.com/anttiharju/compare-changes"
+readme = "docs/README.md"
 name = "compare-changes"
 version = "0.1.24"
 edition = "2021"
+keywords = ["glob", "github-actions", "path", "pattern-matching", "filter"]
+categories = ["command-line-utilities", "parser-implementations"]
 
 [dependencies]
 anstyle = "1.0.13"
