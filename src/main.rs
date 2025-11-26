@@ -2,7 +2,7 @@ mod cli;
 mod exitcode;
 mod parse;
 
-use compare_changes::path_matches_at_least_one_file;
+use compare_changes::matches_any_file;
 
 fn main() {
     let args = cli::parse_args();
@@ -36,7 +36,7 @@ fn main() {
     };
 
     let file_refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
-    let changed = paths.iter().any(|path| path_matches_at_least_one_file(path, &file_refs));
+    let changed = paths.iter().any(|path| matches_any_file(path, &file_refs));
     println!("changed={}", changed);
 
     if let Ok(github_output) = std::env::var("GITHUB_OUTPUT") {
