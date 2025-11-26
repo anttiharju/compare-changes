@@ -3,8 +3,8 @@ use std::fs;
 use std::path::Path;
 
 pub fn get_patterns(wildcard: &Path) -> Result<Vec<String>, String> {
-    let wildcard_contents = fs::read_to_string(wildcard).map_err(|_| "Failed to read wildcard file".to_string())?;
-    let yaml: Value = serde_yaml::from_str(&wildcard_contents).map_err(|_| "Failed to parse YAML".to_string())?;
+    let wildcard_contents = fs::read_to_string(wildcard).map_err(|e| format!("Failed to read wildcard file '{}': {}", wildcard.display(), e))?;
+    let yaml: Value = serde_yaml::from_str(&wildcard_contents).map_err(|e| format!("Failed to parse YAML in '{}': {}", wildcard.display(), e))?;
 
     let paths = yaml
         .get("on")
@@ -15,7 +15,7 @@ pub fn get_patterns(wildcard: &Path) -> Result<Vec<String>, String> {
         .unwrap_or_default();
 
     if paths.is_empty() {
-        Err("No on.push.paths found.".to_string())
+        Err("No on.push.paths found".to_string())
     } else {
         Ok(paths)
     }
