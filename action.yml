@@ -72,3 +72,4 @@ outputs:
   changed:
     description: "Boolean indicating if any changed files match paths in the wildcard file"
     value: ${{ steps.wildcard.outputs.changed }}
+# dummy change to trigger CI
