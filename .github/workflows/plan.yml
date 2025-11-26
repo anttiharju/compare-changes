@@ -170,12 +170,13 @@ jobs:
           github-workflows-wildcard: action.yml
           changes: ${{ steps.changes.outputs.array }}
 
-      - name: Move current version to /usr/local/bin
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
+        name: Move current version to /usr/local/bin
         env:
           binary: ${{ github.event.repository.name }}
         run: |
           mv "target/x86_64-unknown-linux-gnu/debug/$binary" /usr/local/bin/
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
         name: Test current version
         uses: ./
         with:
