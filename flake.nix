@@ -181,6 +181,7 @@
 
               # Fix 'mv: No such file or directory (os error 2)'
               mkdir -p /usr/local/bin
+              chmod 0777 /usr/local/bin
             '';
           };
         }
