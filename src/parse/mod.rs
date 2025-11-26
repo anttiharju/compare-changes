@@ -1,12 +1,10 @@
 use serde_yaml::Value;
 use std::fs;
 use std::path::Path;
-use std::path::PathBuf;
 
 pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
-    let wildcard_path = PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
-    let wildcard_contents = fs::read_to_string(&wildcard_path).map_err(|_| "Failed to read wildcard file".to_string())?;
-    let yaml: Value = serde_yaml::from_str(&wildcard_contents).map_err(|_| "Failed to parse YAML".to_string())?;
+    let wildcard_contents = fs::read_to_string(wildcard).map_err(|e| format!("Failed to read wildcard file '{}': {}", wildcard.display(), e))?;
+    let yaml: Value = serde_yaml::from_str(&wildcard_contents).map_err(|e| format!("Failed to parse YAML in '{}': {}", wildcard.display(), e))?;
 
     let paths = yaml
         .get("on")
@@ -17,12 +15,12 @@ pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
         .unwrap_or_default();
 
     if paths.is_empty() {
-        Err("No on.push.paths found.".to_string())
+        Err(format!("No on.push.paths found in '{}'", wildcard.display()))
     } else {
         Ok(paths)
     }
 }
 
-pub fn get_changes(changes_json: &str) -> Result<Vec<String>, String> {
+pub fn get_files(changes_json: &str) -> Result<Vec<String>, String> {
     serde_json::from_str::<Vec<String>>(changes_json).map_err(|e| format!("Failed to parse changes JSON array: {}", e))
 }

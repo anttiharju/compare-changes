@@ -52,6 +52,11 @@ runs:
       with:
         wildcard: shellcheck
         changes: ${{ inputs.changes }}
+    - id: src
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: src
+        changes: ${{ inputs.changes }}
 outputs:
   github_actions_workflows:
     description: "Whether GitHub Actions workflows have changed"
@@ -83,3 +88,6 @@ outputs:
   scripts:
     description: "Whether scripts have changed"
     value: ${{ steps.scripts.outputs.changed }}
+  src:
+    description: "Whether src has changed"
+    value: ${{ steps.src.outputs.changed }}
