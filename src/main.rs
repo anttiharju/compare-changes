@@ -18,16 +18,16 @@ fn main() {
         }
     }
 
-    match parse::get_paths(&args.changes_json) {
-        Ok(paths) => {
-            println!("paths:");
-            for path in &paths {
-                println!("- {}", path);
+    match parse::get_files(&args.changes_json) {
+        Ok(files) => {
+            println!("files:");
+            for file in &files {
+                println!("- {}", file);
             }
         }
         Err(err) => {
             eprintln!("{}", err);
-            exitcode::changes_error();
+            exitcode::files_error();
         }
     }
 }

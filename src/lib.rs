@@ -1,35 +1,35 @@
-pub fn match_path(pattern: &str, paths: &[&str]) -> bool {
-    if paths.is_empty() {
+pub fn match_path(pattern: &str, files: &[&str]) -> bool {
+    if files.is_empty() {
         return false;
     }
 
     // Parse the single pattern, expanding optionals into multiple variants
     let parsed_patterns: Vec<(Pattern, bool)> = parse_pattern(pattern);
 
-    // Check if any path matches the pattern
-    for path in paths {
-        let path_segments = if path.is_empty() { vec![] } else { path.split('/').collect() };
+    // Check if any file matches the pattern
+    for file in files {
+        let file_segments = if file.is_empty() { vec![] } else { file.split('/').collect() };
 
         // Process pre-parsed pattern variants sequentially - each variant can override previous results
         let mut matched = false;
 
         for (parsed_pattern, is_negation) in &parsed_patterns {
-            if match_segments(&parsed_pattern.segments, &path_segments, 0, 0) {
+            if match_segments(&parsed_pattern.segments, &file_segments, 0, 0) {
                 if *is_negation {
-                    matched = false; // Negation pattern matched - exclude the path
+                    matched = false; // Negation pattern matched - exclude the file
                 } else {
-                    matched = true; // Positive pattern matched - include the path
+                    matched = true; // Positive pattern matched - include the file
                 }
             }
         }
 
-        // If this path matched, return true immediately
+        // If this file matched, return true immediately
         if matched {
             return true;
         }
     }
 
-    // No paths matched the pattern
+    // No file matched the pattern
     false
 }
 

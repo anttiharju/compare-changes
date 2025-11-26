@@ -21,6 +21,6 @@ pub fn get_patterns(wildcard: &Path) -> Result<Vec<String>, String> {
     }
 }
 
-pub fn get_paths(changes_json: &str) -> Result<Vec<String>, String> {
+pub fn get_files(changes_json: &str) -> Result<Vec<String>, String> {
     serde_json::from_str::<Vec<String>>(changes_json).map_err(|e| format!("Failed to parse changes JSON array: {}", e))
 }
