@@ -24,7 +24,7 @@ fn test_changes_output() {
     let test_changes = ["foo/bar", "baz"];
     let changes_json = serde_json::to_string(&test_changes).unwrap();
 
-    let output = cargo_bin_cmd!("compare-changes")
+    let output = cargo_bin_cmd!("compare_changes")
         .current_dir(&temp)
         .arg("--wildcard")
         .arg("template.yml")
