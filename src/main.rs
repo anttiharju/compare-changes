@@ -38,4 +38,14 @@ fn main() {
     let file_refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
     let changed = paths.iter().any(|path| path_matches_at_least_one_file(path, &file_refs));
     println!("changed={}", changed);
+
+    if let Ok(github_output) = std::env::var("GITHUB_OUTPUT") {
+        if !github_output.is_empty() {
+            use std::fs::OpenOptions;
+            use std::io::Write;
+            if let Ok(mut file) = OpenOptions::new().append(true).open(github_output) {
+                let _ = writeln!(file, "changed={}", changed);
+            }
+        }
+    }
 }
