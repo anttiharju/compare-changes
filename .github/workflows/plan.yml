@@ -150,6 +150,7 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
         run: scripts/exitcode.sh
 
+      # This does assume that the CLI interface remains stable, but I'm willing to make that assumption.
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
         name: Test compare-changes action (latest release)
         uses: ./
