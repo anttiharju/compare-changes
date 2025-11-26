@@ -1,3 +1,4 @@
 .release/** linguist-vendored
+scripts/** linguist-vendored
 .envrc linguist-vendored
 flake.* linguist-vendored
