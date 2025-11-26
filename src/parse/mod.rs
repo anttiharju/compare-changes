@@ -15,7 +15,7 @@ pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
         .unwrap_or_default();
 
     if paths.is_empty() {
-        Err("No on.push.paths found".to_string())
+        Err(format!("No on.push.paths found in '{}'", wildcard.display()))
     } else {
         Ok(paths)
     }
