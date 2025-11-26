@@ -37,10 +37,16 @@ runs:
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
         cargo update --package "$package"
         yq -i ".inputs.version.default = \"$version\"" action.yml
+    - name: Get pull request number
+      id: pr
+      shell: sh
+      run: |
+        pr_number="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[0].number')"
+        echo "number=$pr_number" >> "$GITHUB_OUTPUT"
     - name: Commit changes
       uses: anttiharju/actions/commit-changes@v0
       with:
         author: "${{ github.actor }}[bot]"
         committer: "${{ github.actor }}[bot]"
-        message: ${{ inputs.version }}
+        message: "${{ inputs.version }}${{ steps.pr.outputs.number && format(' #{0}', steps.pr.outputs.number) || '' }}"
         working-directory: release
