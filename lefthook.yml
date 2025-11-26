@@ -60,6 +60,9 @@ pre-commit:
       run: cargo fmt
       stage_fixed: true
 
+    - glob: "src/*"
+      run: scripts/exitcode.sh
+
     - glob: "*.rs"
       env:
         RUSTFLAGS: -Dwarnings
