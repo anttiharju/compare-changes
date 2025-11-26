@@ -7,6 +7,7 @@ readme = "docs/README.md"
 name = "compare-changes"
 version = "0.1.24"
 edition = "2021"
+keywords = ["glob", "github-actions", "path", "pattern-matching", "filter"]
 categories = ["command-line-utilities", "parser-implementations"]
 
 [dependencies]
