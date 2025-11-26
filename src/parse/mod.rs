@@ -2,7 +2,7 @@ use serde_yaml::Value;
 use std::fs;
 use std::path::Path;
 
-pub fn get_patterns(wildcard: &Path) -> Result<Vec<String>, String> {
+pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
     let wildcard_contents = fs::read_to_string(wildcard).map_err(|e| format!("Failed to read wildcard file '{}': {}", wildcard.display(), e))?;
     let yaml: Value = serde_yaml::from_str(&wildcard_contents).map_err(|e| format!("Failed to parse YAML in '{}': {}", wildcard.display(), e))?;
 

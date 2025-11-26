@@ -5,16 +5,16 @@ mod parse;
 fn main() {
     let args = cli::parse_args();
 
-    match parse::get_patterns(&args.wildcard) {
-        Ok(patterns) => {
+    match parse::get_paths(&args.wildcard) {
+        Ok(paths) => {
             println!("{}.on.push.paths:", args.wildcard.display());
-            for pattern in &patterns {
-                println!("- {}", pattern);
+            for path in &paths {
+                println!("- {}", path);
             }
         }
         Err(err) => {
             eprintln!("{}", err);
-            exitcode::wildcard_error();
+            exitcode::paths_error();
         }
     }
 
