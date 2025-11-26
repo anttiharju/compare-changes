@@ -1,4 +1,5 @@
 mod cli;
+mod exitcode;
 mod parse;
 
 fn main() {
@@ -13,7 +14,7 @@ fn main() {
         }
         Err(err) => {
             eprintln!("{}", err);
-            std::process::exit(1);
+            exitcode::wildcard_error();
         }
     }
 
@@ -26,7 +27,7 @@ fn main() {
         }
         Err(err) => {
             eprintln!("{}", err);
-            std::process::exit(1);
+            exitcode::changes_error();
         }
     }
 }

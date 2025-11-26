@@ -70,6 +70,7 @@
           gh
           yq-go
           toml-cli
+          ripgrep
           # Everything below is required by GitHub Actions
           uutils-coreutils-noprefix
           bash
