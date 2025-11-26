@@ -1,6 +1,7 @@
 [package]
 license = "MIT"
 description = "Reimplementation of GitHub file paths pattern matcher" # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#patterns-to-match-file-paths
+homepage = "https://anttiharju.dev/compare-changes/"
 name = "compare-changes"
 version = "0.1.24"
 edition = "2021"
