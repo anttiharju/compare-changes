@@ -57,6 +57,11 @@ runs:
       with:
         wildcard: src
         changes: ${{ inputs.changes }}
+    - id: action
+      uses: anttiharju/actions/compare-changes@v0
+      with:
+        wildcard: action
+        changes: ${{ inputs.changes }}
 outputs:
   github_actions_workflows:
     description: "Whether GitHub Actions workflows have changed"
@@ -91,3 +96,6 @@ outputs:
   src:
     description: "Whether src has changed"
     value: ${{ steps.src.outputs.changed }}
+  action:
+    description: "Whether action has changed"
+    value: ${{ steps.action.outputs.changed }}

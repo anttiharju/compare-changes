@@ -133,7 +133,7 @@ jobs:
         run: cargo build --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --target aarch64-unknown-linux-gnu
-      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --target x86_64-unknown-linux-gnu
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
@@ -149,6 +149,14 @@ jobs:
 
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
         run: scripts/exitcode.sh
+
+      # This does assume that the CLI interface remains stable, but I'm willing to make that assumption.
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
+        name: Test compare-changes action (latest release)
+        uses: ./
+        with:
+          github-workflows-wildcard: action.yml # confusing but I really want to enforce the 'wildcard-' prefix.
+          changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
@@ -225,9 +233,10 @@ jobs:
 
           if [[ "$commit_author" == "$expected_bot" && "$commit_committer" == "$expected_bot" ]]; then
             commit_message="$(git log -1 --pretty=format:'%s')"
-            if [[ "$commit_message" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "version=$commit_message"
-              echo "version=$commit_message" >> "$GITHUB_OUTPUT"
+            version="${commit_message%% *}"
+            if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "version=$version"
+              echo "version=$version" >> "$GITHUB_OUTPUT"
             else
               echo "Commit message does not match semver format: $commit_message"
             fi

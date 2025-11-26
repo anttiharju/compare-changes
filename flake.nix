@@ -178,6 +178,10 @@
               # Enable 'nix eval .#container_version --raw' and 'nix flake update' inside the container
               mkdir -p /etc/nix
               echo "experimental-features = nix-command flakes" > /etc/nix/nix.conf
+
+              # Fix 'mv: No such file or directory (os error 2)'
+              mkdir -p /usr/local/bin
+              chmod 0777 /usr/local/bin
             '';
           };
         }
