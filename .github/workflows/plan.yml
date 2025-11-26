@@ -150,6 +150,13 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
         run: scripts/exitcode.sh
 
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
+        name: Test compare-changes action (latest release)
+        uses: ./action.yml
+        with:
+          github-workflows-wildcard: action.yml # confusing but I really want to enforce the 'wildcard-' prefix.
+          changes: ${{ steps.changes.outputs.array }}
+
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
         name: Require semantic version label
