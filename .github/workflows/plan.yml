@@ -225,9 +225,10 @@ jobs:
 
           if [[ "$commit_author" == "$expected_bot" && "$commit_committer" == "$expected_bot" ]]; then
             commit_message="$(git log -1 --pretty=format:'%s')"
-            if [[ "$commit_message" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "version=$commit_message"
-              echo "version=$commit_message" >> "$GITHUB_OUTPUT"
+            version="${commit_message%% *}"
+            if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "version=$version"
+              echo "version=$version" >> "$GITHUB_OUTPUT"
             else
               echo "Commit message does not match semver format: $commit_message"
             fi
