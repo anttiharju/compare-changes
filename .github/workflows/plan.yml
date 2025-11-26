@@ -157,8 +157,7 @@ jobs:
         with:
           require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
 
-      # This does assume that the CLI interface remains stable, but I'm willing to make that assumption.
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
         name: Test compare-changes action (latest release)
         uses: ./
         with:
