@@ -1,3 +1,3 @@
 # compare-changes
 
-This is the project-focused README.
+This is the library-focused README.
