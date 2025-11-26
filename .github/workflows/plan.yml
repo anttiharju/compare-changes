@@ -152,7 +152,7 @@ jobs:
 
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push')
         name: Test compare-changes action (latest release)
-        uses: ./action.yml
+        uses: "./"
         with:
           github-workflows-wildcard: action.yml # confusing but I really want to enforce the 'wildcard-' prefix.
           changes: ${{ steps.changes.outputs.array }}
