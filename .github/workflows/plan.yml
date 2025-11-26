@@ -133,7 +133,7 @@ jobs:
         run: cargo build --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --target aarch64-unknown-linux-gnu
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || steps.changed.outputs.rust == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action == 'true' )
         run: cargo build --target x86_64-unknown-linux-gnu
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
@@ -165,6 +165,18 @@ jobs:
           changes: ${{ steps.changes.outputs.array }}
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
         name: Test chained use (latest release)
+        uses: ./
+        with:
+          github-workflows-wildcard: action.yml
+          changes: ${{ steps.changes.outputs.array }}
+
+      - name: Move current version to /usr/local/bin
+        env:
+          binary: ${{ github.event.repository.name }}
+        run: |
+          mv "target/x86_64-unknown-linux-gnu/debug/$binary" /usr/local/bin/
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push') && steps.semantic.outputs.type != 'major'
+        name: Test current version
         uses: ./
         with:
           github-workflows-wildcard: action.yml
