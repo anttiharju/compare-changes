@@ -7,11 +7,10 @@ macro_rules! define_exitcodes {
 
         impl ExitCode {
             pub fn code(self) -> i32 { self as i32 }
-            pub fn exit(self) -> ! { std::process::exit(self.code()) }
         }
 
         $(
-            pub fn $fn() -> ! { ExitCode::$variant.exit() }
+            pub fn $fn() -> i32 { ExitCode::$variant.code() }
         )*
     }
 }

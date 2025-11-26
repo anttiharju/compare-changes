@@ -17,7 +17,7 @@ fn main() {
         }
         Err(err) => {
             eprintln!("{}", err);
-            exitcode::paths_error();
+            std::process::exit(exitcode::paths_error());
         }
     };
 
@@ -31,7 +31,7 @@ fn main() {
         }
         Err(err) => {
             eprintln!("{}", err);
-            exitcode::files_error();
+            std::process::exit(exitcode::files_error());
         }
     };
 
