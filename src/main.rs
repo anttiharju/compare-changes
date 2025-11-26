@@ -10,9 +10,9 @@ fn main() {
         println!("- {}", pattern);
     }
 
-    let changes = parse::get_changes(&args.changes_json).expect("Failed to parse the changes JSON array");
-    println!("changes:");
-    for change in &changes {
-        println!("- {}", change);
+    let paths = parse::get_paths(&args.changes_json).expect("Failed to parse the changes JSON array");
+    println!("paths:");
+    for path in &paths {
+        println!("- {}", path);
     }
 }
