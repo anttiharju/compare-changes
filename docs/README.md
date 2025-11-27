@@ -1,5 +1,7 @@
 # compare-changes
 
+[![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
+
 compare-changes is a CLI and a library:
 
 1. The CLI can be used together with [find-changes-action](https://github.com/anttiharju/find-changes-action) to run GitHub Actions jobs or steps conditionally, while benefitting from static validation for the defined paths via [action-validator](https://github.com/mpalmer/action-validator). For more information, view the action on [GitHub Actions Marketplace](https://github.com/marketplace/actions/compare-changes).
