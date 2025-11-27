@@ -7,4 +7,4 @@ compare-changes is a CLI and a library:
 
 ## More information
 
-For information on alternative installation methods and on how to contribute, please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/README.md)
+For information on alternative installation methods and on how to contribute, please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/.github/README.md)
