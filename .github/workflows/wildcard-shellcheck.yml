@@ -8,11 +8,9 @@ on:
     paths:
       - "**/*.sh"
       - ".shellcheckrc"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true

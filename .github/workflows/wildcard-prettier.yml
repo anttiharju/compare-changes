@@ -8,11 +8,9 @@ on:
     paths:
       - "**/*.md"
       - "**/*.yml"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true

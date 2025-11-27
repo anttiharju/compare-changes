@@ -11,11 +11,9 @@ on:
       - "tests/**/*"
       - "Cargo.lock"
       - "Cargo.toml"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true

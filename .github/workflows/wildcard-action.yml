@@ -8,11 +8,9 @@ on:
     paths:
       - "action.yml"
       - ".github/workflows/wildcard-action.yml"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true

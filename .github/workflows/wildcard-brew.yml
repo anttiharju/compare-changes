@@ -7,11 +7,9 @@ on:
       - wildcard
     paths:
       - ".release/brew/**/*"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true

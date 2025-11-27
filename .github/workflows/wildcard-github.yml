@@ -8,11 +8,9 @@ on:
     paths:
       - ".release/actions_env_mock.sh"
       - ".release/archive.sh"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true

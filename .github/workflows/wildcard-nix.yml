@@ -7,11 +7,9 @@ on:
       - wildcard
     paths:
       - ".release/nix/**/*"
-
 jobs:
   wildcard:
     runs-on: ubuntu-latest
-    if: false
     steps:
       - run: |
           true
