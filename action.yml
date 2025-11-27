@@ -75,9 +75,9 @@ runs:
         printf 'compare-changes --wildcard "%s" --changes "%s"\n' "$wildcard" "$changes"
         debug_flag=""
         if [ "$debug" = "true" ]; then
-          debug_flag=" --debug"
+          debug_flag="--debug"
         fi
-        compare-changes --wildcard "$wildcard" --changes "$changes""$debug_flag"
+        compare-changes --wildcard "$wildcard" --changes "$changes" "$debug_flag"
 outputs:
   changed:
     description: "Boolean indicating if any changed files match paths in the wildcard file"
