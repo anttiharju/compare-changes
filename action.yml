@@ -61,6 +61,7 @@ runs:
         tar -xzf "compare-changes-$target.tar.gz" compare-changes
         mv compare-changes /usr/local/bin
     - name: Run
+      id: wildcard
       shell: sh
       env:
         wildcard: ${{ inputs.github-workflows-wildcard }}
