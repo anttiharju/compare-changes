@@ -37,6 +37,8 @@ runs:
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
         cargo update --package "$package"
         yq -i ".inputs.version.default = \"$version\"" action.yml
+
+        major="${version%%.*}"
     - name: Get pull request number
       id: pr
       shell: sh
