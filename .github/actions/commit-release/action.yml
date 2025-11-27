@@ -39,6 +39,7 @@ runs:
         yq -i ".inputs.version.default = \"$version\"" action.yml
 
         major="${version%%.*}"
+        find . -type f -not -path './.git/*' -print0 | xargs -0 sed -E -i "s|${GITHUB_REPOSITORY}@v[0-9]+(\.[0-9]+)*|${GITHUB_REPOSITORY}@v$major|g"
     - name: Get pull request number
       id: pr
       shell: sh
