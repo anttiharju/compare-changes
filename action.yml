@@ -1,5 +1,5 @@
 name: "Compare changes"
-description: "Compare the changes input to the on.push.paths of the github-workflows-wildcard file"
+description: "Conditionally run jobs and steps based on find-changes-action output."
 branding:
   icon: minimize-2
   color: orange
