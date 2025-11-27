@@ -178,7 +178,8 @@ jobs:
         with:
           github-workflows-wildcard: action.yml
           changes: '["action.yml"]'
-      - name: Test action output (compiled binary)
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+        name: Test action output (compiled binary)
         env:
           changed: ${{ steps.action.outputs.changed }}
         run: |
