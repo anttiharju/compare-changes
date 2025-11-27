@@ -1,3 +1,4 @@
+#![cfg(feature = "cli")]
 use assert_cmd::cargo::cargo_bin_cmd;
 use serde_json;
 use std::fs;
