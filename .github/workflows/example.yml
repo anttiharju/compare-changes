@@ -1,3 +1,4 @@
+name: GitHub Action documentation
 on:
   pull_request:
     paths:
@@ -5,7 +6,8 @@ on:
       - ".github/workflows/wildcard-actionlint.yml"
       - "action.yml"
 jobs:
-  test:
+  test-example:
+    name: Test example
     runs-on: ubuntu-24.04
     steps:
       - name: Find changes
