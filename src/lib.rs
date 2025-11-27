@@ -1,13 +1,13 @@
-pub fn matches_any_file(path: &str, files: &[&str]) -> bool {
+pub fn matches_any_file(path: &str, files: &[&str]) -> Option<usize> {
     if files.is_empty() {
-        return false;
+        return None;
     }
 
     // Parse the single path, expanding optionals into multiple variants
     let parse_paths: Vec<(Path, bool)> = parse_path(path);
 
     // Check if any file matches the path
-    for file in files {
+    for (i, file) in files.iter().enumerate() {
         let file_segments = if file.is_empty() { vec![] } else { file.split('/').collect() };
 
         // Process pre-parsed path variants sequentially - each variant can override previous results
@@ -23,14 +23,14 @@ pub fn matches_any_file(path: &str, files: &[&str]) -> bool {
             }
         }
 
-        // If this file matched, return true immediately
+        // If this file matched, return its index immediately
         if matched {
-            return true;
+            return Some(i);
         }
     }
 
     // No file matched the path
-    false
+    None
 }
 
 #[derive(Debug, Clone)]

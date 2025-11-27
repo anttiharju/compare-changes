@@ -31,6 +31,7 @@ fn test_changes_output() {
         .arg("template.yml")
         .arg("--changes")
         .arg(&changes_json)
+        .arg("--debug")
         .output()
         .unwrap();
 

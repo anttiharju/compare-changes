@@ -65,7 +65,6 @@ Crate is abundantly documented:
 
 Crate supports diverse real-world use cases:
 
-- [ ] Functions expose intermediate results to avoid duplicate work (C-INTERMEDIATE)
 - [ ] Caller decides where to copy and place data (C-CALLER-CONTROL)
 - [ ] Functions minimize assumptions about parameters by using generics (C-GENERIC)
 

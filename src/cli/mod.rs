@@ -7,6 +7,7 @@ use style::get_style;
 pub struct Args {
     pub wildcard: PathBuf,
     pub changes_json: String,
+    pub debug: bool,
 }
 
 pub fn parse_args() -> Args {
@@ -27,6 +28,12 @@ pub fn parse_args() -> Args {
             .required(true)
             .value_parser(value_parser!(String)),
         )
+        .arg(
+            arg!(
+                -d --debug "Enable debug output"
+            )
+            .required(false),
+        )
         .get_matches();
 
     let raw_wildcard = matches.get_one::<PathBuf>("wildcard").unwrap().clone();
@@ -35,5 +42,6 @@ pub fn parse_args() -> Args {
     Args {
         wildcard: prefixed,
         changes_json: matches.get_one::<String>("changes").unwrap().clone(),
+        debug: matches.get_flag("debug"),
     }
 }

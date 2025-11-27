@@ -1,7 +1,7 @@
 use compare_changes::matches_any_file;
 
 fn assert_glob_match(pattern: &str, paths: &[&str], expected: bool) {
-    let matches = matches_any_file(pattern, paths);
+    let matches = matches_any_file(pattern, paths).is_some();
     assert_eq!(
         matches, expected,
         "Pattern '{}' vs '{:?}' -> {} (expected {})",
