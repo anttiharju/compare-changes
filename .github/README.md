@@ -17,8 +17,16 @@ There is additional documentation available on
 
 ### Cargo
 
+### CLI
+
 ```sh
-cargo install compare-changes
+cargo install --features=cli compare-changes
+```
+
+### Library
+
+```sh
+cargo add compare-changes
 ```
 
 ### Brew

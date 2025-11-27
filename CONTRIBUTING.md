@@ -1,7 +1,9 @@
 # Contributing
 
-Usage via `cargo run`:
+## Usage
+
+### CLI
 
 ```sh
-cargo run --features=cli -- -w rust.yml -c '["foo/bar", "Cargo.toml"]'
+cargo run --all-features -- -w rust.yml -c '["foo/bar", "Cargo.toml"]'
 ```

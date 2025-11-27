@@ -10,7 +10,7 @@ echo "$0 $tag $target"
 rm -rf "tmp/$target"
 remote_url="$(git remote get-url origin)"
 repo="$(basename --suffix .git "$remote_url")"
-cargo build --target "$target" --release
+cargo build --all-features --target "$target" --release
 
 cd "target/$target/release"
 tar -czf "$repo_root/$repo-$target.tar.gz" "$repo"
