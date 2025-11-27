@@ -182,7 +182,7 @@ jobs:
         env:
           changed: ${{ steps.action.outputs.changed }}
         run: |
-          echo "$changed=true"
+          echo "steps.action.outputs.changed: \"$changed\"=\"true\""
           if [ "$changed" != "true" ]; then
             exit 1
           fi
