@@ -1,0 +1,13 @@
+name: "Cache"
+description: "Do not repeat yourself"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo
+          ~/.cache/zig
+        key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}

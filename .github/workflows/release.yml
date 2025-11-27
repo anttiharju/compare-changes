@@ -112,6 +112,8 @@ jobs:
         shell: sh
         run: |
           git tag "$tag"
+      - name: Cache
+        uses: ./.github/actions/cache
       - name: Create aarch64-apple-darwin archive
         env:
           SDKROOT: /dev/null
@@ -188,6 +190,7 @@ jobs:
 
   crate:
     name: crates.io
+    needs: github
     runs-on: ubuntu-24.04
     container:
       image: ${{ inputs.container || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
