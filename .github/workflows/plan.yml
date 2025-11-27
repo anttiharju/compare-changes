@@ -188,10 +188,11 @@ jobs:
             exit 1
           fi
 
-      - if: always() && !cancelled()
-        name: action-validator
-        run: |
-          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs -0 action-validator --verbose
+      # disabled because it uses glob instead of this library
+      #      - if: always() && !cancelled()
+      #        name: action-validator
+      #        run: |
+      #          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs -0 action-validator --verbose
 
       - if: always() && !cancelled() && (steps.changed.outputs.github_actions_workflows == 'true' || github.event_name == 'push')
         name: actionlint

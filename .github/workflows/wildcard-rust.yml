@@ -6,9 +6,9 @@ on:
     branches:
       - wildcard
     paths:
-      - ".cargo/**/*"
-      - "src/**/*"
-      - "tests/**/*"
+      - ".cargo/**"
+      - "src/**"
+      - "tests/**"
       - "Cargo.lock"
       - "Cargo.toml"
       - "flake.nix"

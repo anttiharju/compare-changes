@@ -53,7 +53,7 @@
         [
           rustToolchain
           zig
-          action-validator
+          # action-validator # disabled because it uses glob instead of this library
           actionlint
           anttiharju.relcheck
           editorconfig-checker
