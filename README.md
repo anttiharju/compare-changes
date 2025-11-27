@@ -9,7 +9,7 @@ This is useful to introduce granularity to your workflows. One can save a lot of
 This particular example is not the most sensible, because for the use-case illustrated one could just use `on.pull_request.paths`. Where compare-changes improves upon the native workflows syntax, is advanced use-cases of granularity, i.e. chained use of the compare-changes action for different conditions and still defining all jobs as part of the same workflow. This last point allows you to have your branch protection rules only require a finish-ci job, that has all other jobs in its needs. This makes working on the CI a lot simpler because you're free to add/remove jobs without coordinating changes to branch protection rules via repository admins.
 
 ```yml
-# ./.github/workflows/example.yml
+# .github/workflows/example.yml
 on: [pull_request]
 jobs:
   test:
@@ -21,7 +21,7 @@ jobs:
       - id: actionlint
         uses: anttiharju/compare-changes@v0
         with:
-          github-workflows-wildcard: actionlint.yml
+          github-workflows-wildcard: actionlint.yml # see .github/workflows/wildcard-actionlint.yml below
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.actionlint.outputs.changed == 'true'
         name: actionlint
@@ -29,7 +29,7 @@ jobs:
 ```
 
 ```yml
-# ./.github/workflows/wildcard-actionlint.yml
+# .github/workflows/wildcard-actionlint.yml
 permissions:
   contents: none
   pull-requests: none
