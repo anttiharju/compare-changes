@@ -6,7 +6,7 @@ This is useful to introduce job and step granularity to your workflows. One can 
 
 ## More information
 
-There is additionaly documentation available on
+There is additional documentation available on
 
 - [crates.io](https://crates.io/crates/compare-changes) and
 - [GitHub Actions Marketplace](https://github.com/marketplace/actions/compare-changes).
