@@ -1,6 +1,6 @@
 # compare-changes
 
-Takes the name of a wildcard workflow (`*` in `.github/workflows/wildcard-*` incl. file extension) and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs and outputs true/false based on whether any of the `on.push.paths` of the workflow match a file in the JSON array. This is useful to introduce job and step granularity to your workflows. One can save a lot of time by executing long-running jobs conditionally.
+Takes the name of a wildcard workflow (`*` in `.github/workflows/wildcard-*` incl. file extension) and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs, to output true/false based on whether any of the `on.push.paths` of the workflow match a file in the JSON array. This is useful to introduce job and step granularity to your workflows. One can save a lot of time by executing long-running jobs conditionally.
 
 ## Trivial example
 
