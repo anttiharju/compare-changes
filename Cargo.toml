@@ -11,6 +11,7 @@ keywords = ["glob", "github-actions", "path", "pattern-matching", "filter"]
 categories = ["command-line-utilities", "parser-implementations"]
 include = [
     "src/**",
+    "tests/**",
 ]
 
 [dependencies]
