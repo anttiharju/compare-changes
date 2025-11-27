@@ -1,0 +1,23 @@
+name: GitHub Action documentation
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/example.yml"
+      - ".github/workflows/wildcard-actionlint.yml"
+      - "action.yml"
+jobs:
+  test-example:
+    name: Test example
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Find changes
+        id: changes
+        uses: anttiharju/find-changes-action@v1 # handles checkout
+      - id: actionlint
+        uses: anttiharju/compare-changes@v0
+        with:
+          github-workflows-wildcard: actionlint.yml
+          changes: ${{ steps.changes.outputs.array }}
+      - if: steps.actionlint.outputs.changed == 'true'
+        name: actionlint
+        uses: anttiharju/actions/actionlint@v0

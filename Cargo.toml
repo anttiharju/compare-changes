@@ -9,6 +9,10 @@ version = "0.1.25"
 edition = "2021"
 keywords = ["glob", "github-actions", "path", "pattern-matching", "filter"]
 categories = ["command-line-utilities", "parser-implementations"]
+include = [
+    "src/**",
+    "tests/**",
+]
 
 [dependencies]
 anstyle = "1.0.13"
