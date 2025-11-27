@@ -173,10 +173,19 @@ jobs:
           mv "target/x86_64-unknown-linux-gnu/debug/$binary" /usr/local/bin/
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
+        id: action
         uses: ./
         with:
           github-workflows-wildcard: action.yml
-          changes: ${{ steps.changes.outputs.array }}
+          changes: '["action.yml"]'
+      - name: Test action output (compiled binary)
+        env:
+          changed: ${{ steps.action.outputs.changed }}
+        run: |
+          echo "$changed=true"
+          if [ "$changed" != "true" ]; then
+            exit 1
+          fi
 
       - if: always() && !cancelled()
         name: action-validator
