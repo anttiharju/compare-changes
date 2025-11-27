@@ -8,7 +8,7 @@ The same result could be achieved with the use of `on.pull_request.paths`, but t
 
 The real value comes from advanced use-cases of granularity, i.e. chained use of the compare-changes action for different conditions and still defining all jobs as part of the same workflow. This last point allows you to have your branch protection rules only require a finish-ci job, that has all other jobs in its needs. This makes working on the CI a lot simpler because you're free to add/remove jobs without coordinating changes to branch protection rules via repository admins.
 
-A good non-trivial example is this repository's validate job in the [plan workflow](https://github.com/anttiharju/compare-changes/blob/main/.github/workflows/plan.yml).
+A good non-trivial example can be found in this repository's validate job in the [plan workflow](https://github.com/anttiharju/compare-changes/blob/main/.github/workflows/plan.yml).
 
 ```yml
 # .github/workflows/example.yml
