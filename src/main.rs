@@ -41,13 +41,18 @@ fn main() {
 
     let file_refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
 
-    let mut changed = false;
-    for path in &paths {
-        if let Some(i) = matches_any_file(path, &file_refs) {
-            println!("path '{}' matched file '{}'", path, files[i]);
-            changed = true;
+    let changed = match paths
+        .iter()
+        .enumerate()
+        .find_map(|(pi, path)| matches_any_file(path, &file_refs).map(|fi| (pi, fi)))
+    {
+        Some((pi, fi)) => {
+            println!("path '{}' matched file '{}'", paths[pi], files[fi]);
+            true
         }
-    }
+        None => false,
+    };
+
     println!("changed={}", changed);
 
     if let Ok(github_output) = std::env::var("GITHUB_OUTPUT") {
