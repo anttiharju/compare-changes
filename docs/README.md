@@ -15,8 +15,7 @@ Crate is abundantly documented:
 - [ ] Examples use ?, not try!, not unwrap (C-QUESTION-MARK)
 - [ ] Function docs include error, panic, and safety considerations (C-FAILURE)
 - [ ] Prose contains hyperlinks to relevant things (C-LINK)
-- [ ] Cargo.toml includes all common metadata (C-METADATA)
-  - [ ] authors, documentation
+- [x] Cargo.toml includes all common metadata (C-METADATA)
 
 ### Flexibility
 
