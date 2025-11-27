@@ -55,4 +55,4 @@ jobs:
 
 ## Contributing
 
-Please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/README.md)
+Please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/.github/README.md)
