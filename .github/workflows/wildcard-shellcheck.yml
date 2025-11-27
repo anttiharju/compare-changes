@@ -8,6 +8,8 @@ on:
     paths:
       - "**/*.sh"
       - ".shellcheckrc"
+      - "flake.nix"
+      - "flake.lock"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
