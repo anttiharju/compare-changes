@@ -14,6 +14,10 @@ inputs:
     description: "compare-changes version to use, semver format without v prefix"
     required: false
     default: "0.2.3"
+  debug:
+    description: "Enable compare-changes --debug output (true/false)"
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
@@ -66,9 +70,14 @@ runs:
       env:
         wildcard: ${{ inputs.github-workflows-wildcard }}
         changes: ${{ inputs.changes }}
+        debug: ${{ inputs.debug }}
       run: |
         printf 'compare-changes --wildcard "%s" --changes "%s"\n' "$wildcard" "$changes"
-        compare-changes --wildcard "$wildcard" --changes "$changes"
+        debug_flag=""
+        if [ "$debug" = "true" ]; then
+          debug_flag=" --debug"
+        fi
+        compare-changes --wildcard "$wildcard" --changes "$changes""$debug_flag"
 outputs:
   changed:
     description: "Boolean indicating if any changed files match paths in the wildcard file"
