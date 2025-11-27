@@ -120,12 +120,7 @@ jobs:
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         name: Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo
-            ~/.cache/zig
-          key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+        uses: ./.github/actions/cache
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         env:

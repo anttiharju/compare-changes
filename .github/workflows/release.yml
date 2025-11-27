@@ -113,12 +113,7 @@ jobs:
         run: |
           git tag "$tag"
       - name: Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo
-            ~/.cache/zig
-          key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+        uses: ./.github/actions/cache
       - name: Create aarch64-apple-darwin archive
         env:
           SDKROOT: /dev/null
