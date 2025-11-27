@@ -6,7 +6,7 @@ on:
     branches:
       - wildcard
     paths:
-      - ".release/brew/**/*"
+      - ".release/brew/**"
       - "flake.nix"
       - "flake.lock"
 jobs:

@@ -6,7 +6,7 @@ on:
     branches:
       - wildcard
     paths:
-      - "src/**/*"
+      - "src/**"
       - "flake.nix"
       - "flake.lock"
 jobs:

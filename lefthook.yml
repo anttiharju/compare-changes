@@ -17,6 +17,7 @@ pre-commit:
         SDKROOT: /dev/null
       run: cargo build --all-features
     # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
+    # also disabled because it uses glob instead of this library
     # - name: action-validator
     #   run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs -0 action-validator --verbose
 

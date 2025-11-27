@@ -6,7 +6,7 @@ on:
     branches:
       - wildcard
     paths:
-      - "**/*.sh"
+      - "**.sh"
       - ".shellcheckrc"
       - "flake.nix"
       - "flake.lock"

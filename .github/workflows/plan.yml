@@ -37,9 +37,9 @@ jobs:
         uses: anttiharju/find-changes-action@v1
       - name: Compare changes
         id: flake
-        uses: anttiharju/actions/compare-changes@v0
+        uses: anttiharju/compare-changes@v0.2.2
         with:
-          wildcard: flake
+          github-workflows-wildcard: flake.yml
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.flake.outputs.changed == 'true'
         name: Install Nix
@@ -188,10 +188,11 @@ jobs:
             exit 1
           fi
 
-      - if: always() && !cancelled()
-        name: action-validator
-        run: |
-          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs -0 action-validator --verbose
+      # disabled because it uses glob instead of this library
+      #      - if: always() && !cancelled()
+      #        name: action-validator
+      #        run: |
+      #          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs -0 action-validator --verbose
 
       - if: always() && !cancelled() && (steps.changed.outputs.github_actions_workflows == 'true' || github.event_name == 'push')
         name: actionlint

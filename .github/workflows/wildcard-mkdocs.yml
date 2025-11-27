@@ -6,7 +6,7 @@ on:
     branches:
       - wildcard
     paths:
-      - "docs/**/*"
+      - "docs/**"
       - "mkdocs.yml"
       - "flake.nix"
       - "flake.lock"
