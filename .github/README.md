@@ -35,6 +35,9 @@ Via [anttiharju's nur-packages](https://github.com/anttiharju/nur-packages). Ple
 
 - [ ] In general, improve library (it is usable, but not necessarily correct in all cases)
 - [ ] Add instructions on how to contribute.
+- [ ] Produce static Linux binaries for wider compatibility with GitHub runners
+  - [ ] Setup benchmarks, compare allocators
+- [ ] Release binaries for Windows ARM64/X64 and macOS X64 ([to support all github-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-github-hosted-runners-for-public-repositories))
 
 ### crates.io
 
