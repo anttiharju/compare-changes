@@ -37,9 +37,9 @@ jobs:
         uses: anttiharju/find-changes-action@v1
       - name: Compare changes
         id: flake
-        uses: anttiharju/actions/compare-changes@v0
+        uses: anttiharju/compare-changes@v0.2.1
         with:
-          wildcard: flake
+          github-workflows-wildcard: flake.yml
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.flake.outputs.changed == 'true'
         name: Install Nix
