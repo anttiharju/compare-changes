@@ -17,8 +17,16 @@ There is additional documentation available on
 
 ### Cargo
 
+### CLI
+
 ```sh
-cargo install compare-changes
+cargo install --features=cli compare-changes
+```
+
+### Library
+
+```sh
+cargo add compare-changes
 ```
 
 ### Brew
@@ -34,7 +42,7 @@ Via [anttiharju's nur-packages](https://github.com/anttiharju/nur-packages). Ple
 ## TODO
 
 - [ ] In general, improve library (it is usable, but not necessarily correct in all cases)
-- [ ] Add instructions on how to contribute.
+- [ ] Improve instructions on how to contribute.
 - [ ] Produce static Linux binaries for wider compatibility with GitHub runners
   - [ ] Setup benchmarks, compare allocators
 - [ ] Release binaries for Windows ARM64/X64 and macOS X64 ([to support all github-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-github-hosted-runners-for-public-repositories))
@@ -60,6 +68,10 @@ Crate supports diverse real-world use cases:
 - [ ] Functions expose intermediate results to avoid duplicate work (C-INTERMEDIATE)
 - [ ] Caller decides where to copy and place data (C-CALLER-CONTROL)
 - [ ] Functions minimize assumptions about parameters by using generics (C-GENERIC)
+
+## Contributing
+
+Refer to [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Stargazers over time
 

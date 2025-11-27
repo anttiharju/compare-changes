@@ -15,11 +15,19 @@ include = [
 ]
 
 [dependencies]
-anstyle = "1.0.13"
-clap = { version = "4.5.53", features = ["cargo"] }
-serde_json = "1.0.145"
-serde_yaml = "0.9.34"
-tempfile = "3.23.0"
+anstyle = { version = "1.0.13", optional = true }
+clap = { version = "4.5.53", features = ["cargo"], optional = true }
+serde_json = { version = "1.0.145", optional = true }
+serde_yaml = { version = "0.9.34", optional = true }
+tempfile = { version = "3.23.0", optional = true }
+
+[features]
+default = []
+cli = ["anstyle", "clap", "serde_json", "serde_yaml", "tempfile"]
+
+[[bin]]
+name = "compare-changes"
+required-features = ["cli"]
 
 [dev-dependencies]
 assert_cmd = "2.1.1"

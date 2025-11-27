@@ -204,4 +204,4 @@ jobs:
         env:
           CRATES_IO_PUBLISH_TOKEN: ${{ secrets.CRATES_IO_PUBLISH_TOKEN }}
         run: |
-          cargo publish --token "$CRATES_IO_PUBLISH_TOKEN"
+          cargo publish --all-features --token "$CRATES_IO_PUBLISH_TOKEN"

@@ -6,7 +6,7 @@ pre-push:
   parallel: true
   jobs:
     - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
-      run: cargo test
+      run: cargo test --all-features
 
 # Match to plan.yml
 pre-commit:
@@ -15,7 +15,7 @@ pre-commit:
     - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
       env:
         SDKROOT: /dev/null
-      run: cargo build
+      run: cargo build --all-features
     # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
     # - name: action-validator
     #   run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs -0 action-validator --verbose
