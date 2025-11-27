@@ -16,6 +16,8 @@ on:
         required: true
       ANTTIHARJU_BOT_PRIVATE_KEY:
         required: true
+      CRATES_IO_PUBLISH_TOKEN:
+        required: true
 
 jobs:
   documentation:
@@ -183,3 +185,20 @@ jobs:
             ${{ github.event.repository.name }} ${{ inputs.version }}
 
             https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
+
+  crate:
+    name: crates.io
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ inputs.container || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Publish to crates.io
+        env:
+          CRATES_IO_PUBLISH_TOKEN: ${{ secrets.CRATES_IO_PUBLISH_TOKEN }}
+        run: |
+          cargo publish --token "$CRATES_IO_PUBLISH_TOKEN"
