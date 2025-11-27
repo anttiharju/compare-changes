@@ -9,9 +9,11 @@ fn main() {
 
     let paths = match parse::get_paths(&args.wildcard) {
         Ok(paths) => {
-            println!("{}.on.push.paths:", args.wildcard.display());
-            for path in &paths {
-                println!("- {}", path);
+            if args.debug {
+                println!("{}.on.push.paths:", args.wildcard.display());
+                for path in &paths {
+                    println!("- {}", path);
+                }
             }
             paths
         }
@@ -23,9 +25,11 @@ fn main() {
 
     let files = match parse::get_files(&args.changes_json) {
         Ok(files) => {
-            println!("files:");
-            for file in &files {
-                println!("- {}", file);
+            if args.debug {
+                println!("files:");
+                for file in &files {
+                    println!("- {}", file);
+                }
             }
             files
         }
