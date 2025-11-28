@@ -77,3 +77,10 @@ Refer to [CONTRIBUTING.md](../CONTRIBUTING.md).
 Starring the repository is helpful for releasing the project on upstream package managers.
 
 [![Stargazers over time](https://starchart.cc/anttiharju/compare-changes.svg?variant=adaptive)](https://starchart.cc/anttiharju/compare-changes)
+
+## License
+
+The following licenses apply to this project:
+
+- [docs/github](../docs/github/workflow_syntax.md) are under **Creative Commons Attribution 4.0**, see [docs/github/LICENSE](../docs/github/LICENSE)
+- Everything else is under the **MIT License**, see [LICENSE](../LICENSE)

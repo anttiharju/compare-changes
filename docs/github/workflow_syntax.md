@@ -1,6 +1,6 @@
 # Workflow syntax
 
-From [github/docs/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341) which is covered by the `Creative Commons Attribution 4.0 International` license from [github/docs/LICENSE@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/LICENSE) (also included in-repo in the adjacent [LICENSE](./LICENSE) file). Only automated formatting changes (e.g., prettier) have been applied to the content below.
+From [github/docs/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341) which is covered by the **Creative Commons Attribution 4.0** license from [github/docs/LICENSE@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/LICENSE) (also included in-repo in the adjacent [LICENSE](./LICENSE) file). Only automated formatting changes (e.g., prettier) have been applied to the content below.
 
 ## Filter pattern cheat sheet
 
