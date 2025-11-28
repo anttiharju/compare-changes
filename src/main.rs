@@ -2,7 +2,7 @@ mod cli;
 mod exitcode;
 mod parse;
 
-use compare_changes::matches_any_file;
+use compare_changes::path_matches;
 
 fn main() {
     let args = cli::parse_args();
@@ -44,7 +44,7 @@ fn main() {
     let changed = match paths
         .iter()
         .enumerate()
-        .find_map(|(pi, path)| matches_any_file(path, &file_refs).map(|fi| (pi, fi)))
+        .find_map(|(pi, path)| path_matches(path, &file_refs).map(|fi| (pi, fi)))
     {
         Some((pi, fi)) => {
             println!("path '{}' matched file '{}'", paths[pi], files[fi]);
