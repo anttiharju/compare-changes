@@ -28,11 +28,14 @@ pub fn parse(path: &str) -> Path {
     let mut segments = Vec::new();
     let mut chars = path.chars().peekable();
 
+    // Special case: ! is negation only if it is the first character
+    if chars.peek() == Some(&'!') {
+        chars.next(); // consume '!'
+        segments.push(Segment::Negation);
+    }
+
     while let Some(ch) = chars.next() {
         match ch {
-            '!' if segments.is_empty() => {
-                segments.push(Segment::Negation);
-            }
             '*' => {
                 if chars.peek() == Some(&'*') {
                     chars.next(); // consume second *
@@ -59,11 +62,11 @@ pub fn parse(path: &str) -> Path {
                 }
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
             }
-            ch if ch.is_alphabetic() || ch.is_numeric() || ch == '.' || ch == '/' => {
+            ch if ch.is_alphabetic() || ch.is_numeric() || ch == '.' || ch == '/' || ch == '!' => {
                 let mut lit = String::new();
                 lit.push(ch);
                 while let Some(&next) = chars.peek() {
-                    if next.is_alphabetic() || next.is_numeric() || next == '.' || next == '/' {
+                    if next.is_alphabetic() || next.is_numeric() || next == '.' || next == '/' || next == '!' {
                         lit.push(chars.next().unwrap());
                     } else {
                         break;
