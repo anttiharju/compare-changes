@@ -76,3 +76,13 @@ fn parse_negation() {
         }
     );
 }
+
+#[test]
+fn parse_exclamation_point() {
+    assert_eq!(
+        parse("important!"),
+        Path {
+            segments: vec![Segment::Literal("important!".to_string())]
+        }
+    );
+}
