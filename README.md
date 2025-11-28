@@ -58,6 +58,6 @@ jobs:
 
 Note that this action does not support negation `!` in paths. It evaluates each path individually, instead of all as a group.
 
-## Contributing
+## More information
 
 Please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/.github/README.md)
