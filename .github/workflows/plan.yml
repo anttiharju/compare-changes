@@ -193,7 +193,7 @@ jobs:
       #      - if: always() && !cancelled()
       #        name: action-validator
       #        run: |
-      #          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs -0 action-validator --verbose
+      #          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs --null action-validator --verbose
 
       - if: always() && !cancelled() && (steps.changed.outputs.github_actions_workflows == 'true' || github.event_name == 'push')
         name: actionlint
@@ -208,7 +208,7 @@ jobs:
       - if: always() && !cancelled()
         name: EditorConfig-Checker
         run: |
-          git ls-files -z | xargs -0 editorconfig-checker
+          git ls-files -z | xargs --null editorconfig-checker
 
       - if: always() && !cancelled()
         name: Keep .yml
@@ -237,7 +237,7 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.scripts == 'true' || github.event_name == 'push')
         name: shellcheck
         run: |
-          git ls-files -z '*.sh' | xargs -0 shellcheck --color=always
+          git ls-files -z '*.sh' | xargs --null shellcheck --color=always
 
       - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.event.head_commit.author.name, '[bot]')
         name: Create release commit
