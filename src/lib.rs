@@ -1,4 +1,4 @@
-mod path;
+mod segment;
 
 pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
     if files.is_empty() {
