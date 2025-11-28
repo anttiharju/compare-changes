@@ -65,7 +65,5 @@ pre-commit:
       run: scripts/exitcode.sh
 
     - glob: "*.rs"
-      env:
-        RUSTFLAGS: -Dwarnings
-      run: cargo clippy --fix --allow-staged
+      run: cargo clippy --fix --allow-staged && cargo clippy -- --deny warnings
       stage_fixed: true

@@ -138,9 +138,7 @@ jobs:
         run: cargo fmt --check
 
       - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
-        env:
-          RUSTFLAGS: -Dwarnings
-        run: cargo clippy
+        run: cargo clippy -- --deny warnings
 
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
         run: scripts/exitcode.sh
