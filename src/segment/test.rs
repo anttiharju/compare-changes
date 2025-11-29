@@ -86,3 +86,13 @@ fn parse_exclamation_point() {
         }
     );
 }
+
+#[test]
+fn parse_emoji() {
+    assert_eq!(
+        parse("🗒️.md"),
+        Path {
+            segments: vec![Segment::Literal("🗒️.md".to_string())]
+        }
+    );
+}
