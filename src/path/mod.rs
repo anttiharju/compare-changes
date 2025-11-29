@@ -15,7 +15,8 @@ pub struct BracketContent {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Segment {
-    Literal(String),         // foo: literal "foo"
+    Literal(Vec<char>),      // foo: literal ["f","o","o"]
+    Slash,                   // docs/: literal "docs" slash "/"
     SingleStar,              // bar*: literal "bar" singlestar "*"
     DoubleStar,              // baz/**: literal "baz/" doublestar "**"
     QuestionMark(char),      // *.abc?: singlestar "*" literal ".ab" questionamrk "c?"
@@ -32,6 +33,7 @@ macro_rules! define_starters {
 }
 
 define_starters! {
+    SLASH => '/',
     STAR => '*',
     BRACKET_OPEN => '[',
     QUESTION_MARK => '?',
@@ -50,6 +52,9 @@ pub fn parse(path: &str) -> Path {
 
     while let Some(ch) = chars.next() {
         match ch {
+            SLASH => {
+                segments.push(Segment::Slash);
+            }
             STAR => {
                 if chars.peek() == Some(&STAR) {
                     chars.next(); // consume second *
@@ -77,7 +82,7 @@ pub fn parse(path: &str) -> Path {
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
             }
             _ => {
-                let mut lit = String::new();
+                let mut lit: Vec<char> = Vec::new();
                 lit.push(ch);
                 while let Some(&next) = chars.peek() {
                     if SEGMENT_STARTERS.contains(&next) {

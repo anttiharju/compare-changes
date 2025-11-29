@@ -1,3 +1,4 @@
+mod matcher;
 mod path;
 
 pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
@@ -17,96 +18,6 @@ pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
     files
         .iter()
         .enumerate()
-        .find(|(_, file)| match_path(&parsed_path.segments, file))
+        .find(|(_, file)| matcher::match_path(&parsed_path.segments, file))
         .map(|(i, _)| i)
-}
-
-fn match_path(segments: &[path::Segment], text: &str) -> bool {
-    match_path_recursive(segments, text, 0, 0, false)
-}
-
-fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, t_idx: usize, is_after_zero_double_star: bool) -> bool {
-    if seg_idx >= segments.len() && t_idx >= text.len() {
-        return true;
-    }
-    if seg_idx >= segments.len() {
-        return false;
-    }
-
-    match &segments[seg_idx] {
-        path::Segment::Literal(lit) => {
-            if lit.starts_with("/") && is_after_zero_double_star {
-                // Try without the leading /
-                let without_slash = &lit[1..];
-                if t_idx + without_slash.len() <= text.len()
-                    && &text[t_idx..t_idx + without_slash.len()] == without_slash
-                    && match_path_recursive(segments, text, seg_idx + 1, t_idx + without_slash.len(), false)
-                {
-                    return true;
-                }
-            }
-            // Normal match
-            if t_idx + lit.len() <= text.len() && &text[t_idx..t_idx + lit.len()] == lit {
-                match_path_recursive(segments, text, seg_idx + 1, t_idx + lit.len(), false)
-            } else {
-                false
-            }
-        }
-        path::Segment::SingleStar => {
-            let mut end = text.len();
-            if let Some(pos) = text[t_idx..].find('/') {
-                end = t_idx + pos;
-            }
-            for i in t_idx..=end {
-                if match_path_recursive(segments, text, seg_idx + 1, i, false) {
-                    return true;
-                }
-            }
-            false
-        }
-        path::Segment::DoubleStar => {
-            for i in t_idx..=text.len() {
-                let after_zero = i == t_idx;
-                if match_path_recursive(segments, text, seg_idx + 1, i, after_zero) {
-                    return true;
-                }
-            }
-            false
-        }
-        path::Segment::QuestionMark(c) => {
-            // Try without the optional character
-            if match_path_recursive(segments, text, seg_idx + 1, t_idx, false) {
-                return true;
-            }
-            // Try with the optional character if it matches
-            if t_idx < text.len() && text.chars().nth(t_idx) == Some(*c) {
-                return match_path_recursive(segments, text, seg_idx + 1, t_idx + 1, false);
-            }
-            false
-        }
-        path::Segment::Plus(c) => {
-            let mut count = 0;
-            let mut curr_t_idx = t_idx;
-            while curr_t_idx < text.len() && text.chars().nth(curr_t_idx) == Some(*c) {
-                count += 1;
-                curr_t_idx += 1;
-            }
-            if count == 0 {
-                return false;
-            }
-            match_path_recursive(segments, text, seg_idx + 1, curr_t_idx, false)
-        }
-        path::Segment::Bracket(b) => {
-            if t_idx >= text.len() {
-                return false;
-            }
-            let ch = text.chars().nth(t_idx).unwrap();
-            if b.singles.contains(&ch) || b.ranges.iter().any(|(start, end)| ch >= *start && ch <= *end) {
-                match_path_recursive(segments, text, seg_idx + 1, t_idx + 1, false)
-            } else {
-                false
-            }
-        }
-        path::Segment::Negation => false,
-    }
 }

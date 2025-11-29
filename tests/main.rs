@@ -22,7 +22,7 @@ fn test_changes_output() {
     yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
     fs::write(&dst, yaml).unwrap();
 
-    let test_changes = ["foo/bar", "baz"];
+    let test_changes = ["foo/bar", "baz", "3"];
     let changes_json = serde_json::to_string(&test_changes).unwrap();
 
     let output = cargo_bin_cmd!("compare-changes")
@@ -37,7 +37,7 @@ fn test_changes_output() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    for expected in ["1", "2", "3", "foo/bar", "baz"] {
+    for expected in ["1", "2", "3", "foo/bar", "baz", "path '3' matched file '3'", "changed=true"] {
         assert!(stdout.contains(expected), "Expected output to contain '{}'", expected);
     }
 }
