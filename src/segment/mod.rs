@@ -24,6 +24,20 @@ pub enum Segment {
     Negation,                // !important: negation "!" literal "important"
 }
 
+macro_rules! define_starters {
+    ($($name:ident => $val:expr),* $(,)?) => {
+        $(const $name: char = $val;)*
+        const SEGMENT_STARTERS: &[char] = &[$($name),*];
+    };
+}
+
+define_starters! {
+    STAR => '*',
+    BRACKET_OPEN => '[',
+    QUESTION_MARK => '?',
+    PLUS => '+',
+}
+
 pub fn parse(path: &str) -> Path {
     let mut segments = Vec::new();
     let mut chars = path.chars().peekable();
@@ -36,15 +50,15 @@ pub fn parse(path: &str) -> Path {
 
     while let Some(ch) = chars.next() {
         match ch {
-            '*' => {
-                if chars.peek() == Some(&'*') {
+            STAR => {
+                if chars.peek() == Some(&STAR) {
                     chars.next(); // consume second *
                     segments.push(Segment::DoubleStar);
                 } else {
                     segments.push(Segment::SingleStar);
                 }
             }
-            '[' => {
+            BRACKET_OPEN => {
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
                 while let Some(ch) = chars.next() {
@@ -66,7 +80,7 @@ pub fn parse(path: &str) -> Path {
                 let mut lit = String::new();
                 lit.push(ch);
                 while let Some(&next) = chars.peek() {
-                    if next == '*' || next == '[' || next == '?' || next == '+' {
+                    if SEGMENT_STARTERS.contains(&next) {
                         break;
                     } else {
                         lit.push(chars.next().unwrap());
@@ -74,12 +88,12 @@ pub fn parse(path: &str) -> Path {
                 }
                 if !lit.is_empty() {
                     if let Some(&next) = chars.peek() {
-                        if next == '?' {
+                        if next == QUESTION_MARK {
                             chars.next();
                             let last = lit.pop().unwrap();
                             segments.push(Segment::Literal(lit));
                             segments.push(Segment::QuestionMark(last));
-                        } else if next == '+' {
+                        } else if next == PLUS {
                             chars.next();
                             let last = lit.pop().unwrap();
                             segments.push(Segment::Literal(lit));
