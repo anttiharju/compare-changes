@@ -14,15 +14,11 @@ pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
     }
 
     // Check if any file matches the path
-    for (i, file) in files.iter().enumerate() {
-        // Check if the file matches the path
-        if match_path(&parsed_path.segments, file) {
-            return Some(i);
-        }
-    }
-
-    // No file matched the path
-    None
+    files
+        .iter()
+        .enumerate()
+        .find(|(_, file)| match_path(&parsed_path.segments, file))
+        .map(|(i, _)| i)
 }
 
 fn match_path(segments: &[path::Segment], text: &str) -> bool {
