@@ -7,6 +7,8 @@ pre-push:
   jobs:
     - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
       run: cargo test --all-features
+    - glob: "*.rs"
+      run: cargo clippy -- --deny warnings
 
 # Match to plan.yml
 pre-commit:
@@ -65,5 +67,5 @@ pre-commit:
       run: scripts/exitcode.sh
 
     - glob: "*.rs"
-      run: cargo clippy --fix --allow-staged && cargo clippy -- --deny warnings
+      run: cargo clippy --fix --allow-staged
       stage_fixed: true
