@@ -35,17 +35,16 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
 
     match &segments[seg_idx] {
         path::Segment::Literal(lit) => {
-            if lit == "/" && seg_idx > 0 && matches!(&segments[seg_idx - 1], path::Segment::DoubleStar) {
-                // Try without the /
-                if match_path_recursive(segments, text, seg_idx + 1, t_idx) {
-                    return true;
-                }
-                // Try with the /
-                if t_idx < text.len() && &text[t_idx..t_idx + 1] == "/" {
-                    return match_path_recursive(segments, text, seg_idx + 1, t_idx + 1);
-                }
-                false
-            } else if t_idx + lit.len() <= text.len() && &text[t_idx..t_idx + lit.len()] == lit {
+            if lit.starts_with("/") && seg_idx > 0 && matches!(&segments[seg_idx - 1], path::Segment::DoubleStar) {
+                // Try without the leading /
+                let without_slash = &lit[1..];
+                if t_idx + without_slash.len() <= text.len() && &text[t_idx..t_idx + without_slash.len()] == without_slash
+                    && match_path_recursive(segments, text, seg_idx + 1, t_idx + without_slash.len()) {
+                        return true;
+                    }
+            }
+            // Normal match
+            if t_idx + lit.len() <= text.len() && &text[t_idx..t_idx + lit.len()] == lit {
                 match_path_recursive(segments, text, seg_idx + 1, t_idx + lit.len())
             } else {
                 false
