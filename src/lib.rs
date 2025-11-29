@@ -22,10 +22,10 @@ pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
 }
 
 fn match_path(segments: &[path::Segment], text: &str) -> bool {
-    match_path_recursive(segments, text, 0, 0)
+    match_path_recursive(segments, text, 0, 0, false)
 }
 
-fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, t_idx: usize) -> bool {
+fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, t_idx: usize, is_after_zero_double_star: bool) -> bool {
     if seg_idx >= segments.len() && t_idx >= text.len() {
         return true;
     }
@@ -35,17 +35,19 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
 
     match &segments[seg_idx] {
         path::Segment::Literal(lit) => {
-            if lit.starts_with("/") && seg_idx > 0 && matches!(&segments[seg_idx - 1], path::Segment::DoubleStar) {
+            if lit.starts_with("/") && is_after_zero_double_star {
                 // Try without the leading /
                 let without_slash = &lit[1..];
-                if t_idx + without_slash.len() <= text.len() && &text[t_idx..t_idx + without_slash.len()] == without_slash
-                    && match_path_recursive(segments, text, seg_idx + 1, t_idx + without_slash.len()) {
-                        return true;
-                    }
+                if t_idx + without_slash.len() <= text.len()
+                    && &text[t_idx..t_idx + without_slash.len()] == without_slash
+                    && match_path_recursive(segments, text, seg_idx + 1, t_idx + without_slash.len(), false)
+                {
+                    return true;
+                }
             }
             // Normal match
             if t_idx + lit.len() <= text.len() && &text[t_idx..t_idx + lit.len()] == lit {
-                match_path_recursive(segments, text, seg_idx + 1, t_idx + lit.len())
+                match_path_recursive(segments, text, seg_idx + 1, t_idx + lit.len(), false)
             } else {
                 false
             }
@@ -56,7 +58,7 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
                 end = t_idx + pos;
             }
             for i in t_idx..=end {
-                if match_path_recursive(segments, text, seg_idx + 1, i) {
+                if match_path_recursive(segments, text, seg_idx + 1, i, false) {
                     return true;
                 }
             }
@@ -64,7 +66,8 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
         }
         path::Segment::DoubleStar => {
             for i in t_idx..=text.len() {
-                if match_path_recursive(segments, text, seg_idx + 1, i) {
+                let after_zero = i == t_idx;
+                if match_path_recursive(segments, text, seg_idx + 1, i, after_zero) {
                     return true;
                 }
             }
@@ -72,12 +75,12 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
         }
         path::Segment::QuestionMark(c) => {
             // Try without the optional character
-            if match_path_recursive(segments, text, seg_idx + 1, t_idx) {
+            if match_path_recursive(segments, text, seg_idx + 1, t_idx, false) {
                 return true;
             }
             // Try with the optional character if it matches
             if t_idx < text.len() && text.chars().nth(t_idx) == Some(*c) {
-                return match_path_recursive(segments, text, seg_idx + 1, t_idx + 1);
+                return match_path_recursive(segments, text, seg_idx + 1, t_idx + 1, false);
             }
             false
         }
@@ -91,7 +94,7 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
             if count == 0 {
                 return false;
             }
-            match_path_recursive(segments, text, seg_idx + 1, curr_t_idx)
+            match_path_recursive(segments, text, seg_idx + 1, curr_t_idx, false)
         }
         path::Segment::Bracket(b) => {
             if t_idx >= text.len() {
@@ -99,7 +102,7 @@ fn match_path_recursive(segments: &[path::Segment], text: &str, seg_idx: usize, 
             }
             let ch = text.chars().nth(t_idx).unwrap();
             if b.singles.contains(&ch) || b.ranges.iter().any(|(start, end)| ch >= *start && ch <= *end) {
-                match_path_recursive(segments, text, seg_idx + 1, t_idx + 1)
+                match_path_recursive(segments, text, seg_idx + 1, t_idx + 1, false)
             } else {
                 false
             }
