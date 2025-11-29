@@ -62,14 +62,14 @@ pub fn parse(path: &str) -> Path {
                 }
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
             }
-            ch if ch.is_alphabetic() || ch.is_numeric() || ch == '.' || ch == '/' || ch == '!' => {
+            _ => {
                 let mut lit = String::new();
                 lit.push(ch);
                 while let Some(&next) = chars.peek() {
-                    if next.is_alphabetic() || next.is_numeric() || next == '.' || next == '/' || next == '!' {
-                        lit.push(chars.next().unwrap());
-                    } else {
+                    if next == '*' || next == '[' || next == '?' || next == '+' {
                         break;
+                    } else {
+                        lit.push(chars.next().unwrap());
                     }
                 }
                 if !lit.is_empty() {
@@ -92,7 +92,6 @@ pub fn parse(path: &str) -> Path {
                     }
                 }
             }
-            _ => {} // ignore other characters or handle as error if needed
         }
     }
 
