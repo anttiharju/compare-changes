@@ -15,7 +15,7 @@ pub struct BracketContent {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Segment {
-    Literal(String),         // foo: literal "foo"
+    Literal(Vec<char>),      // foo: literal ["f","o","o"]
     Slash,                   // docs/: literal "docs" slash "/"
     SingleStar,              // bar*: literal "bar" singlestar "*"
     DoubleStar,              // baz/**: literal "baz/" doublestar "**"
@@ -82,7 +82,7 @@ pub fn parse(path: &str) -> Path {
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
             }
             _ => {
-                let mut lit = String::new();
+                let mut lit: Vec<char> = Vec::new();
                 lit.push(ch);
                 while let Some(&next) = chars.peek() {
                     if SEGMENT_STARTERS.contains(&next) {

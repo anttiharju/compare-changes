@@ -18,8 +18,7 @@ fn match_path_recursive(segments: &[path::Segment], text: &[char], seg_idx: usiz
         false
     } else {
         match &segments[seg_idx] {
-            path::Segment::Literal(lit) => {
-                let lit_chars: Vec<char> = lit.chars().collect();
+            path::Segment::Literal(lit_chars) => {
                 let len = lit_chars.len();
                 if t_idx + len <= text.len() && text[t_idx..t_idx + len] == lit_chars[..] {
                     match_path_recursive(segments, text, seg_idx + 1, t_idx + len, memo)
