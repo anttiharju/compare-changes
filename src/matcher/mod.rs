@@ -1,3 +1,7 @@
+#[cfg(test)]
+#[path = "test.rs"]
+mod test;
+
 use crate::path;
 
 pub fn match_path(segments: &[path::Segment], text: &str) -> bool {
