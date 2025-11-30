@@ -3,8 +3,7 @@ mod path;
 
 #[derive(Debug)]
 pub enum Error {
-    // Chumsky-native parse diagnostics converted to strings for transport
-    Parse(Vec<String>),
+    Parse(Vec<String>), // convert to strings for simplicity
     Regex(regex::Error),
 }
 
