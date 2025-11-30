@@ -20,24 +20,17 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 pattern.push_str("[^/]*");
             }
             path::Segment::DoubleStar => {
+                let mut regex_part = ".*".to_string();
                 if let Some(path::Segment::Literal(lit)) = segments.get(idx + 1) {
-                    if let Some(lit) = lit.strip_prefix('/') {
+                    if let Some(stripped) = lit.strip_prefix('/') {
                         // Handle "**/" as optional anything ending with /
-                        pattern.push_str("(?:.*/)?");
-                        // Push the literal without the leading /
-                        if !lit.is_empty() {
-                            pattern.push_str(&regex::escape(lit));
-                        }
+                        regex_part = format!("(?:.*/)?{}", if stripped.is_empty() { "".to_string() } else { regex::escape(stripped) });
                         // Skip the consumed literal segment
                         idx += 1;
-                    } else {
-                        // Regular double star
-                        pattern.push_str(".*");
                     }
-                } else {
-                    // Regular double star
-                    pattern.push_str(".*");
                 }
+                // Regular double star
+                pattern.push_str(&regex_part);
             }
             path::Segment::QuestionMark(ch) => {
                 pattern.push_str(&format!("{}?", ch));
