@@ -40,6 +40,7 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
             }
             path::Segment::Bracket(b) => {
                 if b.singles == vec!['-'] && b.ranges.is_empty() {
+                    // GitHub considers [-] invalid 'push event contained invalid paths patterns: test[-].txt' even if it's valid for the Rust regex crate
                     return Err(regex::Error::Syntax("literal hyphen in bracket class".to_string()));
                 }
                 pattern.push('[');
