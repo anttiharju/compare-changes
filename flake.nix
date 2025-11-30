@@ -138,7 +138,6 @@
             tag = container_version;
             contents = (devPackages pkgs anttiharju system) ++ [
               nix-ld-setup
-              pkgs.libiconv
               pkgs.binutils
               zcc_scripts
               pkgs.dockerTools.caCertificates
@@ -152,12 +151,11 @@
                 "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
                 "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
                 "CC_x86_64_unknown_linux_gnu=/zcc/x86_64-unknown-linux-gnu.sh"
-                # Let linkers find libiconv for macOS cross-linking
-                "LIBRARY_PATH=${pkgs.lib.makeLibraryPath [ pkgs.libiconv ]}"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
                     pkgs.glibc
+                    pkgs.libiconv
                   ]
                 }"
                 "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
