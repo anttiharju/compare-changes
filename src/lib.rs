@@ -1,23 +1,20 @@
-mod matcher;
+mod convert;
 mod path;
 
-pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
+pub fn path_matches(path: &str, files: &[&str]) -> Result<Option<usize>, regex::Error> {
     if files.is_empty() {
-        return None;
+        return Ok(None);
     }
+
+    // remove leading '!' since negations are not handled here
+    let pattern = path.strip_prefix('!').unwrap_or(path);
 
     // Parse the single path
-    let parsed_path = path::parse(path);
+    let parsed_path = path::parse(pattern);
 
-    // If the path is negated, immediately return None
-    if matches!(parsed_path.segments.first(), Some(path::Segment::Negation)) {
-        return None;
-    }
+    // Build regex from the parsed path — propagate compilation errors
+    let re = convert::path_to_regex(&parsed_path)?;
 
-    // Check if any file matches the path
-    files
-        .iter()
-        .enumerate()
-        .find(|(_, file)| matcher::match_path(&parsed_path.segments, file))
-        .map(|(i, _)| i)
+    // Check if any file matches the compiled regex
+    Ok(files.iter().enumerate().find(|(_, file)| re.is_match(file)).map(|(i, _)| i))
 }

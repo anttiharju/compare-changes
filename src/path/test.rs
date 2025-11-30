@@ -1,23 +1,12 @@
 #[cfg(test)]
-use super::{parse, BracketContent, Path, Segment};
-
-macro_rules! lit {
-    ($s:expr) => {
-        Segment::Literal($s.chars().collect())
-    };
-}
+use super::{BracketContent, Path, Segment, parse};
 
 #[test]
 fn parse_literal() {
-    assert_eq!(parse("foo"), Path { segments: vec![lit!("foo")] });
-}
-
-#[test]
-fn parse_slash() {
     assert_eq!(
-        parse("docs/"),
+        parse("foo"),
         Path {
-            segments: vec![lit!("docs"), Segment::Slash]
+            segments: vec![Segment::Literal("foo")]
         }
     );
 }
@@ -27,7 +16,7 @@ fn parse_single_star() {
     assert_eq!(
         parse("bar*"),
         Path {
-            segments: vec![lit!("bar"), Segment::SingleStar]
+            segments: vec![Segment::Literal("bar"), Segment::SingleStar]
         }
     );
 }
@@ -37,7 +26,7 @@ fn parse_double_star() {
     assert_eq!(
         parse("baz/**"),
         Path {
-            segments: vec![lit!("baz"), Segment::Slash, Segment::DoubleStar]
+            segments: vec![Segment::Literal("baz/"), Segment::DoubleStar]
         }
     );
 }
@@ -47,7 +36,7 @@ fn parse_question_mark() {
     assert_eq!(
         parse("*.abc?"),
         Path {
-            segments: vec![Segment::SingleStar, lit!(".ab"), Segment::QuestionMark('c')]
+            segments: vec![Segment::SingleStar, Segment::Literal(".ab"), Segment::QuestionMark('c')]
         }
     );
 }
@@ -57,7 +46,7 @@ fn parse_plus() {
     assert_eq!(
         parse("xyz+"),
         Path {
-            segments: vec![lit!("xy"), Segment::Plus('z')]
+            segments: vec![Segment::Literal("xy"), Segment::Plus('z')]
         }
     );
 }
@@ -72,18 +61,8 @@ fn parse_bracket() {
                     singles: vec!['C', 'B'],
                     ranges: vec![]
                 }),
-                lit!("at")
+                Segment::Literal("at")
             ]
-        }
-    );
-}
-
-#[test]
-fn parse_negation() {
-    assert_eq!(
-        parse("!important"),
-        Path {
-            segments: vec![Segment::Negation, lit!("important")]
         }
     );
 }
@@ -93,7 +72,7 @@ fn parse_exclamation_point() {
     assert_eq!(
         parse("important!"),
         Path {
-            segments: vec![lit!("important!")]
+            segments: vec![Segment::Literal("important!")]
         }
     );
 }
@@ -103,7 +82,20 @@ fn parse_emoji() {
     assert_eq!(
         parse("🗒️.md"),
         Path {
-            segments: vec![lit!("🗒️.md")]
+            segments: vec![Segment::Literal("🗒️.md")]
+        }
+    );
+}
+
+#[test]
+fn parse_bracket_with_hyphen() {
+    assert_eq!(
+        parse("[A-]"),
+        Path {
+            segments: vec![Segment::Bracket(BracketContent {
+                singles: vec!['A', '-'],
+                ranges: vec![],
+            })]
         }
     );
 }
