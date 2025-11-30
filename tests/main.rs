@@ -69,21 +69,45 @@ fn test_changes_output() {
 }
 
 #[test]
-fn test_chumsky_error_output() {
-    let temp = prepare_workflow_with_patterns(&["[z-a]"]);
+fn test_invalid_bracket_range() {
+    let pat = "[z-a]";
+    let temp = prepare_workflow_with_patterns(&[pat]);
     let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
 
-    let msg = "Failed to compare path '[z-a]': invalid bracket range z-a";
+    let expected = "invalid bracket range z-a";
+    let msg = format!("Failed to compare path '{}': {}", pat, expected);
 
     assert!(
-        stderr.contains(msg),
-        "expected chumsky error message 'invalid bracket range z-a' in stderr\n\nSTDERR:\n{}",
+        stderr.contains(&msg),
+        "expected exact error message in stderr\n\nEXPECTED:\n{}\n\nSTDERR:\n{}",
+        msg,
         stderr
     );
+    assert!(
+        !stdout.contains(&msg),
+        "did not expect the error message in stdout\n\nSTDOUT:\n{}",
+        stdout
+    );
+}
+
+#[test]
+fn test_empty_bracket() {
+    let pat = "[]";
+    let temp = prepare_workflow_with_patterns(&[pat]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
+
+    let expected = "empty bracket";
+    let msg = format!("Failed to compare path '{}': {}", pat, expected);
 
     assert!(
-        !stdout.contains(msg),
-        "did not expect chumsky error message in stdout\n\nSTDOUT:\n{}",
+        stderr.contains(&msg),
+        "expected exact error message in stderr\n\nEXPECTED:\n{}\n\nSTDERR:\n{}",
+        msg,
+        stderr
+    );
+    assert!(
+        !stdout.contains(&msg),
+        "did not expect the error message in stdout\n\nSTDOUT:\n{}",
         stdout
     );
 }
