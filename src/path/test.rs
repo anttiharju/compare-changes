@@ -1,5 +1,5 @@
 #[cfg(test)]
-use super::{BracketContent, Path, Segment, parse};
+use super::{parse, BracketContent, Path, Segment};
 
 #[test]
 fn parse_literal() {
