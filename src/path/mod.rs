@@ -2,6 +2,8 @@
 #[path = "test.rs"]
 mod test;
 
+use chumsky::prelude::*;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Path<'a> {
     pub segments: Vec<Segment<'a>>,
@@ -26,7 +28,6 @@ pub enum Segment<'a> {
 macro_rules! define_starters {
     ($($name:ident => $val:expr),* $(,)?) => {
         $(const $name: char = $val;)*
-        const SEGMENT_STARTERS: &[char] = &[$($name),*];
     };
 }
 
@@ -47,48 +48,128 @@ pub enum ParseError {
 
 /// Parse the pattern into segments. Returns Err on malformed input (e.g. unmatched '[').
 pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, ParseError> {
-    let mut segments = Vec::new();
-    let mut iter = path.char_indices().peekable();
+    // Raw intermediate segment representation coming out of chumsky
+    #[derive(Clone)]
+    enum RawSegment<'b> {
+        Literal(&'b str, Option<char>), // slice and optional attached modifier ('?' or '+')
+        SingleStar,
+        DoubleStar,
+        Bracket(&'b str, usize), // inner slice and start position of '[' in original input
+    }
 
-    while let Some((start, ch)) = iter.next() {
-        match ch {
-            STAR => {
-                if let Some(&(_, next_ch)) = iter.peek() {
-                    if next_ch == STAR {
-                        // consume second '*'
-                        iter.next();
-                        segments.push(Segment::DoubleStar);
+    // predicate for what starts a new segment
+    let is_starter = move |c: &char| *c == STAR || *c == BRACKET_OPEN || *c == QUESTION_MARK || *c == PLUS;
+
+    // literal: 1+ chars that are not segment starters, returned as a slice
+    let literal = any::<&'a str, chumsky::extra::Full<chumsky::error::Simple<'a, char>, (), ()>>()
+        .filter(move |c: &char| !is_starter(c))
+        .repeated()
+        .at_least(1)
+        .to_slice();
+
+    // literal possibly followed by '?' or '+'
+    let literal_mod = literal
+        .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
+        .map(|(lit, op)| RawSegment::Literal(lit, op));
+
+    let double_star = just(STAR).then(just(STAR)).to(RawSegment::DoubleStar);
+
+    let single_star = just(STAR).to(RawSegment::SingleStar);
+
+    // bracket: '[' inner ']' where inner is any chars except ']'
+    // we map_with_span to compute the position of the '[' (span.start is the start of inner,
+    // so subtract 1 to get '[' position).
+    let bracket_inner = any::<&'a str, chumsky::extra::Full<chumsky::error::Simple<'a, char>, (), ()>>()
+        .filter(|c: &char| *c != ']')
+        .repeated()
+        .to_slice();
+
+    let bracket = just(BRACKET_OPEN).ignore_then(bracket_inner).then_ignore(just(']')).map(|inner: &str| {
+        // Compute the byte offset of `inner` within the original `path` using pointers.
+        // This avoids depending on the parser-extra span type.
+        let start_pos = inner.as_ptr() as usize - path.as_ptr() as usize;
+        RawSegment::Bracket(inner, start_pos.saturating_sub(1))
+    });
+
+    // a segment is one of the choices
+    let segment = choice((double_star, single_star, bracket, literal_mod));
+
+    // parse the whole input as a sequence of segments (collect into Vec<RawSegment>)
+    let parser = segment.repeated().collect::<Vec<_>>();
+
+    let raw_segments: Vec<RawSegment> = parser.parse(path).into_result().map_err(|_err| {
+        // If parsing failed, try to detect an unmatched '[' and return that error,
+        // otherwise fall back to an UnmatchedBracket at the first '[' if present.
+        let mut stack: Vec<usize> = Vec::new();
+        for (pos, ch) in path.char_indices() {
+            if ch == BRACKET_OPEN {
+                stack.push(pos);
+            } else if ch == ']' {
+                stack.pop();
+            }
+        }
+        if let Some(pos) = stack.into_iter().next() {
+            ParseError::UnmatchedBracket(pos)
+        } else if let Some((pos, _)) = path.char_indices().find(|(_, c)| *c == BRACKET_OPEN) {
+            ParseError::UnmatchedBracket(pos)
+        } else {
+            // fallback: treat as unmatched bracket at 0
+            ParseError::UnmatchedBracket(0)
+        }
+    })?;
+
+    // Post-process raw segments into final Segment<'a> vector, validating brackets
+    let mut segments: Vec<Segment<'a>> = Vec::new();
+
+    for raw in raw_segments {
+        match raw {
+            RawSegment::SingleStar => segments.push(Segment::SingleStar),
+            RawSegment::DoubleStar => segments.push(Segment::DoubleStar),
+            RawSegment::Literal(lit, maybe_op) => {
+                if let Some(op) = maybe_op {
+                    // attach modifier to last char of lit
+                    // find last char byte offset in the slice
+                    if let Some((off, last_ch)) = lit.char_indices().next_back() {
+                        let prefix = &lit[..off];
+                        if op == QUESTION_MARK {
+                            if prefix.is_empty() {
+                                segments.push(Segment::QuestionMark(last_ch));
+                            } else {
+                                segments.push(Segment::Literal(prefix));
+                                segments.push(Segment::QuestionMark(last_ch));
+                            }
+                        } else
+                        /* '+' */
+                        if prefix.is_empty() {
+                            segments.push(Segment::Plus(last_ch));
+                        } else {
+                            segments.push(Segment::Literal(prefix));
+                            segments.push(Segment::Plus(last_ch));
+                        }
                     } else {
-                        segments.push(Segment::SingleStar);
+                        // defensive: shouldn't happen because literal has at least one char
+                        if op == QUESTION_MARK {
+                            segments.push(Segment::QuestionMark('\0'));
+                        } else {
+                            segments.push(Segment::Plus('\0'));
+                        }
                     }
                 } else {
-                    segments.push(Segment::SingleStar);
+                    segments.push(Segment::Literal(lit));
                 }
             }
-
-            BRACKET_OPEN => {
-                // collect content inside brackets with positions for better errors
-                let mut content: Vec<(usize, char)> = Vec::new();
-                let mut saw_close = false;
-                for (pos, c) in iter.by_ref() {
-                    if c == ']' {
-                        saw_close = true;
-                        break;
-                    }
-                    content.push((pos, c));
+            RawSegment::Bracket(inner, start_pos) => {
+                // Validate bracket content: must not be empty, ranges must be a <= b
+                if inner.is_empty() {
+                    return Err(ParseError::EmptyBracket(start_pos));
                 }
 
-                if !saw_close {
-                    return Err(ParseError::UnmatchedBracket(start));
-                }
-
-                if content.is_empty() {
-                    return Err(ParseError::EmptyBracket(start));
-                }
-
+                // collect inner char positions relative to inner start
+                let content: Vec<(usize, char)> = inner.char_indices().collect();
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
-                let mut j = 0;
+
+                let mut j = 0usize;
                 while j < content.len() {
                     if j + 2 < content.len() && content[j + 1].1 == '-' {
                         let (pos_a, a) = content[j];
@@ -97,7 +178,9 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, ParseError> {
                         if a <= b {
                             ranges.push((a, b));
                         } else {
-                            return Err(ParseError::InvalidBracketRange { start_pos: pos_a, a, b });
+                            // compute absolute position of 'a' in original input: '[' pos + 1 + pos_in_inner
+                            let abs_pos = start_pos + 1 + pos_a;
+                            return Err(ParseError::InvalidBracketRange { start_pos: abs_pos, a, b });
                         }
                         j += 3;
                     } else {
@@ -107,49 +190,6 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, ParseError> {
                 }
 
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
-            }
-
-            _ => {
-                // start of a literal: consume until a segment starter
-                let lit_start = start;
-                while let Some(&(_, next)) = iter.peek() {
-                    if SEGMENT_STARTERS.contains(&next) {
-                        break;
-                    }
-                    iter.next();
-                }
-                let lit_end = iter.peek().map(|(pos, _)| *pos).unwrap_or(path.len());
-                let lit = &path[lit_start..lit_end];
-
-                if !lit.is_empty() {
-                    // handle trailing '?' or '+' attached to last char of the literal
-                    if let Some(&(_, next_ch)) = iter.peek()
-                        && (next_ch == QUESTION_MARK || next_ch == PLUS)
-                    {
-                        // consume the modifier
-                        iter.next();
-                        if let Some((off, last_ch)) = lit.char_indices().next_back() {
-                            let prefix = &lit[..off];
-                            if next_ch == QUESTION_MARK {
-                                if prefix.is_empty() {
-                                    // impossible here since lit isn't empty, but keep defensive
-                                    segments.push(Segment::QuestionMark(last_ch));
-                                } else {
-                                    segments.push(Segment::Literal(prefix));
-                                    segments.push(Segment::QuestionMark(last_ch));
-                                }
-                            } else if prefix.is_empty() {
-                                segments.push(Segment::Plus(last_ch));
-                            } else {
-                                segments.push(Segment::Literal(prefix));
-                                segments.push(Segment::Plus(last_ch));
-                            }
-                            continue;
-                        }
-                    }
-
-                    segments.push(Segment::Literal(lit));
-                }
             }
         }
     }

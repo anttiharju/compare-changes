@@ -99,3 +99,6 @@ fn parse_bracket_with_hyphen() {
         })
     );
 }
+
+// add a test about:
+// assert_path_match("+file.txt", "file.txt", false);

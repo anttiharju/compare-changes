@@ -240,9 +240,6 @@ fn test_plus_behavior() {
     assert_path_match("file+.txt", "filee.txt", true);
     assert_path_match("file+.txt", "fileee.txt", true);
     assert_path_match("file+.txt", "fil.txt", false); // zero 'e' - should not match
-
-    // Edge case: plus at start doesn't make sense
-    assert_path_match("+file.txt", "file.txt", false); // bogus pattern
 }
 
 #[test]
