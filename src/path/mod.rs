@@ -5,10 +5,6 @@ mod test;
 use chumsky::error::Rich;
 use chumsky::prelude::*;
 
-// Short alias for the parser extra type used throughout this module.
-// Use Rich errors so we can emit detailed chumsky-native diagnostics from validators.
-type Extra<'a> = chumsky::extra::Full<Rich<'a, char>, (), ()>;
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Path<'a> {
     pub segments: Vec<Segment<'a>>,
@@ -79,49 +75,48 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
 
     // bracket: '[' inner ']' where inner is any chars except ']'
     // single-pass: validate *and* build BracketContent here, emitting Rich errors as needed
-    let bracket_inner =
-        any::<&'a str, Extra<'a>>()
-            .filter(|c| *c != ']')
-            .repeated()
-            .to_slice()
-            .validate(|inner: &str, map_extra: &mut _, emitter: &mut _| {
-                let span = map_extra.span();
-                let content: Vec<(usize, char)> = inner.char_indices().collect();
+    let bracket_inner = any::<&'a str, chumsky::extra::Full<Rich<'a, char>, (), ()>>()
+        .filter(|c| *c != ']')
+        .repeated()
+        .to_slice()
+        .validate(|inner: &str, map_extra: &mut _, emitter: &mut _| {
+            let span = map_extra.span();
+            let content: Vec<(usize, char)> = inner.char_indices().collect();
 
-                let mut singles = Vec::new();
-                let mut ranges = Vec::new();
+            let mut singles = Vec::new();
+            let mut ranges = Vec::new();
 
-                if content.is_empty() {
-                    emitter.emit(Rich::custom(span, "empty bracket"));
-                    return BracketContent { singles, ranges };
-                }
+            if content.is_empty() {
+                emitter.emit(Rich::custom(span, "empty bracket"));
+                return BracketContent { singles, ranges };
+            }
 
-                let mut iter = content.iter().peekable();
+            let mut iter = content.iter().peekable();
 
-                while let Some(&(pos_a, a)) = iter.next() {
-                    // Check if we can form a valid range (next is '-', and there's a char after)
-                    let is_range = iter.peek().map(|&(_, ch)| ch) == Some(&'-') && iter.clone().nth(1).is_some();
+            while let Some(&(pos_a, a)) = iter.next() {
+                // Check if we can form a valid range (next is '-', and there's a char after)
+                let is_range = iter.peek().map(|&(_, ch)| ch) == Some(&'-') && iter.clone().nth(1).is_some();
 
-                    if is_range {
-                        // Consume the '-'
-                        iter.next();
-                        // Consume and get the end char of the range
-                        if let Some(&(pos_b, b)) = iter.next() {
-                            if a > b {
-                                let abs_start = span.start + pos_a;
-                                let abs_end = span.start + pos_b + b.len_utf8();
-                                let bad_span = abs_start..abs_end;
-                                emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
-                            }
-                            ranges.push((a, b));
+                if is_range {
+                    // Consume the '-'
+                    iter.next();
+                    // Consume and get the end char of the range
+                    if let Some(&(pos_b, b)) = iter.next() {
+                        if a > b {
+                            let abs_start = span.start + pos_a;
+                            let abs_end = span.start + pos_b + b.len_utf8();
+                            let bad_span = abs_start..abs_end;
+                            emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
                         }
-                    } else {
-                        singles.push(a);
+                        ranges.push((a, b));
                     }
+                } else {
+                    singles.push(a);
                 }
+            }
 
-                BracketContent { singles, ranges }
-            });
+            BracketContent { singles, ranges }
+        });
 
     let bracket = just(BRACKET_OPEN)
         .ignore_then(bracket_inner)
