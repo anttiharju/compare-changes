@@ -33,6 +33,7 @@ pub enum Segment<'a> {
 macro_rules! define_starters {
     ($($name:ident => $val:expr),* $(,)?) => {
         $(const $name: char = $val;)*
+        const SEGMENT_STARTERS: &[char] = &[$($name),*];
     };
 }
 
@@ -51,7 +52,7 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
     }
 
     // literal: 1+ chars that are not segment starters, returned as a slice
-    let literal = none_of("*[?+").repeated().at_least(1).to_slice();
+    let literal = none_of(SEGMENT_STARTERS).repeated().at_least(1).to_slice();
 
     // literal possibly followed by '?' or '+'
     let literal_mod = literal
