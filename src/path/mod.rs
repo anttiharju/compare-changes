@@ -87,6 +87,7 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
             .validate(|inner: &str, map_extra: &mut _, emitter: &mut _| {
                 let span = map_extra.span();
                 let content: Vec<(usize, char)> = inner.char_indices().collect();
+
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
                 let mut i = 0usize;
@@ -95,16 +96,19 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                     emitter.emit(Rich::custom(span, "empty bracket"));
                 } else {
                     while i < content.len() {
+                        // If we have "<char> '-' <char>" treat as a range, otherwise a single.
                         if i + 2 < content.len() && content[i + 1].1 == '-' {
                             let (pos_a, a) = content[i];
                             let (_pos_dash, _dash) = content[i + 1];
                             let (_pos_b, b) = content[i + 2];
+
                             if a > b {
                                 let abs_start = span.start + pos_a;
                                 let abs_end = abs_start + a.len_utf8();
                                 let bad_span = abs_start..abs_end;
                                 emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
                             }
+
                             ranges.push((a, b));
                             i += 3;
                         } else {
