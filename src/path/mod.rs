@@ -90,36 +90,33 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
 
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
-                let mut i = 0;
 
                 if content.is_empty() {
                     emitter.emit(Rich::custom(span, "empty bracket"));
                     return BracketContent { singles, ranges };
                 }
 
-                const RANGE_LENGTH: usize = 3; // e.g. 'a-b'
-                const RANGE_HYPHEN_INDEX: usize = 1; // index of '-'
-                const RANGE_END_INDEX: usize = 2; // index of 'b'
+                let mut iter = content.iter().peekable();
 
-                while i < content.len() {
-                    // If we have "<char> '-' <char>" treat as a range, otherwise a single.
-                    if i + RANGE_LENGTH <= content.len() && content[i + RANGE_HYPHEN_INDEX].1 == '-' {
-                        let pos_a = content[i].0;
-                        let a = content[i].1;
-                        let b = content[i + RANGE_END_INDEX].1;
+                while let Some(&(pos_a, a)) = iter.next() {
+                    // Check if we can form a valid range (next is '-', and there's a char after)
+                    let is_range = iter.peek().map(|&(_, ch)| ch) == Some(&'-') && iter.clone().nth(1).is_some();
 
-                        if a > b {
-                            let abs_start = span.start + pos_a;
-                            let abs_end = abs_start + a.len_utf8();
-                            let bad_span = abs_start..abs_end;
-                            emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
+                    if is_range {
+                        // Consume the '-'
+                        iter.next();
+                        // Consume and get the end char of the range
+                        if let Some(&(_, b)) = iter.next() {
+                            if a > b {
+                                let abs_start = span.start + pos_a;
+                                let abs_end = abs_start + a.len_utf8();
+                                let bad_span = abs_start..abs_end;
+                                emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
+                            }
+                            ranges.push((a, b));
                         }
-
-                        ranges.push((a, b));
-                        i += RANGE_LENGTH;
                     } else {
-                        singles.push(content[i].1);
-                        i += 1;
+                        singles.push(a);
                     }
                 }
 
