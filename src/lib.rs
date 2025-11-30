@@ -1,6 +1,8 @@
 mod convert;
 mod path;
 
+use std::fmt;
+
 #[derive(Debug)]
 pub enum Error {
     Parse(Vec<String>), // convert to strings for simplicity
@@ -10,6 +12,24 @@ pub enum Error {
 impl From<regex::Error> for Error {
     fn from(e: regex::Error) -> Self {
         Error::Regex(e)
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Error::Parse(msgs) => write!(f, "{}", msgs.join("; ")),
+            Error::Regex(e) => write!(f, "{}", e),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Error::Regex(e) => Some(e),
+            _ => None,
+        }
     }
 }
 
