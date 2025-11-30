@@ -19,17 +19,19 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 pattern.push_str("[^/]*");
             }
             path::Segment::DoubleStar => {
-                if let Some(path::Segment::Literal(lit)) = iter.peek()
-                    && let Some(stripped) = lit.strip_prefix('/')
-                {
-                    if stripped.is_empty() {
-                        // next segment was "/" — consume it and treat as ".*"
-                        iter.next();
-                        pattern.push_str(".*");
+                if let Some(path::Segment::Literal(lit)) = iter.peek() {
+                    if let Some(stripped) = lit.strip_prefix('/') {
+                        if stripped.is_empty() {
+                            // next segment was "/" — consume it and treat as ".*"
+                            iter.next();
+                            pattern.push_str(".*");
+                        } else {
+                            // followed by "/something" — consume literal and match optionally any dirs before it
+                            iter.next();
+                            pattern.push_str(&format!("(?:.*/)?{}", regex::escape(stripped)));
+                        }
                     } else {
-                        // followed by "/something" — consume literal and match optionally any dirs before it
-                        iter.next();
-                        pattern.push_str(&format!("(?:.*/)?{}", regex::escape(stripped)));
+                        pattern.push_str(".*");
                     }
                 } else {
                     pattern.push_str(".*");
