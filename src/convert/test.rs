@@ -299,16 +299,14 @@ fn assert_glob_compile_fail(pattern: &str) {
 
 #[test]
 fn test_regex_compile_failures() {
-    assert_glob_compile_fail("test[].txt");
-    assert_glob_compile_fail("test[^].txt");
-    assert_glob_compile_fail(r#"test[\].txt"#);
+    assert_glob_compile_fail("[]");
+    assert_glob_compile_fail("[^]");
+    assert_glob_compile_fail(r#"[\]"#);
 }
 
 #[test]
 fn test_regex_github_compat() {
-    assert_glob_compile_fail("test[-].txt");
-    assert_glob_match("[A-]", "A", true);
-    assert_glob_match("[A-]", "-", true);
-    assert_glob_match("[-A]", "A", true);
-    assert_glob_match("[-A]", "-", true);
+    assert_glob_compile_fail("[-]");
+    assert_glob_compile_fail("[A-]");
+    assert_glob_compile_fail("[-A]");
 }
