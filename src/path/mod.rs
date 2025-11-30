@@ -39,33 +39,34 @@ define_starters! {
 
 pub fn parse<'a>(path: &'a str) -> Path<'a> {
     let mut segments = Vec::new();
-    let chars = path.char_indices().collect::<Vec<_>>();
-    let mut i = 0;
+    let mut iter = path.char_indices().peekable();
 
-    while i < chars.len() {
-        let (start, ch) = chars[i];
+    while let Some((start, ch)) = iter.next() {
         match ch {
             STAR => {
-                if i + 1 < chars.len() && chars[i + 1].1 == STAR {
-                    segments.push(Segment::DoubleStar);
-                    i += 2;
+                if let Some(&(_, next_ch)) = iter.peek() {
+                    if next_ch == STAR {
+                        // consume second '*'
+                        iter.next();
+                        segments.push(Segment::DoubleStar);
+                    } else {
+                        segments.push(Segment::SingleStar);
+                    }
                 } else {
                     segments.push(Segment::SingleStar);
-                    i += 1;
                 }
             }
+
             BRACKET_OPEN => {
-                i += 1; // skip [
+                // collect content inside brackets
                 let mut content = Vec::new();
-                while i < chars.len() {
-                    let ch = chars[i].1;
-                    if ch == ']' {
-                        i += 1;
+                for (_, c) in iter.by_ref() {
+                    if c == ']' {
                         break;
                     }
-                    content.push(ch);
-                    i += 1;
+                    content.push(c);
                 }
+
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
                 let mut j = 0;
@@ -78,34 +79,42 @@ pub fn parse<'a>(path: &'a str) -> Path<'a> {
                         j += 1;
                     }
                 }
+
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
             }
+
             _ => {
+                // start of a literal: consume until a segment starter
                 let lit_start = start;
-                i += 1;
-                while i < chars.len() && !SEGMENT_STARTERS.contains(&chars[i].1) {
-                    i += 1;
-                }
-                let lit_end = chars.get(i).map(|(pos, _)| *pos).unwrap_or(path.len());
-                let lit = &path[lit_start..lit_end];
-                if !lit.is_empty() {
-                    if i < chars.len() && chars[i].1 == QUESTION_MARK {
-                        i += 1;
-                        let last = lit.chars().last().unwrap();
-                        let prefix_len = lit.len() - last.len_utf8();
-                        let prefix = &lit[..prefix_len];
-                        segments.push(Segment::Literal(prefix));
-                        segments.push(Segment::QuestionMark(last));
-                    } else if i < chars.len() && chars[i].1 == PLUS {
-                        i += 1;
-                        let last = lit.chars().last().unwrap();
-                        let prefix_len = lit.len() - last.len_utf8();
-                        let prefix = &lit[..prefix_len];
-                        segments.push(Segment::Literal(prefix));
-                        segments.push(Segment::Plus(last));
-                    } else {
-                        segments.push(Segment::Literal(lit));
+                while let Some(&(_, next)) = iter.peek() {
+                    if SEGMENT_STARTERS.contains(&next) {
+                        break;
                     }
+                    iter.next();
+                }
+                let lit_end = iter.peek().map(|(pos, _)| *pos).unwrap_or(path.len());
+                let lit = &path[lit_start..lit_end];
+
+                if !lit.is_empty() {
+                    // handle trailing '?' or '+' attached to last char of the literal
+                    if let Some(&(_, next_ch)) = iter.peek()
+                        && (next_ch == QUESTION_MARK || next_ch == PLUS) {
+                            // consume the modifier
+                            iter.next();
+                            if let Some((off, last_ch)) = lit.char_indices().next_back() {
+                                let prefix = &lit[..off];
+                                if next_ch == QUESTION_MARK {
+                                    segments.push(Segment::Literal(prefix));
+                                    segments.push(Segment::QuestionMark(last_ch));
+                                } else {
+                                    segments.push(Segment::Literal(prefix));
+                                    segments.push(Segment::Plus(last_ch));
+                                }
+                                continue;
+                            }
+                        }
+
+                    segments.push(Segment::Literal(lit));
                 }
             }
         }
