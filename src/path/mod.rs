@@ -53,45 +53,39 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
         Two(Segment<'b>, Segment<'b>),
     }
 
-    // predicate for what starts a new segment
-    let is_starter = move |c: &char| *c == STAR || *c == BRACKET_OPEN || *c == QUESTION_MARK || *c == PLUS;
+    // helper to split last UTF-8 char from a &str
+    fn split_last_char(s: &str) -> Option<(&str, char)> {
+        s.char_indices().next_back().map(|(off, ch)| (&s[..off], ch))
+    }
 
     // literal: 1+ chars that are not segment starters, returned as a slice
-    let literal = any::<&'a str, Extra<'a>>()
-        .filter(move |c: &char| !is_starter(c))
-        .repeated()
-        .at_least(1)
-        .to_slice();
+    // more idiomatic: use none_of to exclude starter chars directly
+    let literal = none_of("*[?+").repeated().at_least(1).to_slice();
 
     // literal possibly followed by '?' or '+'
-    let literal_mod = literal.then(just(QUESTION_MARK).or(just(PLUS)).or_not()).map(|(lit, op)| {
-        if let Some(opc) = op {
-            // split last char off the literal and emit two segments if needed
-            if let Some((off, last_ch)) = lit.char_indices().next_back() {
-                let prefix = &lit[..off];
+    let literal_mod = literal
+        .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
+        .map(|(lit, op)| match (op, split_last_char(lit)) {
+            (Some(QUESTION_MARK), Some((prefix, last))) => {
                 if prefix.is_empty() {
-                    if opc == QUESTION_MARK {
-                        MultiSegment::One(Segment::QuestionMark(last_ch))
-                    } else {
-                        MultiSegment::One(Segment::Plus(last_ch))
-                    }
-                } else if opc == QUESTION_MARK {
-                    MultiSegment::Two(Segment::Literal(prefix), Segment::QuestionMark(last_ch))
+                    MultiSegment::One(Segment::QuestionMark(last))
                 } else {
-                    MultiSegment::Two(Segment::Literal(prefix), Segment::Plus(last_ch))
-                }
-            } else {
-                // defensive fallback
-                if opc == QUESTION_MARK {
-                    MultiSegment::One(Segment::QuestionMark('\0'))
-                } else {
-                    MultiSegment::One(Segment::Plus('\0'))
+                    MultiSegment::Two(Segment::Literal(prefix), Segment::QuestionMark(last))
                 }
             }
-        } else {
-            MultiSegment::One(Segment::Literal(lit))
-        }
-    });
+            (Some(PLUS), Some((prefix, last))) => {
+                if prefix.is_empty() {
+                    MultiSegment::One(Segment::Plus(last))
+                } else {
+                    MultiSegment::Two(Segment::Literal(prefix), Segment::Plus(last))
+                }
+            }
+            (Some(QUESTION_MARK), None) => MultiSegment::One(Segment::QuestionMark('\0')),
+            (Some(PLUS), None) => MultiSegment::One(Segment::Plus('\0')),
+            (None, _) => MultiSegment::One(Segment::Literal(lit)),
+            _ => MultiSegment::One(Segment::Literal(lit)),
+        })
+        .boxed();
 
     let double_star = just(STAR).then(just(STAR)).to(MultiSegment::One(Segment::DoubleStar));
     let single_star = just(STAR).to(MultiSegment::One(Segment::SingleStar));
