@@ -19,13 +19,21 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 pattern.push_str("[^/]*");
             }
             path::Segment::DoubleStar => {
-                // lookahead: if next is a Literal that starts with '/', treat "**/" specially
-                if let Some(&path::Segment::Literal(lit)) = iter.peek()
-                    && let Some(stripped) = lit.strip_prefix('/')
+                if let Some(&path::Segment::Literal(lit)) = iter.peek() // followed by a Literal
+                    && let Some(stripped) = lit.strip_prefix('/') // which starts with '/'
+                    && !stripped.is_empty()
+                // and there's something left after stripping
                 {
                     iter.next(); // consume the literal segment
                     pattern.push_str(&format!("(?:.*/)?{}", regex::escape(stripped)));
                 } else {
+                    // If the next segment was "/" (i.e. stripped was empty), consume it
+                    // so it's not processed again by the outer loop.
+                    if let Some(&path::Segment::Literal(lit)) = iter.peek()
+                        && let Some(_) = lit.strip_prefix('/')
+                    {
+                        iter.next();
+                    }
                     pattern.push_str(".*");
                 }
             }
