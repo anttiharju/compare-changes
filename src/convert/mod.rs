@@ -7,11 +7,11 @@ use regex::Regex;
 
 pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
     let segments = &parsed_path.segments;
-    let mut idx = 0usize;
+    let mut i = 0usize;
 
     let mut pattern = String::new();
 
-    while let Some(seg) = segments.get(idx) {
+    while let Some(seg) = segments.get(i) {
         match seg {
             path::Segment::Literal(lit) => {
                 pattern.push_str(&regex::escape(lit));
@@ -20,11 +20,11 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 pattern.push_str("[^/]*");
             }
             path::Segment::DoubleStar => {
-                let regex_part = if let Some(path::Segment::Literal(lit)) = segments.get(idx + 1)
+                let regex_part = if let Some(path::Segment::Literal(lit)) = segments.get(i + 1)
                     && let Some(stripped) = lit.strip_prefix('/')
                 {
                     // Handle "**/" as optional anything ending with /
-                    idx += 1; // Skip the consumed literal segment
+                    i += 1; // Skip the consumed literal segment
                     format!("(?:.*/)?{}", if stripped.is_empty() { "".to_string() } else { regex::escape(stripped) })
                 } else {
                     // Regular double star
@@ -54,7 +54,7 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 pattern.push(']');
             }
         }
-        idx += 1;
+        i += 1;
     }
 
     let full = format!("^{}$", pattern);
