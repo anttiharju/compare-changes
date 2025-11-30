@@ -41,3 +41,43 @@ fn test_changes_output() {
         assert!(stdout.contains(expected), "Expected output to contain '{}'", expected);
     }
 }
+
+#[test]
+fn test_chumsky_error_output() {
+    let temp = tempdir().unwrap();
+    let workflows = temp.path().join(".github/workflows");
+    fs::create_dir_all(&workflows).unwrap();
+
+    let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/wildcard-template.yml");
+    let dst = workflows.join("wildcard-template.yml");
+    fs::copy(&src, &dst).unwrap();
+
+    // Inject a pattern that triggers a chumsky/Rich error (invalid bracket range)
+    let test_patterns = ["[z-a]"];
+    let paths_yaml = test_patterns.iter().map(|p| format!("      - \"{}\"", p)).collect::<Vec<_>>().join("\n");
+    let mut yaml = fs::read_to_string(&dst).unwrap();
+    yaml = yaml.replace("paths:", &format!("paths:\n{}", paths_yaml));
+    fs::write(&dst, yaml).unwrap();
+
+    let changes = ["foo/bar"];
+    let changes_json = serde_json::to_string(&changes).unwrap();
+
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(&temp)
+        .arg("--wildcard")
+        .arg("template.yml")
+        .arg("--changes")
+        .arg(&changes_json)
+        .output()
+        .unwrap();
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    assert!(
+        stderr.contains("invalid bracket range z-a") || stdout.contains("invalid bracket range z-a"),
+        "expected chumsky error message 'invalid bracket range z-a' in stderr or stdout\nSTDOUT:\n{}\n\nSTDERR:\n{}",
+        stdout,
+        stderr
+    );
+}
