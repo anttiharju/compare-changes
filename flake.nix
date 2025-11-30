@@ -120,7 +120,7 @@
           anttiharju = nur-anttiharju.packages.${system};
 
           # Fix not being able to run the unpatched node binaries that GitHub Actions mounts into the container
-          nix-ld-setup = pkgs.runCommand "nix-ld-setup" { } ''
+          nix_ld_setup = pkgs.runCommand "nix-ld-setup" { } ''
             mkdir -p $out/lib64
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
@@ -137,7 +137,7 @@
             name = "ci";
             tag = container_version;
             contents = (devPackages pkgs anttiharju system) ++ [
-              nix-ld-setup
+              nix_ld_setup
               pkgs.binutils
               zcc_scripts
               pkgs.dockerTools.caCertificates
@@ -150,7 +150,7 @@
               Env = [
                 "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
                 "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
-                "CC_x86_64_unknown_linux_gnu=/zcc/x86_64-unknown-linux-gnu.sh"
+                "CC_x86_64-unknown-linux-gnu=/zcc/x86_64-unknown-linux-gnu.sh"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
