@@ -46,14 +46,13 @@ define_starters! {
 
 /// Parse the pattern into segments. Returns Err with chumsky Rich errors on malformed input.
 pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
+    // literal: 1+ chars that are not segment starters, returned as a slice
+    let literal = none_of(SEGMENT_STARTERS).repeated().at_least(1).to_slice();
+
     // helper to split last UTF-8 char from a &str
     fn split_last_char(s: &str) -> Option<(&str, char)> {
         s.char_indices().next_back().map(|(off, ch)| (&s[..off], ch))
     }
-
-    // literal: 1+ chars that are not segment starters, returned as a slice
-    let literal = none_of(SEGMENT_STARTERS).repeated().at_least(1).to_slice();
-
     // literal possibly followed by '?' or '+'
     let literal_mod = literal
         .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
