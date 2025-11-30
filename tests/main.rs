@@ -69,6 +69,17 @@ fn test_changes_output() {
 }
 
 #[test]
+fn test_valid_stray_closing_bracket() {
+    let temp = prepare_workflow_with_patterns(&["abc]"]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["abc]"], true);
+
+    for expected in ["path 'abc]' matched file 'abc]'", "changed=true"] {
+        assert!(stdout.contains(expected), "Expected output to contain '{}'", expected);
+        assert!(!stderr.contains(expected), "Did not expect '{}' in stderr", expected);
+    }
+}
+
+#[test]
 fn test_invalid_bracket_range() {
     let pat = "[z-a]";
     let temp = prepare_workflow_with_patterns(&[pat]);
