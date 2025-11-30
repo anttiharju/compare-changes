@@ -57,28 +57,22 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
     // literal possibly followed by '?' or '+'
     let literal_mod = literal
         .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
-        .map(|(lit, op)| {
-            match (op, split_last_char(lit)) {
-                (Some(QUESTION_MARK), Some((prefix, last))) => {
-                    if prefix.is_empty() {
-                        vec![Segment::QuestionMark(last)]
-                    } else {
-                        vec![Segment::Literal(prefix), Segment::QuestionMark(last)]
-                    }
+        .map(|(lit, op)| match (op, split_last_char(lit)) {
+            (Some(QUESTION_MARK), Some((prefix, last))) => {
+                if prefix.is_empty() {
+                    vec![Segment::QuestionMark(last)]
+                } else {
+                    vec![Segment::Literal(prefix), Segment::QuestionMark(last)]
                 }
-                (Some(PLUS), Some((prefix, last))) => {
-                    if prefix.is_empty() {
-                        vec![Segment::Plus(last)]
-                    } else {
-                        vec![Segment::Literal(prefix), Segment::Plus(last)]
-                    }
-                }
-                // Defensive fallbacks (shouldn't occur because `literal` is at_least(1))
-                (Some(QUESTION_MARK), None) => vec![Segment::QuestionMark('\0')],
-                (Some(PLUS), None) => vec![Segment::Plus('\0')],
-                (None, _) => vec![Segment::Literal(lit)],
-                _ => vec![Segment::Literal(lit)],
             }
+            (Some(PLUS), Some((prefix, last))) => {
+                if prefix.is_empty() {
+                    vec![Segment::Plus(last)]
+                } else {
+                    vec![Segment::Literal(prefix), Segment::Plus(last)]
+                }
+            }
+            _ => vec![Segment::Literal(lit)],
         })
         .boxed();
 
