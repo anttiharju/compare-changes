@@ -18,7 +18,7 @@ pub enum Segment<'a> {
     Literal(&'a str),        // foo: literal "foo"
     SingleStar,              // bar*: literal "bar" singlestar "*"
     DoubleStar,              // baz/**: literal "baz/" doublestar "**"
-    QuestionMark(char),      // *.abc?: singlestar "*" literal ".ab" questionamrk "c?"
+    QuestionMark(char),      // *.abc?: singlestar "*" literal ".ab" questionmark "c?"
     Plus(char),              // xyz+: literal "xy" plus "z+"
     Bracket(BracketContent), // [CB]at: bracket {singles: ['C','B'], ranges: []} literal "at"
 }
