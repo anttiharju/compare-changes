@@ -73,14 +73,16 @@ fn test_chumsky_error_output() {
     let temp = prepare_workflow_with_patterns(&["[z-a]"]);
     let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
 
+    let msg = "Failed to compare path '[z-a]': invalid bracket range z-a";
+
     assert!(
-        stderr.contains("invalid bracket range z-a"),
+        stderr.contains(msg),
         "expected chumsky error message 'invalid bracket range z-a' in stderr\n\nSTDERR:\n{}",
         stderr
     );
 
     assert!(
-        !stdout.contains("invalid bracket range z-a"),
+        !stdout.contains(msg),
         "did not expect chumsky error message in stdout\n\nSTDOUT:\n{}",
         stdout
     );

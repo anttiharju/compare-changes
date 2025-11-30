@@ -2,7 +2,7 @@ mod cli;
 mod exitcode;
 mod parse;
 
-use compare_changes::path_matches;
+use compare_changes::{Error, path_matches};
 
 fn main() {
     let args = cli::parse_args();
@@ -51,7 +51,16 @@ fn main() {
             }
             Ok(None) => continue,
             Err(e) => {
-                eprintln!("failed to compare path '{}': {:?}", path, e);
+                match e {
+                    Error::Parse(msgs) => {
+                        // Print parse messages inline (single-line) instead of a header + lines
+                        let joined = msgs.join(", ");
+                        eprintln!("Failed to compare path '{}': {}", path, joined);
+                    }
+                    Error::Regex(err) => {
+                        eprintln!("Failed to compare path '{}': regex error: {}", path, err);
+                    }
+                }
                 std::process::exit(exitcode::match_error());
             }
         }
