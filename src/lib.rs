@@ -3,14 +3,9 @@ mod path;
 
 #[derive(Debug)]
 pub enum Error {
-    Parse(path::ParseError),
+    // Chumsky-native parse diagnostics converted to strings for transport
+    Parse(Vec<String>),
     Regex(regex::Error),
-}
-
-impl From<path::ParseError> for Error {
-    fn from(e: path::ParseError) -> Self {
-        Error::Parse(e)
-    }
 }
 
 impl From<regex::Error> for Error {
@@ -27,8 +22,14 @@ pub fn path_matches(path: &str, files: &[&str]) -> Result<Option<usize>, Error> 
     // remove leading '!' since negations are not handled here
     let pattern = path.strip_prefix('!').unwrap_or(path);
 
-    // Parse the single path (propagate parse errors via From)
-    let parsed_path = path::parse(pattern)?;
+    // Parse the single path — map chumsky Rich errors to strings
+    let parsed_path = match path::parse(pattern) {
+        Ok(p) => p,
+        Err(errs) => {
+            let msgs = errs.into_iter().map(|e| e.to_string()).collect();
+            return Err(Error::Parse(msgs));
+        }
+    };
 
     // Build regex from the parsed path — propagate compilation errors
     let re = convert::path_to_regex(&parsed_path)?;
