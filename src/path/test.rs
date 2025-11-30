@@ -13,16 +13,6 @@ fn parse_literal() {
 }
 
 #[test]
-fn parse_slash() {
-    assert_eq!(
-        parse("docs/"),
-        Path {
-            segments: vec![lit!("docs"), Segment::Slash]
-        }
-    );
-}
-
-#[test]
 fn parse_single_star() {
     assert_eq!(
         parse("bar*"),
@@ -37,7 +27,7 @@ fn parse_double_star() {
     assert_eq!(
         parse("baz/**"),
         Path {
-            segments: vec![lit!("baz"), Segment::Slash, Segment::DoubleStar]
+            segments: vec![lit!("baz/"), Segment::DoubleStar]
         }
     );
 }

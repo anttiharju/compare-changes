@@ -15,47 +15,41 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
     let mut idx = 0usize;
 
     let mut pattern = String::new();
-    let mut skip_next_slash = false;
 
     while let Some(seg) = segments.get(idx) {
         match seg {
             path::Segment::Literal(lit_chars) => {
                 pattern.push_str(&escape_literal(lit_chars));
-                skip_next_slash = false;
-            }
-            path::Segment::Slash => {
-                if skip_next_slash {
-                    // already handled by previous DoubleStar
-                    skip_next_slash = false;
-                } else {
-                    pattern.push('/');
-                }
             }
             path::Segment::SingleStar => {
                 pattern.push_str("[^/]*");
-                skip_next_slash = false;
             }
             path::Segment::DoubleStar => {
-                // if next segment is a Slash, allow the "**/" to match either "anything/" or nothing
-                if matches!(segments.get(idx + 1), Some(path::Segment::Slash)) {
-                    // optional sequence of any chars ending with a slash
-                    pattern.push_str("(?:.*/)?");
-                    // instruct the next Slash segment to be skipped because we already allowed it optionally
-                    skip_next_slash = true;
+                if let Some(path::Segment::Literal(lit)) = segments.get(idx + 1) {
+                    if lit.first() == Some(&'/') {
+                        // Handle "**/" as optional anything ending with /
+                        pattern.push_str("(?:.*/)?");
+                        // Push the literal without the leading /
+                        let mut rest = lit.clone();
+                        rest.remove(0);
+                        if !rest.is_empty() {
+                            pattern.push_str(&escape_literal(&rest));
+                        }
+                        idx += 1; // Skip the consumed literal segment
+                    } else {
+                        // Regular double star
+                        pattern.push_str(".*");
+                    }
                 } else {
-                    // match any characters including slashes (greedy)
+                    // Regular double star
                     pattern.push_str(".*");
-                    skip_next_slash = false;
                 }
             }
             path::Segment::QuestionMark(c) => {
-                // make the specific character optional
                 pattern.push_str(&format!("{}?", regex::escape(&c.to_string())));
-                skip_next_slash = false;
             }
             path::Segment::Plus(c) => {
                 pattern.push_str(&format!("{}+", regex::escape(&c.to_string())));
-                skip_next_slash = false;
             }
             path::Segment::Bracket(b) => {
                 if b.singles == vec!['-'] && b.ranges.is_empty() {
@@ -72,7 +66,6 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 }
                 cls.push(']');
                 pattern.push_str(&cls);
-                skip_next_slash = false;
             }
         }
         idx += 1;
