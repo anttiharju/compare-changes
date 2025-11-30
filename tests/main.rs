@@ -60,10 +60,11 @@ fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (Strin
 #[test]
 fn test_changes_output() {
     let temp = prepare_workflow_with_patterns(&["1", "2", "3"]);
-    let (stdout, _stderr) = run_bin_with_changes(&temp, &["foo/bar", "baz", "3"], true);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar", "baz", "3"], true);
 
     for expected in ["1", "2", "3", "foo/bar", "baz", "path '3' matched file '3'", "changed=true"] {
         assert!(stdout.contains(expected), "Expected output to contain '{}'", expected);
+        assert!(!stderr.contains(expected), "Did not expect '{}' in stderr", expected);
     }
 }
 
