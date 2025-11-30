@@ -108,7 +108,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
-      - run: pwd
       - name: Find changes
         id: changes
         uses: anttiharju/find-changes-action@v1
