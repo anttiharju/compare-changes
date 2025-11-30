@@ -7,7 +7,7 @@ pub fn path_matches(path: &str, files: &[&str]) -> Result<Option<usize>, regex::
     }
 
     // remove leading '!' since negations are not handled here
-    let pattern = if path.starts_with('!') { &path[1..] } else { path };
+    let pattern = path.strip_prefix('!').unwrap_or(path);
 
     // Parse the single path
     let parsed_path = path::parse(pattern);
