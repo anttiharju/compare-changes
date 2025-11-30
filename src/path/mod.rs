@@ -3,8 +3,8 @@
 mod test;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Path {
-    pub segments: Vec<Segment>,
+pub struct Path<'a> {
+    pub segments: Vec<Segment<'a>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -14,8 +14,8 @@ pub struct BracketContent {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Segment {
-    Literal(Vec<char>),      // foo: literal ["f","o","o"]
+pub enum Segment<'a> {
+    Literal(&'a str),        // foo: literal "foo"
     SingleStar,              // bar*: literal "bar" singlestar "*"
     DoubleStar,              // baz/**: literal "baz/" doublestar "**"
     QuestionMark(char),      // *.abc?: singlestar "*" literal ".ab" questionamrk "c?"
@@ -37,31 +37,40 @@ define_starters! {
     PLUS => '+',
 }
 
-pub fn parse(path: &str) -> Path {
+pub fn parse<'a>(path: &'a str) -> Path<'a> {
     let mut segments = Vec::new();
-    let mut chars = path.chars().peekable();
+    let chars = path.char_indices().collect::<Vec<_>>();
+    let mut i = 0;
 
-    while let Some(ch) = chars.next() {
+    while i < chars.len() {
+        let (start, ch) = chars[i];
         match ch {
             STAR => {
-                if chars.peek() == Some(&STAR) {
-                    chars.next(); // consume second *
+                if i + 1 < chars.len() && chars[i + 1].1 == STAR {
                     segments.push(Segment::DoubleStar);
+                    i += 2;
                 } else {
                     segments.push(Segment::SingleStar);
+                    i += 1;
                 }
             }
             BRACKET_OPEN => {
+                i += 1; // skip [
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
-                while let Some(ch) = chars.next() {
+                while i < chars.len() {
+                    let ch = chars[i].1;
                     if ch == ']' {
+                        i += 1;
                         break;
                     }
-                    if let Some(&'-') = chars.peek() {
-                        chars.next(); // consume -
-                        if let Some(end) = chars.next() {
+                    i += 1;
+                    if i < chars.len() && chars[i].1 == '-' {
+                        i += 1;
+                        if i < chars.len() {
+                            let end = chars[i].1;
                             ranges.push((ch, end));
+                            i += 1;
                         }
                     } else {
                         singles.push(ch);
@@ -70,30 +79,28 @@ pub fn parse(path: &str) -> Path {
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));
             }
             _ => {
-                let mut lit: Vec<char> = Vec::new();
-                lit.push(ch);
-                while let Some(&next) = chars.peek() {
-                    if SEGMENT_STARTERS.contains(&next) {
-                        break;
-                    } else {
-                        lit.push(chars.next().unwrap());
-                    }
+                let lit_start = start;
+                i += 1;
+                while i < chars.len() && !SEGMENT_STARTERS.contains(&chars[i].1) {
+                    i += 1;
                 }
+                let lit_end = chars.get(i).map(|(pos, _)| *pos).unwrap_or(path.len());
+                let lit = &path[lit_start..lit_end];
                 if !lit.is_empty() {
-                    if let Some(&next) = chars.peek() {
-                        if next == QUESTION_MARK {
-                            chars.next();
-                            let last = lit.pop().unwrap();
-                            segments.push(Segment::Literal(lit));
-                            segments.push(Segment::QuestionMark(last));
-                        } else if next == PLUS {
-                            chars.next();
-                            let last = lit.pop().unwrap();
-                            segments.push(Segment::Literal(lit));
-                            segments.push(Segment::Plus(last));
-                        } else {
-                            segments.push(Segment::Literal(lit));
-                        }
+                    if i < chars.len() && chars[i].1 == QUESTION_MARK {
+                        i += 1;
+                        let last = lit.chars().last().unwrap();
+                        let prefix_len = lit.len() - last.len_utf8();
+                        let prefix = &lit[..prefix_len];
+                        segments.push(Segment::Literal(prefix));
+                        segments.push(Segment::QuestionMark(last));
+                    } else if i < chars.len() && chars[i].1 == PLUS {
+                        i += 1;
+                        let last = lit.chars().last().unwrap();
+                        let prefix_len = lit.len() - last.len_utf8();
+                        let prefix = &lit[..prefix_len];
+                        segments.push(Segment::Literal(prefix));
+                        segments.push(Segment::Plus(last));
                     } else {
                         segments.push(Segment::Literal(lit));
                     }
