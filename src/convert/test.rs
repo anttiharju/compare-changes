@@ -287,20 +287,20 @@ fn test_bracket_behavior() {
 
     // Edge cases
     assert_glob_match("test[a].txt", "testa.txt", true);
-    assert_glob_match("test[].txt", "test[].txt", false); // github actions won't run with a pattern like this
+    assert_glob_match("test[].txt", "test[].txt", false); // push event contained invalid paths patterns: test[].txt
 }
 
 #[test]
 fn test_bracket_special_literals() {
     // literal hyphen inside class
-    assert_glob_match("test[-].txt", "test-.txt", true);
+    assert_glob_match("test[-].txt", "test-.txt", true); // push event contained invalid paths patterns: test[-].txt
     assert_glob_match("test[-].txt", "testa.txt", false);
 
     // literal caret inside class
-    assert_glob_match("test[^].txt", "test^.txt", true);
+    assert_glob_match("test[^].txt", "test^.txt", true); // push event contained invalid paths patterns: test[^].txt
     assert_glob_match("test[^].txt", "testa.txt", false);
 
     // literal backslash inside class
-    assert_glob_match(r#"test[\].txt"#, r#"test\.txt"#, true);
+    assert_glob_match(r#"test[\].txt"#, r#"test\.txt"#, true); // push event contained invalid paths patterns: test[\].txt
     assert_glob_match(r#"test[\].txt"#, r#"test-.txt"#, false);
 }
