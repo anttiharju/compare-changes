@@ -5,9 +5,9 @@ use super::{BracketContent, Path, Segment, parse};
 fn parse_literal() {
     assert_eq!(
         parse("foo"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Literal("foo")]
-        }
+        })
     );
 }
 
@@ -15,9 +15,9 @@ fn parse_literal() {
 fn parse_single_star() {
     assert_eq!(
         parse("bar*"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Literal("bar"), Segment::SingleStar]
-        }
+        })
     );
 }
 
@@ -25,9 +25,9 @@ fn parse_single_star() {
 fn parse_double_star() {
     assert_eq!(
         parse("baz/**"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Literal("baz/"), Segment::DoubleStar]
-        }
+        })
     );
 }
 
@@ -35,9 +35,9 @@ fn parse_double_star() {
 fn parse_question_mark() {
     assert_eq!(
         parse("*.abc?"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::SingleStar, Segment::Literal(".ab"), Segment::QuestionMark('c')]
-        }
+        })
     );
 }
 
@@ -45,9 +45,9 @@ fn parse_question_mark() {
 fn parse_plus() {
     assert_eq!(
         parse("xyz+"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Literal("xy"), Segment::Plus('z')]
-        }
+        })
     );
 }
 
@@ -55,7 +55,7 @@ fn parse_plus() {
 fn parse_bracket() {
     assert_eq!(
         parse("[CB]at"),
-        Path {
+        Ok(Path {
             segments: vec![
                 Segment::Bracket(BracketContent {
                     singles: vec!['C', 'B'],
@@ -63,7 +63,7 @@ fn parse_bracket() {
                 }),
                 Segment::Literal("at")
             ]
-        }
+        })
     );
 }
 
@@ -71,9 +71,9 @@ fn parse_bracket() {
 fn parse_exclamation_point() {
     assert_eq!(
         parse("important!"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Literal("important!")]
-        }
+        })
     );
 }
 
@@ -81,9 +81,9 @@ fn parse_exclamation_point() {
 fn parse_emoji() {
     assert_eq!(
         parse("🗒️.md"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Literal("🗒️.md")]
-        }
+        })
     );
 }
 
@@ -91,11 +91,11 @@ fn parse_emoji() {
 fn parse_bracket_with_hyphen() {
     assert_eq!(
         parse("[A-]"),
-        Path {
+        Ok(Path {
             segments: vec![Segment::Bracket(BracketContent {
                 singles: vec!['A', '-'],
                 ranges: vec![],
             })]
-        }
+        })
     );
 }

@@ -2,6 +2,9 @@
 #[path = "test.rs"]
 mod test;
 
+use chumsky::error::Rich;
+use chumsky::prelude::*;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Path<'a> {
     pub segments: Vec<Segment<'a>>,
@@ -37,79 +40,103 @@ define_starters! {
     PLUS => '+',
 }
 
-pub fn parse<'a>(path: &'a str) -> Path<'a> {
-    let mut segments = Vec::new();
-    let chars = path.char_indices().collect::<Vec<_>>();
-    let mut i = 0;
+/// Parse the pattern into segments. Returns Err with chumsky Rich errors on malformed input.
+pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
+    // literal: 1+ chars that are not segment starters, returned as a slice
+    let literal = none_of(SEGMENT_STARTERS).repeated().at_least(1).to_slice();
 
-    while i < chars.len() {
-        let (start, ch) = chars[i];
-        match ch {
-            STAR => {
-                if i + 1 < chars.len() && chars[i + 1].1 == STAR {
-                    segments.push(Segment::DoubleStar);
-                    i += 2;
+    // literal possibly followed by '?' or '+'
+    let literal_mod = literal
+        .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
+        .map(|(lit, op): (&str, Option<char>)| match (op, lit.chars().next_back()) {
+            (Some(QUESTION_MARK), Some(last)) => {
+                let prefix = &lit[..lit.len() - last.len_utf8()];
+                if prefix.is_empty() {
+                    vec![Segment::QuestionMark(last)]
                 } else {
-                    segments.push(Segment::SingleStar);
-                    i += 1;
+                    vec![Segment::Literal(prefix), Segment::QuestionMark(last)]
                 }
             }
-            BRACKET_OPEN => {
-                i += 1; // skip [
-                let mut content = Vec::new();
-                while i < chars.len() {
-                    let ch = chars[i].1;
-                    if ch == ']' {
-                        i += 1;
-                        break;
-                    }
-                    content.push(ch);
-                    i += 1;
-                }
-                let mut singles = Vec::new();
-                let mut ranges = Vec::new();
-                let mut j = 0;
-                while j < content.len() {
-                    if j + 2 < content.len() && content[j + 1] == '-' {
-                        ranges.push((content[j], content[j + 2]));
-                        j += 3;
-                    } else {
-                        singles.push(content[j]);
-                        j += 1;
-                    }
-                }
-                segments.push(Segment::Bracket(BracketContent { singles, ranges }));
-            }
-            _ => {
-                let lit_start = start;
-                i += 1;
-                while i < chars.len() && !SEGMENT_STARTERS.contains(&chars[i].1) {
-                    i += 1;
-                }
-                let lit_end = chars.get(i).map(|(pos, _)| *pos).unwrap_or(path.len());
-                let lit = &path[lit_start..lit_end];
-                if !lit.is_empty() {
-                    if i < chars.len() && chars[i].1 == QUESTION_MARK {
-                        i += 1;
-                        let last = lit.chars().last().unwrap();
-                        let prefix_len = lit.len() - last.len_utf8();
-                        let prefix = &lit[..prefix_len];
-                        segments.push(Segment::Literal(prefix));
-                        segments.push(Segment::QuestionMark(last));
-                    } else if i < chars.len() && chars[i].1 == PLUS {
-                        i += 1;
-                        let last = lit.chars().last().unwrap();
-                        let prefix_len = lit.len() - last.len_utf8();
-                        let prefix = &lit[..prefix_len];
-                        segments.push(Segment::Literal(prefix));
-                        segments.push(Segment::Plus(last));
-                    } else {
-                        segments.push(Segment::Literal(lit));
-                    }
+            (Some(PLUS), Some(last)) => {
+                let prefix = &lit[..lit.len() - last.len_utf8()];
+                if prefix.is_empty() {
+                    vec![Segment::Plus(last)]
+                } else {
+                    vec![Segment::Literal(prefix), Segment::Plus(last)]
                 }
             }
-        }
+            _ => vec![Segment::Literal(lit)],
+        })
+        .boxed();
+
+    let double_star = just(STAR).then(just(STAR)).map(|_| vec![Segment::DoubleStar]);
+
+    let single_star = just(STAR).map(|_| vec![Segment::SingleStar]);
+
+    // bracket: '[' inner ']' where inner is any chars except ']'
+    // single-pass: validate *and* build BracketContent here, emitting Rich errors as needed
+    let bracket_inner = any::<&'a str, chumsky::extra::Full<Rich<'a, char>, (), ()>>()
+        .filter(|c| *c != ']')
+        .repeated()
+        .to_slice()
+        .validate(|inner: &str, map_extra: &mut _, emitter: &mut _| {
+            let span = map_extra.span();
+            let content: Vec<(usize, char)> = inner.char_indices().collect();
+
+            let mut singles = Vec::new();
+            let mut ranges = Vec::new();
+
+            if content.is_empty() {
+                emitter.emit(Rich::custom(span, "empty bracket"));
+                return BracketContent { singles, ranges };
+            }
+
+            let mut iter = content.iter().peekable();
+
+            while let Some(&(pos_a, a)) = iter.next() {
+                // Check if we can form a valid range (next is '-', and there's a char after)
+                let is_range = iter.peek().map(|&(_, ch)| ch) == Some(&'-') && iter.clone().nth(1).is_some();
+
+                if is_range {
+                    // Consume the '-'
+                    iter.next();
+                    // Consume and get the end char of the range
+                    if let Some(&(pos_b, b)) = iter.next() {
+                        if a > b {
+                            let abs_start = span.start + pos_a;
+                            let abs_end = span.start + pos_b + b.len_utf8();
+                            let bad_span = abs_start..abs_end;
+                            emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
+                        }
+                        ranges.push((a, b));
+                    }
+                } else {
+                    singles.push(a);
+                }
+            }
+
+            BracketContent { singles, ranges }
+        });
+
+    let bracket = just(BRACKET_OPEN)
+        .ignore_then(bracket_inner)
+        .then_ignore(just(']'))
+        .map(|content: BracketContent| vec![Segment::Bracket(content)]);
+
+    // a segment now produces Vec<Segment<'a>>; collect becomes Vec<Vec<Segment>>
+    let segment = choice((double_star, single_star, bracket, literal_mod));
+
+    let parser = segment
+        .repeated()
+        .collect::<Vec<_>>()
+        .map(|vecs: Vec<Vec<Segment>>| vecs.into_iter().flatten().collect::<Vec<_>>());
+
+    let (maybe_out, errs) = parser.parse(path).into_output_errors();
+    if !errs.is_empty() {
+        return Err(errs);
     }
 
-    Path { segments }
+    let segments = maybe_out.unwrap_or_default();
+
+    Ok(Path { segments })
 }

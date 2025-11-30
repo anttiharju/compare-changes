@@ -7,17 +7,6 @@ class ${PKG_CLASS} < Formula
   version '${PKG_VERSION}'
   license 'MIT'
 
-  on_macos do
-    if Hardware::CPU.arm?
-      url 'https://github.com/${PKG_OWNER}/${PKG_REPO}/releases/download/v${PKG_VERSION}/${PKG_REPO}-aarch64-apple-darwin.tar.gz'
-      sha256 '${PKG_MAC_ARM_SHA}'
-
-      def install
-        bin.install '${PKG_REPO}'
-      end
-    end
-  end
-
   on_linux do
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
       url 'https://github.com/${PKG_OWNER}/${PKG_REPO}/releases/download/v${PKG_VERSION}/${PKG_REPO}-aarch64-unknown-linux-gnu.tar.gz'

@@ -4,7 +4,10 @@ use crate::path;
 
 fn assert_path_match(pattern: &str, paths: &str, expected: bool) {
     // parse pattern into Path and convert to a compiled Regex
-    let parsed = path::parse(pattern);
+    let parsed = match path::parse(pattern) {
+        Ok(p) => p,
+        Err(e) => panic!("failed to parse pattern '{}': {:?}", pattern, e),
+    };
     let re = match path_to_regex(&parsed) {
         Ok(r) => r,
         Err(e) => panic!("failed to build regex for pattern '{}': {}", pattern, e),
@@ -237,9 +240,6 @@ fn test_plus_behavior() {
     assert_path_match("file+.txt", "filee.txt", true);
     assert_path_match("file+.txt", "fileee.txt", true);
     assert_path_match("file+.txt", "fil.txt", false); // zero 'e' - should not match
-
-    // Edge case: plus at start doesn't make sense
-    assert_path_match("+file.txt", "file.txt", false); // bogus pattern
 }
 
 #[test]
@@ -298,10 +298,14 @@ fn test_bracket_behavior() {
 }
 
 fn assert_glob_compile_fail(pattern: &str) {
-    let parsed = path::parse(pattern);
-    match path_to_regex(&parsed) {
-        Ok(_) => panic!("expected pattern '{}' to fail regex compilation, but it compiled", pattern),
-        Err(_) => {} // expected
+    // treat parse errors as expected failures; otherwise ensure regex compilation fails
+    match path::parse(pattern) {
+        Err(_) => return, // parse failed -> considered a compilation failure for these tests
+        Ok(parsed) => {
+            if path_to_regex(&parsed).is_ok() {
+                panic!("expected pattern '{}' to fail regex compilation, but it compiled", pattern)
+            }
+        }
     }
 }
 

@@ -45,7 +45,6 @@
               "rustfmt"
               "rust-src"
             ])
-            fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
             fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
             fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.stable.rust-std
           ];
@@ -120,9 +119,16 @@
           anttiharju = nur-anttiharju.packages.${system};
 
           # Fix not being able to run the unpatched node binaries that GitHub Actions mounts into the container
-          nix-ld-setup = pkgs.runCommand "nix-ld-setup" { } ''
+          nix_ld_setup = pkgs.runCommand "nix-ld-setup" { } ''
             mkdir -p $out/lib64
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
+          '';
+
+          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./scripts/zcc)
+          zcc_scripts = pkgs.runCommand "zcc-scripts" { } ''
+            mkdir -p $out/bin
+            cp -a ${./scripts/zcc}/* $out/bin/
+            chmod +x $out/bin/*
           '';
         in
         pkgs.lib.optionalAttrs (system == "x86_64-linux" || system == "aarch64-linux") {
@@ -130,15 +136,22 @@
             name = "ci";
             tag = container_version;
             contents = (devPackages pkgs anttiharju system) ++ [
-              nix-ld-setup
+              nix_ld_setup
+              pkgs.binutils
+              zcc_scripts
               pkgs.dockerTools.caCertificates
               pkgs.sudo
               pkgs.nix.out
               pkgs.dockerTools.usrBinEnv
             ];
             config = {
+              Labels = {
+                "org.opencontainers.image.source" = "";
+              };
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Env = [
+                "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
+                "CC_x86_64-unknown-linux-gnu=/zcc/x86_64-unknown-linux-gnu.sh"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
@@ -146,6 +159,7 @@
                   ]
                 }"
                 "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
+                "AR=/usr/bin/ar"
                 # PATH has to be defined so that actions that manipulate it (e.g. setup-go) don't break the environment
                 "PATH=/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
               ];
@@ -153,6 +167,7 @@
             enableFakechroot = true;
             fakeRootCommands = ''
               #!${pkgs.runtimeShell}
+              install -D -m755 ${pkgs.binutils}/bin/ar /usr/bin/ar
 
               # https://docs.github.com/en/actions/reference/runners/github-hosted-runners#administrative-privileges
               ${pkgs.dockerTools.shadowSetup}
@@ -178,6 +193,11 @@
               # Fix 'mv: No such file or directory (os error 2)'
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
+
+              # Install zig cc wrappers to /zcc
+              mkdir -p /zcc
+              install -D -m755 ${zcc_scripts}/bin/aarch64-unknown-linux-gnu.sh /zcc/aarch64-unknown-linux-gnu.sh
+              install -D -m755 ${zcc_scripts}/bin/x86_64-unknown-linux-gnu.sh /zcc/x86_64-unknown-linux-gnu.sh
             '';
           };
         }
