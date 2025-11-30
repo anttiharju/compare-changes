@@ -97,12 +97,16 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                     return BracketContent { singles, ranges };
                 }
 
+                const RANGE_LENGTH: usize = 3; // e.g. 'a-b'
+                const RANGE_HYPHEN_INDEX: usize = 1; // index of '-'
+                const RANGE_END_INDEX: usize = 2; // index of 'b'
+
                 while i < content.len() {
                     // If we have "<char> '-' <char>" treat as a range, otherwise a single.
-                    if i + 2 < content.len() && content[i + 1].1 == '-' {
-                        let (pos_a, a) = content[i];
-                        let (_pos_dash, _dash) = content[i + 1];
-                        let (_pos_b, b) = content[i + 2];
+                    if i + RANGE_LENGTH <= content.len() && content[i + RANGE_HYPHEN_INDEX].1 == '-' {
+                        let pos_a = content[i].0;
+                        let a = content[i].1;
+                        let b = content[i + RANGE_END_INDEX].1;
 
                         if a > b {
                             let abs_start = span.start + pos_a;
@@ -112,7 +116,7 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                         }
 
                         ranges.push((a, b));
-                        i += 3;
+                        i += RANGE_LENGTH;
                     } else {
                         singles.push(content[i].1);
                         i += 1;
