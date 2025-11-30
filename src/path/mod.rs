@@ -106,10 +106,10 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                         // Consume the '-'
                         iter.next();
                         // Consume and get the end char of the range
-                        if let Some(&(_, b)) = iter.next() {
+                        if let Some(&(pos_b, b)) = iter.next() {
                             if a > b {
                                 let abs_start = span.start + pos_a;
-                                let abs_end = abs_start + a.len_utf8();
+                                let abs_end = span.start + pos_b + b.len_utf8();
                                 let bad_span = abs_start..abs_end;
                                 emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
                             }
