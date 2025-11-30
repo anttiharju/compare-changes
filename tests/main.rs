@@ -80,6 +80,32 @@ fn test_valid_stray_closing_bracket() {
 }
 
 #[test]
+fn test_valid_standalone_plus() {
+    let pat = "+foo";
+    let temp = prepare_workflow_with_patterns(&[pat]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["foo"], true);
+
+    let expected_path = format!("path '{}' matched file 'foo'", pat);
+    assert!(stdout.contains(&expected_path), "Expected output to contain '{}'", expected_path);
+    assert!(stdout.contains("changed=true"), "Expected output to contain 'changed=true'");
+    assert!(!stderr.contains(&expected_path), "Did not expect '{}' in stderr", expected_path);
+    assert!(!stderr.contains("changed=true"), "Did not expect 'changed=true' in stderr");
+}
+
+#[test]
+fn test_valid_standalone_questionmark() {
+    let pat = "?bar";
+    let temp = prepare_workflow_with_patterns(&[pat]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["bar"], true);
+
+    let expected_path = format!("path '{}' matched file 'bar'", pat);
+    assert!(stdout.contains(&expected_path), "Expected output to contain '{}'", expected_path);
+    assert!(stdout.contains("changed=true"), "Expected output to contain 'changed=true'");
+    assert!(!stderr.contains(&expected_path), "Did not expect '{}' in stderr", expected_path);
+    assert!(!stderr.contains("changed=true"), "Did not expect 'changed=true' in stderr");
+}
+
+#[test]
 fn test_invalid_stray_opening_bracket() {
     let pat = "[abc";
     let temp = prepare_workflow_with_patterns(&[pat]);
