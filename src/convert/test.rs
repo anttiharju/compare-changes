@@ -50,10 +50,10 @@ fn test_double_star_wildcard() {
     // Edge case
     assert_path_match("**/a+", "a", true); // DoubleStar + Literal + QuestionMark, except the Literal would become empty as / gets stripped by DoubleStar
     assert_path_match("**/", "dir/", true); // Although git does not support committing (therefore pushing) empty directories
+    assert_path_match("**/", "file.txt", true);
     assert_path_match("**/", "dir/file.txt", true);
     assert_path_match("**/*", "dir/file.txt", true);
     assert_path_match("**/*", "dir/another/file.txt", true);
-    assert_path_match("**/", "file.txt", false);
 }
 
 #[test]
