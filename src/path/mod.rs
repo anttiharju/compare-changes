@@ -78,7 +78,7 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
     let single_star = just(STAR).map(|_| vec![Segment::SingleStar]);
 
     // bracket: '[' inner ']' where inner is any chars except ']'
-    // validate bracket internal content here and emit chumsky Rich errors if invalid
+    // single-pass: validate *and* build BracketContent here, emitting Rich errors as needed
     let bracket_inner =
         any::<&'a str, Extra<'a>>()
             .filter(|c| *c != ']')
@@ -86,11 +86,14 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
             .to_slice()
             .validate(|inner: &str, map_extra: &mut _, emitter: &mut _| {
                 let span = map_extra.span();
-                if inner.is_empty() {
+                let content: Vec<(usize, char)> = inner.char_indices().collect();
+                let mut singles = Vec::new();
+                let mut ranges = Vec::new();
+                let mut j = 0usize;
+
+                if content.is_empty() {
                     emitter.emit(Rich::custom(span, "empty bracket"));
                 } else {
-                    let content: Vec<(usize, char)> = inner.char_indices().collect();
-                    let mut j = 0usize;
                     while j < content.len() {
                         if j + 2 < content.len() && content[j + 1].1 == '-' {
                             let (pos_a, a) = content[j];
@@ -102,34 +105,22 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                                 let bad_span = abs_start..abs_end;
                                 emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
                             }
+                            ranges.push((a, b));
                             j += 3;
                         } else {
+                            singles.push(content[j].1);
                             j += 1;
                         }
                     }
                 }
-                inner
+
+                BracketContent { singles, ranges }
             });
 
-    let bracket = just(BRACKET_OPEN).ignore_then(bracket_inner).then_ignore(just(']')).map(|inner: &str| {
-        let content: Vec<(usize, char)> = inner.char_indices().collect();
-        let mut singles = Vec::new();
-        let mut ranges = Vec::new();
-        let mut j = 0usize;
-        while j < content.len() {
-            if j + 2 < content.len() && content[j + 1].1 == '-' {
-                let (_pos_a, a) = content[j];
-                let (_pos_dash, _dash) = content[j + 1];
-                let (_pos_b, b) = content[j + 2];
-                ranges.push((a, b));
-                j += 3;
-            } else {
-                singles.push(content[j].1);
-                j += 1;
-            }
-        }
-        vec![Segment::Bracket(BracketContent { singles, ranges })]
-    });
+    let bracket = just(BRACKET_OPEN)
+        .ignore_then(bracket_inner)
+        .then_ignore(just(']'))
+        .map(|content: BracketContent| vec![Segment::Bracket(content)]);
 
     // a segment now produces Vec<Segment<'a>>; collect becomes Vec<Vec<Segment>>
     let segment = choice((double_star, single_star, bracket, literal_mod));
