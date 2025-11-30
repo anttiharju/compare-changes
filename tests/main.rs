@@ -80,6 +80,27 @@ fn test_valid_stray_closing_bracket() {
 }
 
 #[test]
+fn test_invalid_stray_opening_bracket() {
+    let pat = "[abc";
+    let temp = prepare_workflow_with_patterns(&[pat]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
+
+    let msg = format!("Failed to compare path '{}': found end of input expected any, or ']'", pat);
+
+    assert!(
+        stderr.contains(&msg),
+        "expected exact error message in stderr\n\nEXPECTED:\n{}\n\nSTDERR:\n{}",
+        msg,
+        stderr
+    );
+    assert!(
+        !stdout.contains(&msg),
+        "did not expect the error message in stdout\n\nSTDOUT:\n{}",
+        stdout
+    );
+}
+
+#[test]
 fn test_invalid_bracket_range() {
     let pat = "[z-a]";
     let temp = prepare_workflow_with_patterns(&[pat]);
