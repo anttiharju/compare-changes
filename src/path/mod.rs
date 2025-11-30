@@ -45,61 +45,55 @@ define_starters! {
 
 /// Parse the pattern into segments. Returns Err with chumsky Rich errors on malformed input.
 pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
-    // When a literal has a trailing modifier ('?' or '+') we may need to emit
-    // two Segment values for a single parsed token. MultiSegment captures that.
-    #[derive(Clone)]
-    enum MultiSegment<'b> {
-        One(Segment<'b>),
-        Two(Segment<'b>, Segment<'b>),
-    }
-
     // helper to split last UTF-8 char from a &str
     fn split_last_char(s: &str) -> Option<(&str, char)> {
         s.char_indices().next_back().map(|(off, ch)| (&s[..off], ch))
     }
 
     // literal: 1+ chars that are not segment starters, returned as a slice
-    // more idiomatic: use none_of to exclude starter chars directly
     let literal = none_of("*[?+").repeated().at_least(1).to_slice();
 
     // literal possibly followed by '?' or '+'
     let literal_mod = literal
         .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
-        .map(|(lit, op)| match (op, split_last_char(lit)) {
-            (Some(QUESTION_MARK), Some((prefix, last))) => {
-                if prefix.is_empty() {
-                    MultiSegment::One(Segment::QuestionMark(last))
-                } else {
-                    MultiSegment::Two(Segment::Literal(prefix), Segment::QuestionMark(last))
+        .map(|(lit, op)| {
+            match (op, split_last_char(lit)) {
+                (Some(QUESTION_MARK), Some((prefix, last))) => {
+                    if prefix.is_empty() {
+                        vec![Segment::QuestionMark(last)]
+                    } else {
+                        vec![Segment::Literal(prefix), Segment::QuestionMark(last)]
+                    }
                 }
-            }
-            (Some(PLUS), Some((prefix, last))) => {
-                if prefix.is_empty() {
-                    MultiSegment::One(Segment::Plus(last))
-                } else {
-                    MultiSegment::Two(Segment::Literal(prefix), Segment::Plus(last))
+                (Some(PLUS), Some((prefix, last))) => {
+                    if prefix.is_empty() {
+                        vec![Segment::Plus(last)]
+                    } else {
+                        vec![Segment::Literal(prefix), Segment::Plus(last)]
+                    }
                 }
+                // Defensive fallbacks (shouldn't occur because `literal` is at_least(1))
+                (Some(QUESTION_MARK), None) => vec![Segment::QuestionMark('\0')],
+                (Some(PLUS), None) => vec![Segment::Plus('\0')],
+                (None, _) => vec![Segment::Literal(lit)],
+                _ => vec![Segment::Literal(lit)],
             }
-            (Some(QUESTION_MARK), None) => MultiSegment::One(Segment::QuestionMark('\0')),
-            (Some(PLUS), None) => MultiSegment::One(Segment::Plus('\0')),
-            (None, _) => MultiSegment::One(Segment::Literal(lit)),
-            _ => MultiSegment::One(Segment::Literal(lit)),
         })
         .boxed();
 
-    let double_star = just(STAR).then(just(STAR)).to(MultiSegment::One(Segment::DoubleStar));
-    let single_star = just(STAR).to(MultiSegment::One(Segment::SingleStar));
+    let double_star = just(STAR).then(just(STAR)).map(|_| vec![Segment::DoubleStar]);
+
+    let single_star = just(STAR).map(|_| vec![Segment::SingleStar]);
 
     // bracket: '[' inner ']' where inner is any chars except ']'
     // validate bracket internal content here and emit chumsky Rich errors if invalid
     let bracket_inner =
         any::<&'a str, Extra<'a>>()
-            .filter(|c: &char| *c != ']')
+            .filter(|c| *c != ']')
             .repeated()
             .to_slice()
             .validate(|inner: &str, map_extra: &mut _, emitter: &mut _| {
                 let span = map_extra.span();
-                // Validate inner content for empty and invalid ranges.
                 if inner.is_empty() {
                     emitter.emit(Rich::custom(span, "empty bracket"));
                 } else {
@@ -111,7 +105,6 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                             let (_pos_dash, _dash) = content[j + 1];
                             let (_pos_b, b) = content[j + 2];
                             if a > b {
-                                // emit error pointing to the 'a' char in the original input
                                 let abs_start = span.start + pos_a;
                                 let abs_end = abs_start + a.len_utf8();
                                 let bad_span = abs_start..abs_end;
@@ -123,12 +116,10 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                         }
                     }
                 }
-                // return the raw inner slice; actual conversion to BracketContent happens below
                 inner
             });
 
     let bracket = just(BRACKET_OPEN).ignore_then(bracket_inner).then_ignore(just(']')).map(|inner: &str| {
-        // convert inner into BracketContent (we already validated ranges above via emitter)
         let content: Vec<(usize, char)> = inner.char_indices().collect();
         let mut singles = Vec::new();
         let mut ranges = Vec::new();
@@ -145,13 +136,12 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                 j += 1;
             }
         }
-        MultiSegment::One(Segment::Bracket(BracketContent { singles, ranges }))
+        vec![Segment::Bracket(BracketContent { singles, ranges })]
     });
 
-    // a segment is one of the choices
+    // a segment now produces Vec<Segment<'a>>; collect becomes Vec<Vec<Segment>>
     let segment = choice((double_star, single_star, bracket, literal_mod));
 
-    // parse the whole input as a sequence of segments (collect into Vec<MultiSegment>)
     let parser = segment.repeated().collect::<Vec<_>>();
 
     let (maybe_out, errs) = parser.parse(path).into_output_errors();
@@ -160,15 +150,11 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
     }
 
     let out = maybe_out.unwrap_or_default();
-    // flatten MultiSegment -> Vec<Segment>
+    // flatten Vec<Vec<Segment>> -> Vec<Segment>
     let mut segments: Vec<Segment<'a>> = Vec::new();
-    for m in out {
-        match m {
-            MultiSegment::One(s) => segments.push(s),
-            MultiSegment::Two(a, b) => {
-                segments.push(a);
-                segments.push(b);
-            }
+    for group in out {
+        for s in group {
+            segments.push(s);
         }
     }
 
