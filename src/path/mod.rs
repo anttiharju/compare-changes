@@ -49,22 +49,20 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
     // literal: 1+ chars that are not segment starters, returned as a slice
     let literal = none_of(SEGMENT_STARTERS).repeated().at_least(1).to_slice();
 
-    // helper to split last UTF-8 char from a &str
-    fn split_last_char(s: &str) -> Option<(&str, char)> {
-        s.char_indices().next_back().map(|(off, ch)| (&s[..off], ch))
-    }
     // literal possibly followed by '?' or '+'
     let literal_mod = literal
         .then(just(QUESTION_MARK).or(just(PLUS)).or_not())
-        .map(|(lit, op)| match (op, split_last_char(lit)) {
-            (Some(QUESTION_MARK), Some((prefix, last))) => {
+        .map(|(lit, op): (&str, Option<char>)| match (op, lit.chars().next_back()) {
+            (Some(QUESTION_MARK), Some(last)) => {
+                let prefix = &lit[..lit.len() - last.len_utf8()];
                 if prefix.is_empty() {
                     vec![Segment::QuestionMark(last)]
                 } else {
                     vec![Segment::Literal(prefix), Segment::QuestionMark(last)]
                 }
             }
-            (Some(PLUS), Some((prefix, last))) => {
+            (Some(PLUS), Some(last)) => {
+                let prefix = &lit[..lit.len() - last.len_utf8()];
                 if prefix.is_empty() {
                     vec![Segment::Plus(last)]
                 } else {
