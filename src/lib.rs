@@ -1,5 +1,4 @@
 mod convert;
-mod matcher;
 mod path;
 
 pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {

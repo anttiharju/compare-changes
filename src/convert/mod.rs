@@ -1,3 +1,7 @@
+#[cfg(test)]
+#[path = "test.rs"]
+mod test;
+
 use crate::path;
 use regex::Regex;
 

@@ -1,13 +1,19 @@
+use super::path_to_regex;
 #[cfg(test)]
-use super::match_path;
 use crate::path;
 
 fn assert_glob_match(pattern: &str, paths: &str, expected: bool) {
-    let pattern = &path::parse(pattern).segments;
-    let matches = match_path(pattern, paths);
+    // parse pattern into Path and convert to a compiled Regex
+    let parsed = path::parse(pattern);
+    let re = match path_to_regex(&parsed) {
+        Ok(r) => r,
+        Err(e) => panic!("failed to build regex for pattern '{}': {}", pattern, e),
+    };
+
+    let matches = re.is_match(paths);
     assert_eq!(
         matches, expected,
-        "Pattern '{:?}' vs '{:?}' -> {} (expected {})",
+        "Pattern '{}' vs '{}' -> {} (expected {})",
         pattern, paths, matches, expected
     );
 }
