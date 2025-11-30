@@ -24,8 +24,7 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                     && let Some(stripped) = lit.strip_prefix('/')
                 {
                     iter.next(); // consume the literal segment
-                    let suffix = if stripped.is_empty() { String::new() } else { regex::escape(stripped) };
-                    pattern.push_str(&format!("(?:.*/)?{}", suffix));
+                    pattern.push_str(&format!("(?:.*/)?{}", regex::escape(stripped)));
                 } else {
                     pattern.push_str(".*");
                 }
