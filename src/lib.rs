@@ -15,12 +15,12 @@ pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
         return None;
     }
 
-    let _regex = convert::path_to_regex(&parsed_path);
+    // Build regex from the parsed path
+    let re = match convert::path_to_regex(&parsed_path) {
+        Ok(r) => r,
+        Err(_) => return None,
+    };
 
-    // Check if any file matches the path
-    files
-        .iter()
-        .enumerate()
-        .find(|(_, file)| matcher::match_path(&parsed_path.segments, file))
-        .map(|(i, _)| i)
+    // Check if any file matches the compiled regex
+    files.iter().enumerate().find(|(_, file)| re.is_match(file)).map(|(i, _)| i)
 }
