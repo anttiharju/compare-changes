@@ -1,3 +1,4 @@
+mod convert;
 mod matcher;
 mod path;
 
@@ -13,6 +14,8 @@ pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
     if matches!(parsed_path.segments.first(), Some(path::Segment::Negation)) {
         return None;
     }
+
+    let _regex = convert::path_to_regex(&parsed_path);
 
     // Check if any file matches the path
     files
