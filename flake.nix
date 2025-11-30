@@ -155,7 +155,6 @@
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
                     pkgs.glibc
-                    pkgs.libiconv
                   ]
                 }"
                 "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
