@@ -51,6 +51,8 @@ fn test_double_star_wildcard() {
     assert_path_match("**/a+", "a", true); // DoubleStar + Literal + QuestionMark, except the Literal would become empty as / gets stripped by DoubleStar
     assert_path_match("**/", "dir/", true);
     assert_path_match("**/", "dir/file.txt", false);
+    assert_path_match("**/*", "dir/file.txt", true);
+    assert_path_match("**/*", "dir/another/file.txt", true);
     assert_path_match("**/", "file.txt", false);
 }
 
