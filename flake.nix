@@ -145,6 +145,9 @@
               pkgs.dockerTools.usrBinEnv
             ];
             config = {
+              Labels = {
+                "org.opencontainers.image.source" = "";
+              };
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Env = [
                 "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
