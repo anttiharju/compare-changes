@@ -42,17 +42,16 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 if b.singles == vec!['-'] && b.ranges.is_empty() {
                     return Err(regex::Error::Syntax("literal hyphen in bracket class".to_string()));
                 }
-                let mut cls = "[".to_string();
-                for c in &b.singles {
-                    cls.push(*c);
+                pattern.push('[');
+                for &c in &b.singles {
+                    pattern.push(c);
                 }
-                for (start, end) in &b.ranges {
-                    cls.push(*start);
-                    cls.push('-');
-                    cls.push(*end);
+                for &(start, end) in &b.ranges {
+                    pattern.push(start);
+                    pattern.push('-');
+                    pattern.push(end);
                 }
-                cls.push(']');
-                pattern.push_str(&cls);
+                pattern.push(']');
             }
         }
         idx += 1;
