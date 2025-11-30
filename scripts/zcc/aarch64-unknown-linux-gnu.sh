@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-zig cc -target aarch64-linux-gnu "$@"
+zig cc "$@" -target aarch64-linux-gnu
