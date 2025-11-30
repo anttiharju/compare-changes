@@ -298,16 +298,13 @@ fn assert_glob_compile_fail(pattern: &str) {
 }
 
 #[test]
-fn test_bracket_special_literals() {
-    // Empty brackets
+fn test_regex_compile_failures() {
     assert_glob_compile_fail("test[].txt");
-
-    // Literal hyphen inside class
-    assert_glob_compile_fail("test[-].txt");
-
-    // literal caret inside class
     assert_glob_compile_fail("test[^].txt");
-
-    // literal backslash inside class
     assert_glob_compile_fail(r#"test[\].txt"#);
+}
+
+#[test]
+fn test_regex_github_compat() {
+    assert_glob_compile_fail("test[-].txt");
 }
