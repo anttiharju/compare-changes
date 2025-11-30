@@ -131,6 +131,7 @@
             tag = container_version;
             contents = (devPackages pkgs anttiharju system) ++ [
               nix-ld-setup
+              pkgs.binutils
               pkgs.dockerTools.caCertificates
               pkgs.sudo
               pkgs.nix.out
@@ -146,6 +147,7 @@
                   ]
                 }"
                 "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
+                "AR=/usr/local/bin/ar"
                 # PATH has to be defined so that actions that manipulate it (e.g. setup-go) don't break the environment
                 "PATH=/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
               ];
@@ -153,6 +155,7 @@
             enableFakechroot = true;
             fakeRootCommands = ''
               #!${pkgs.runtimeShell}
+              install -D -m755 ${pkgs.binutils}/bin/ar /usr/local/bin/ar
 
               # https://docs.github.com/en/actions/reference/runners/github-hosted-runners#administrative-privileges
               ${pkgs.dockerTools.shadowSetup}
