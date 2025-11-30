@@ -89,16 +89,16 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                 let content: Vec<(usize, char)> = inner.char_indices().collect();
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
-                let mut j = 0usize;
+                let mut i = 0usize;
 
                 if content.is_empty() {
                     emitter.emit(Rich::custom(span, "empty bracket"));
                 } else {
-                    while j < content.len() {
-                        if j + 2 < content.len() && content[j + 1].1 == '-' {
-                            let (pos_a, a) = content[j];
-                            let (_pos_dash, _dash) = content[j + 1];
-                            let (_pos_b, b) = content[j + 2];
+                    while i < content.len() {
+                        if i + 2 < content.len() && content[i + 1].1 == '-' {
+                            let (pos_a, a) = content[i];
+                            let (_pos_dash, _dash) = content[i + 1];
+                            let (_pos_b, b) = content[i + 2];
                             if a > b {
                                 let abs_start = span.start + pos_a;
                                 let abs_end = abs_start + a.len_utf8();
@@ -106,10 +106,10 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
                                 emitter.emit(Rich::custom(bad_span.into(), format!("invalid bracket range {a}-{b}")));
                             }
                             ranges.push((a, b));
-                            j += 3;
+                            i += 3;
                         } else {
-                            singles.push(content[j].1);
-                            j += 1;
+                            singles.push(content[i].1);
+                            i += 1;
                         }
                     }
                 }
