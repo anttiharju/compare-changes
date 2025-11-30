@@ -131,21 +131,17 @@ pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, Vec<Rich<'a, char>>> {
     // a segment now produces Vec<Segment<'a>>; collect becomes Vec<Vec<Segment>>
     let segment = choice((double_star, single_star, bracket, literal_mod));
 
-    let parser = segment.repeated().collect::<Vec<_>>();
+    let parser = segment
+        .repeated()
+        .collect::<Vec<_>>()
+        .map(|vecs: Vec<Vec<Segment>>| vecs.into_iter().flatten().collect::<Vec<_>>());
 
     let (maybe_out, errs) = parser.parse(path).into_output_errors();
     if !errs.is_empty() {
         return Err(errs);
     }
 
-    let out = maybe_out.unwrap_or_default();
-    // flatten Vec<Vec<Segment>> -> Vec<Segment>
-    let mut segments: Vec<Segment<'a>> = Vec::new();
-    for group in out {
-        for s in group {
-            segments.push(s);
-        }
-    }
+    let segments = maybe_out.unwrap_or_default();
 
     Ok(Path { segments })
 }
