@@ -6,13 +6,11 @@ pub fn path_matches(path: &str, files: &[&str]) -> Option<usize> {
         return None;
     }
 
+    // remove leading '!' since negations are not handled here
+    let path = if path.starts_with('!') { &path[1..] } else { path };
+
     // Parse the single path
     let parsed_path = path::parse(path);
-
-    // If the path is negated, immediately return None
-    if matches!(parsed_path.segments.first(), Some(path::Segment::Negation)) {
-        return None;
-    }
 
     // Build regex from the parsed path
     let re = match convert::path_to_regex(&parsed_path) {

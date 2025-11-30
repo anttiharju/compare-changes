@@ -22,7 +22,6 @@ pub enum Segment {
     QuestionMark(char),      // *.abc?: singlestar "*" literal ".ab" questionamrk "c?"
     Plus(char),              // xyz+: literal "xy" plus "z+"
     Bracket(BracketContent), // [CB]at: bracket {singles: ['C','B'], ranges: []} literal "at"
-    Negation,                // !important: negation "!" literal "important"
 }
 
 macro_rules! define_starters {
@@ -43,12 +42,6 @@ define_starters! {
 pub fn parse(path: &str) -> Path {
     let mut segments = Vec::new();
     let mut chars = path.chars().peekable();
-
-    // Special case: ! is negation only if it is the first character
-    if chars.peek() == Some(&'!') {
-        chars.next(); // consume '!'
-        segments.push(Segment::Negation);
-    }
 
     while let Some(ch) = chars.next() {
         match ch {

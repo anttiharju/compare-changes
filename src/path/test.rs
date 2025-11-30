@@ -79,16 +79,6 @@ fn parse_bracket() {
 }
 
 #[test]
-fn parse_negation() {
-    assert_eq!(
-        parse("!important"),
-        Path {
-            segments: vec![Segment::Negation, lit!("important")]
-        }
-    );
-}
-
-#[test]
 fn parse_exclamation_point() {
     assert_eq!(
         parse("important!"),

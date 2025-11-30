@@ -24,11 +24,6 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
     let segments = &parsed_path.segments;
     let mut idx = 0usize;
 
-    // If first segment is Negation, skip it when building the regex.
-    if matches!(segments.first(), Some(path::Segment::Negation)) {
-        idx = 1;
-    }
-
     let mut pattern = String::new();
 
     while let Some(seg) = segments.get(idx) {
@@ -65,10 +60,6 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 }
                 cls.push(']');
                 pattern.push_str(&cls);
-            }
-            path::Segment::Negation => {
-                // shouldn't happen except at start; treat as never-matching element
-                pattern.push_str("(?!)");
             }
         }
         idx += 1;
