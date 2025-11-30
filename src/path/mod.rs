@@ -56,24 +56,26 @@ pub fn parse<'a>(path: &'a str) -> Path<'a> {
             }
             BRACKET_OPEN => {
                 i += 1; // skip [
-                let mut singles = Vec::new();
-                let mut ranges = Vec::new();
+                let mut content = Vec::new();
                 while i < chars.len() {
                     let ch = chars[i].1;
                     if ch == ']' {
                         i += 1;
                         break;
                     }
+                    content.push(ch);
                     i += 1;
-                    if i < chars.len() && chars[i].1 == '-' {
-                        i += 1;
-                        if i < chars.len() {
-                            let end = chars[i].1;
-                            ranges.push((ch, end));
-                            i += 1;
-                        }
+                }
+                let mut singles = Vec::new();
+                let mut ranges = Vec::new();
+                let mut j = 0;
+                while j < content.len() {
+                    if j + 2 < content.len() && content[j + 1] == '-' {
+                        ranges.push((content[j], content[j + 2]));
+                        j += 3;
                     } else {
-                        singles.push(ch);
+                        singles.push(content[j]);
+                        j += 1;
                     }
                 }
                 segments.push(Segment::Bracket(BracketContent { singles, ranges }));

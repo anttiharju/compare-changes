@@ -86,3 +86,16 @@ fn parse_emoji() {
         }
     );
 }
+
+#[test]
+fn parse_bracket_with_hyphen() {
+    assert_eq!(
+        parse("[A-]"),
+        Path {
+            segments: vec![Segment::Bracket(BracketContent {
+                singles: vec!['A', '-'],
+                ranges: vec![],
+            })]
+        }
+    );
+}
