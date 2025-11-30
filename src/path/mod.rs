@@ -37,7 +37,16 @@ define_starters! {
     PLUS => '+',
 }
 
-pub fn parse<'a>(path: &'a str) -> Path<'a> {
+/// Parse errors returned by `parse`.
+#[derive(Debug, Clone, PartialEq)]
+pub enum ParseError {
+    UnmatchedBracket(usize), // position of '['
+    EmptyBracket(usize),     // position of '[' with no content
+    InvalidBracketRange { start_pos: usize, a: char, b: char },
+}
+
+/// Parse the pattern into segments. Returns Err on malformed input (e.g. unmatched '[').
+pub fn parse<'a>(path: &'a str) -> Result<Path<'a>, ParseError> {
     let mut segments = Vec::new();
     let mut iter = path.char_indices().peekable();
 
@@ -58,24 +67,41 @@ pub fn parse<'a>(path: &'a str) -> Path<'a> {
             }
 
             BRACKET_OPEN => {
-                // collect content inside brackets
-                let mut content = Vec::new();
-                for (_, c) in iter.by_ref() {
+                // collect content inside brackets with positions for better errors
+                let mut content: Vec<(usize, char)> = Vec::new();
+                let mut saw_close = false;
+                for (pos, c) in iter.by_ref() {
                     if c == ']' {
+                        saw_close = true;
                         break;
                     }
-                    content.push(c);
+                    content.push((pos, c));
+                }
+
+                if !saw_close {
+                    return Err(ParseError::UnmatchedBracket(start));
+                }
+
+                if content.is_empty() {
+                    return Err(ParseError::EmptyBracket(start));
                 }
 
                 let mut singles = Vec::new();
                 let mut ranges = Vec::new();
                 let mut j = 0;
                 while j < content.len() {
-                    if j + 2 < content.len() && content[j + 1] == '-' {
-                        ranges.push((content[j], content[j + 2]));
+                    if j + 2 < content.len() && content[j + 1].1 == '-' {
+                        let (pos_a, a) = content[j];
+                        let (_pos_dash, _dash) = content[j + 1];
+                        let (_pos_b, b) = content[j + 2];
+                        if a <= b {
+                            ranges.push((a, b));
+                        } else {
+                            return Err(ParseError::InvalidBracketRange { start_pos: pos_a, a, b });
+                        }
                         j += 3;
                     } else {
-                        singles.push(content[j]);
+                        singles.push(content[j].1);
                         j += 1;
                     }
                 }
@@ -98,21 +124,29 @@ pub fn parse<'a>(path: &'a str) -> Path<'a> {
                 if !lit.is_empty() {
                     // handle trailing '?' or '+' attached to last char of the literal
                     if let Some(&(_, next_ch)) = iter.peek()
-                        && (next_ch == QUESTION_MARK || next_ch == PLUS) {
-                            // consume the modifier
-                            iter.next();
-                            if let Some((off, last_ch)) = lit.char_indices().next_back() {
-                                let prefix = &lit[..off];
-                                if next_ch == QUESTION_MARK {
-                                    segments.push(Segment::Literal(prefix));
+                        && (next_ch == QUESTION_MARK || next_ch == PLUS)
+                    {
+                        // consume the modifier
+                        iter.next();
+                        if let Some((off, last_ch)) = lit.char_indices().next_back() {
+                            let prefix = &lit[..off];
+                            if next_ch == QUESTION_MARK {
+                                if prefix.is_empty() {
+                                    // impossible here since lit isn't empty, but keep defensive
                                     segments.push(Segment::QuestionMark(last_ch));
                                 } else {
                                     segments.push(Segment::Literal(prefix));
-                                    segments.push(Segment::Plus(last_ch));
+                                    segments.push(Segment::QuestionMark(last_ch));
                                 }
-                                continue;
+                            } else if prefix.is_empty() {
+                                segments.push(Segment::Plus(last_ch));
+                            } else {
+                                segments.push(Segment::Literal(prefix));
+                                segments.push(Segment::Plus(last_ch));
                             }
+                            continue;
                         }
+                    }
 
                     segments.push(Segment::Literal(lit));
                 }
@@ -120,5 +154,5 @@ pub fn parse<'a>(path: &'a str) -> Path<'a> {
         }
     }
 
-    Path { segments }
+    Ok(Path { segments })
 }

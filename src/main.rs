@@ -51,7 +51,7 @@ fn main() {
             }
             Ok(None) => continue,
             Err(e) => {
-                eprintln!("failed to compare path '{}': {}", path, e);
+                eprintln!("failed to compare path '{}': {:?}", path, e);
                 std::process::exit(exitcode::match_error());
             }
         }
