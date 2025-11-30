@@ -287,20 +287,27 @@ fn test_bracket_behavior() {
 
     // Edge cases
     assert_glob_match("test[a].txt", "testa.txt", true);
-    assert_glob_match("test[].txt", "test[].txt", false); // push event contained invalid paths patterns: test[].txt
+}
+
+fn assert_glob_compile_fail(pattern: &str) {
+    let parsed = path::parse(pattern);
+    match path_to_regex(&parsed) {
+        Ok(_) => panic!("expected pattern '{}' to fail regex compilation, but it compiled", pattern),
+        Err(_) => {} // expected
+    }
 }
 
 #[test]
 fn test_bracket_special_literals() {
-    // literal hyphen inside class
-    assert_glob_match("test[-].txt", "test-.txt", true); // push event contained invalid paths patterns: test[-].txt
-    assert_glob_match("test[-].txt", "testa.txt", false);
+    // Empty brackets
+    assert_glob_compile_fail("test[].txt");
+
+    // Literal hyphen inside class
+    assert_glob_compile_fail("test[-].txt");
 
     // literal caret inside class
-    assert_glob_match("test[^].txt", "test^.txt", true); // push event contained invalid paths patterns: test[^].txt
-    assert_glob_match("test[^].txt", "testa.txt", false);
+    assert_glob_compile_fail("test[^].txt");
 
     // literal backslash inside class
-    assert_glob_match(r#"test[\].txt"#, r#"test\.txt"#, true); // push event contained invalid paths patterns: test[\].txt
-    assert_glob_match(r#"test[\].txt"#, r#"test-.txt"#, false);
+    assert_glob_compile_fail(r#"test[\].txt"#);
 }

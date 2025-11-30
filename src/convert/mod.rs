@@ -11,16 +11,6 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
         regex::escape(&s)
     }
 
-    fn escape_class_char(c: char) -> String {
-        match c {
-            '\\' => "\\\\".to_string(),
-            ']' => "\\]".to_string(),
-            '^' => "\\^".to_string(),
-            '-' => "\\-".to_string(),
-            other => other.to_string(),
-        }
-    }
-
     let segments = &parsed_path.segments;
     let mut idx = 0usize;
 
@@ -68,23 +58,20 @@ pub fn path_to_regex(parsed_path: &path::Path) -> Result<Regex, regex::Error> {
                 skip_next_slash = false;
             }
             path::Segment::Bracket(b) => {
-                if b.singles.is_empty() && b.ranges.is_empty() {
-                    // empty bracket class should never match, but avoid look-arounds (unsupported).
-                    // Use a class that matches no character: [^\s\S]
-                    pattern.push_str("[^\\s\\S]");
-                } else {
-                    let mut cls = String::from("[");
-                    for c in &b.singles {
-                        cls.push_str(&escape_class_char(*c));
-                    }
-                    for (start, end) in &b.ranges {
-                        cls.push_str(&escape_class_char(*start));
-                        cls.push('-');
-                        cls.push_str(&escape_class_char(*end));
-                    }
-                    cls.push(']');
-                    pattern.push_str(&cls);
+                if b.singles == vec!['-'] && b.ranges.is_empty() {
+                    return Err(regex::Error::Syntax("literal hyphen in bracket class".to_string()));
                 }
+                let mut cls = String::from("[");
+                for c in &b.singles {
+                    cls.push(*c);
+                }
+                for (start, end) in &b.ranges {
+                    cls.push(*start);
+                    cls.push('-');
+                    cls.push(*end);
+                }
+                cls.push(']');
+                pattern.push_str(&cls);
                 skip_next_slash = false;
             }
         }

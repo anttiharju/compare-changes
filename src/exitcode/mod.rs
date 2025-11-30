@@ -16,6 +16,7 @@ macro_rules! define_exitcodes {
 }
 
 define_exitcodes! {
-    paths_error => WildcardError = 1,
-    files_error  => ChangesError  = 2,
+    path_error => PathError = 1,
+    file_error  => FileError  = 2,
+    match_error  => MatchError  = 3,
 }
