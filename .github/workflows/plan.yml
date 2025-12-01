@@ -139,6 +139,11 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
         run: scripts/exitcode.sh
 
+      - if: always() && !cancelled()
+        name: relcheck
+        run: |
+          relcheck all --verbose --color=always
+
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
         id: semantic
         name: Require semantic version label
@@ -189,15 +194,10 @@ jobs:
       #        run: |
       #          git ls-files -z ".github/*/*.yml" "*/action.yml" | xargs --null action-validator --verbose
 
-      - if: always() && !cancelled() && (steps.changed.outputs.github_actions_workflows == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.actionlint == 'true' || github.event_name == 'push')
         name: actionlint
         run: |
           actionlint -color
-
-      - if: always() && !cancelled()
-        name: relcheck
-        run: |
-          relcheck all --verbose --color=always
 
       - if: always() && !cancelled()
         name: EditorConfig-Checker
@@ -215,11 +215,11 @@ jobs:
           fi
           echo "No .yaml files found. Good job!"
 
-      - if: always() && !cancelled() && (steps.changed.outputs.documentation == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.mkdocs == 'true' || github.event_name == 'push')
         name: mkdocs
         run: mkdocs build --strict
 
-      - if: always() && !cancelled() && (steps.changed.outputs.md_and_yml == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.prettier == 'true' || github.event_name == 'push')
         name: prettier
         run: |
           prettier "{*.yml,*.md}" --check
@@ -228,7 +228,7 @@ jobs:
         name: Rubocop formula
         uses: ./.github/actions/rubocop-formula
 
-      - if: always() && !cancelled() && (steps.changed.outputs.scripts == 'true' || github.event_name == 'push')
+      - if: always() && !cancelled() && (steps.changed.outputs.shellcheck == 'true' || github.event_name == 'push')
         name: shellcheck
         run: |
           git ls-files -z '*.sh' | xargs --null shellcheck --color=always
@@ -265,4 +265,4 @@ jobs:
           fi
     outputs:
       version: ${{ steps.semantic.outputs.version || steps.parse.outputs.version }}
-      documentation_changed: ${{ steps.changed.outputs.documentation }}
+      documentation_changed: ${{ steps.changed.outputs.mkdocs }}

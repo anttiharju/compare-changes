@@ -18,6 +18,18 @@ pre-commit:
       env:
         SDKROOT: /dev/null
       run: cargo build --all-features
+
+    - glob: "*.rs"
+      run: cargo fmt
+      stage_fixed: true
+
+    - glob: "src/*"
+      run: scripts/exitcode.sh
+
+    - glob: "*.rs"
+      run: cargo clippy --fix --allow-staged
+      stage_fixed: true
+
     # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
     # also disabled because it uses glob instead of this library
     # - name: action-validator
@@ -57,15 +69,4 @@ pre-commit:
     - name: nixfmt
       glob: "*.nix"
       run: nixfmt {staged_files}
-      stage_fixed: true
-
-    - glob: "*.rs"
-      run: cargo fmt
-      stage_fixed: true
-
-    - glob: "src/*"
-      run: scripts/exitcode.sh
-
-    - glob: "*.rs"
-      run: cargo clippy --fix --allow-staged
       stage_fixed: true
