@@ -41,7 +41,6 @@ Via [anttiharju's nur-packages](https://github.com/anttiharju/nur-packages). Ple
 
 ## TODO
 
-- [ ] In general, improve library (it is usable, but not necessarily correct in all cases)
 - [ ] Improve instructions on how to contribute.
 - [ ] Produce static Linux binaries for wider compatibility with GitHub runners
   - [ ] Setup benchmarks, compare allocators
