@@ -23,8 +23,8 @@ tag="v$version"
 if [[ "$version" = "0.0.0" ]] || ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
   capture PKG_MAC_INTEL_SHA TBD
   capture PKG_MAC_ARM_SHA TBD
-  capture PKG_LINUX_INTEL_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
+  capture PKG_LINUX_INTEL_SHA TBD
   exit 0
 fi
 

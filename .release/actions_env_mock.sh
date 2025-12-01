@@ -9,11 +9,10 @@ normalized_url="${remote_url/://}"
 temp="${normalized_url%/*}"
 owner="$(basename "$temp")"
 
-repo_root="$(git rev-parse --show-toplevel)"
 repo="$(basename --suffix .git "$remote_url")"
-
 export GITHUB_REPOSITORY="$owner/$repo"
 
+repo_root="$(git rev-parse --show-toplevel)"
 tag="v$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
 if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
   rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')"

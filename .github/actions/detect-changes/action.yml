@@ -7,7 +7,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: github_actions_workflows
+    - id: actionlint
       uses: anttiharju/compare-changes@v0
       with:
         github-workflows-wildcard: actionlint.yml
@@ -37,17 +37,17 @@ runs:
       with:
         github-workflows-wildcard: nix.yml
         changes: ${{ inputs.changes }}
-    - id: documentation
+    - id: mkdocs
       uses: anttiharju/compare-changes@v0
       with:
         github-workflows-wildcard: mkdocs.yml
         changes: ${{ inputs.changes }}
-    - id: md_and_yml
+    - id: prettier
       uses: anttiharju/compare-changes@v0
       with:
         github-workflows-wildcard: prettier.yml
         changes: ${{ inputs.changes }}
-    - id: scripts
+    - id: shellcheck
       uses: anttiharju/compare-changes@v0
       with:
         github-workflows-wildcard: shellcheck.yml
@@ -63,9 +63,9 @@ runs:
         github-workflows-wildcard: action.yml
         changes: ${{ inputs.changes }}
 outputs:
-  github_actions_workflows:
-    description: "Whether GitHub Actions workflows have changed"
-    value: ${{ steps.github_actions_workflows.outputs.changed }}
+  actionlint:
+    description: "Whether actionlint has changed"
+    value: ${{ steps.actionlint.outputs.changed }}
   rust:
     description: "Whether Rust has changed"
     value: ${{ steps.rust.outputs.changed }}
@@ -84,15 +84,15 @@ outputs:
   release:
     description: "Whether any release has changed"
     value: ${{ steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
-  documentation:
-    description: "Whether documentation has changed"
-    value: ${{ steps.documentation.outputs.changed }}
-  md_and_yml:
-    description: "Whether Markdown or YAML has changed"
-    value: ${{ steps.md_and_yml.outputs.changed }}
-  scripts:
-    description: "Whether scripts have changed"
-    value: ${{ steps.scripts.outputs.changed }}
+  mkdocs:
+    description: "Whether MkDocs has changed"
+    value: ${{ steps.mkdocs.outputs.changed }}
+  prettier:
+    description: "Whether Prettier has changed"
+    value: ${{ steps.prettier.outputs.changed }}
+  shellcheck:
+    description: "Whether ShellCheck has changed"
+    value: ${{ steps.shellcheck.outputs.changed }}
   src:
     description: "Whether src has changed"
     value: ${{ steps.src.outputs.changed }}
