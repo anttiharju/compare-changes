@@ -1,3 +1,7 @@
+# cargo build --all-features --target aarch64-apple-darwin
+[target.aarch64-apple-darwin]
+linker = "scripts/zcc/aarch64-apple-darwin.sh"
+
 # cargo build --all-features --target aarch64-unknown-linux-gnu
 [target.aarch64-unknown-linux-gnu]
 linker = "scripts/zcc/aarch64-unknown-linux-gnu.sh"
