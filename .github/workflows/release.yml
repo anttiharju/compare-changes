@@ -109,7 +109,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Tag current commit
-        shell: sh
         run: |
           git tag "$tag"
       - name: Cache
@@ -121,7 +120,6 @@ jobs:
         run: |
           .release/archive.sh "$tag" x86_64-unknown-linux-gnu
       - name: Release
-        shell: sh
         env:
           GH_TOKEN: ${{ github.token }}
           title: ${{ inputs.version }}
@@ -131,7 +129,6 @@ jobs:
           find . -maxdepth 1 -name '${{ github.event.repository.name }}-*.tar.gz' -exec gh release upload "$tag" {} \;
           gh release edit "$tag" --draft=false
       - name: Tag major version
-        shell: sh
         env:
           version: ${{ inputs.version }}
         run: |
