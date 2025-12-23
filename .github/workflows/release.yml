@@ -194,7 +194,6 @@ jobs:
           major_version: ${{ steps.version.outputs.major }}
         run: |
           git switch -c "$major_version"
-          git pull
           mv ../action.yml action.yml
           mv ../README.md README.md
           mv ../LICENSE LICENSE
