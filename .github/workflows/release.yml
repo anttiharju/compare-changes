@@ -206,3 +206,7 @@ jobs:
             ${{ github.event.repository.name }} ${{ inputs.version }}
 
             https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
+      - name: Tag current commit
+        run: |
+          git tag "$tag"
+          git push --tags

@@ -39,7 +39,7 @@ runs:
         yq -i ".inputs.version.default = \"$version\"" action.yml
 
         export major="${version%%.*}"
-        git ls-files -z | xargs --null gawk -i inplace -v repo="$GITHUB_REPOSITORY" -v major="$major" '{gsub(repo "@v[0-9]+", repo "@v" major); print}'
+        git ls-files -z | xargs --null gawk -i inplace -v repo="${GITHUB_REPOSITORY}-action" -v major="$major" '{gsub(repo "@v[0-9]+", repo "@v" major); print}'
     - name: Get pull request number
       id: pr
       shell: sh

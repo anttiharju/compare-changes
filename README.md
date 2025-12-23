@@ -25,7 +25,7 @@ jobs:
         id: changes
         uses: anttiharju/find-changes-action@v1 # handles checkout
       - id: actionlint
-        uses: anttiharju/compare-changes@v0
+        uses: anttiharju/compare-changes-action@v0
         with:
           github-workflows-wildcard: actionlint.yml # see .github/workflows/wildcard-actionlint.yml below
           changes: ${{ steps.changes.outputs.array }}
