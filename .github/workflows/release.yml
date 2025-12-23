@@ -194,7 +194,9 @@ jobs:
           major_version: ${{ steps.version.outputs.major }}
         run: |
           git switch -c "$major_version"
-          git pull
+          if git ls-remote --exit-code --heads origin "$major_version" > /dev/null 2>&1; then
+            git pull
+          fi
           mv ../action.yml action.yml
           mv ../README.md README.md
           mv ../LICENSE LICENSE
