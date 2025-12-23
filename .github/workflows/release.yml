@@ -109,7 +109,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Tag current commit
-        shell: sh
         run: |
           git tag "$tag"
       - name: Cache
@@ -121,7 +120,6 @@ jobs:
         run: |
           .release/archive.sh "$tag" x86_64-unknown-linux-gnu
       - name: Release
-        shell: sh
         env:
           GH_TOKEN: ${{ github.token }}
           title: ${{ inputs.version }}
@@ -131,7 +129,6 @@ jobs:
           find . -maxdepth 1 -name '${{ github.event.repository.name }}-*.tar.gz' -exec gh release upload "$tag" {} \;
           gh release edit "$tag" --draft=false
       - name: Tag major version
-        shell: sh
         env:
           version: ${{ inputs.version }}
         run: |
@@ -157,3 +154,56 @@ jobs:
           CRATES_IO_PUBLISH_TOKEN: ${{ secrets.CRATES_IO_PUBLISH_TOKEN }}
         run: |
           cargo publish --all-features --token "$CRATES_IO_PUBLISH_TOKEN"
+
+  action:
+    name: Action
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ inputs.container || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    env:
+      tag: "v${{ inputs.version }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Calculate major version
+        id: version
+        env:
+          version: ${{ inputs.version }}
+        run: |
+          major="$(echo "$version" | cut -d. -f1)"
+          echo "major=v$major" >> "$GITHUB_OUTPUT"
+      - name: Generate commit token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}-action
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          repository: anttiharju/${{ github.event.repository.name }}-action
+          token: ${{ steps.generate-token.outputs.token }}
+          path: action
+      - name: Move action.yml to standalone repository
+        working-directory: action
+        env:
+          major_version: ${{ steps.version.outputs.major }}
+        run: |
+          git switch -c "$major_version"
+          git pull
+          mv ../action.yml action.yml
+          mv ../README.md README.md
+          mv ../LICENSE LICENSE
+      - name: Commit changes
+        uses: anttiharju/actions/commit-changes@v0
+        with:
+          working-directory: action
+          committer: ${{ github.actor }}
+          message: |
+            ${{ github.event.repository.name }} ${{ inputs.version }}
+
+            https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
