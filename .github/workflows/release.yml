@@ -194,6 +194,7 @@ jobs:
           major_version: ${{ steps.version.outputs.major }}
         run: |
           git switch -c "$major_version"
+          git config push.autoSetupRemote true
           if git ls-remote --exit-code --heads origin "$major_version" > /dev/null 2>&1; then
             git pull
           fi
