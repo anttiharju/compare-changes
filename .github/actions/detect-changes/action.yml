@@ -8,57 +8,57 @@ runs:
   using: "composite"
   steps:
     - id: actionlint
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: actionlint.yml
         changes: ${{ inputs.changes }}
     - id: rust
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: rust.yml
         changes: ${{ inputs.changes }}
     - id: rs
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: rs.yml
         changes: ${{ inputs.changes }}
     - id: brew
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: brew.yml
         changes: ${{ inputs.changes }}
     - id: github
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: github.yml
         changes: ${{ inputs.changes }}
     - id: nix
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: nix.yml
         changes: ${{ inputs.changes }}
     - id: mkdocs
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: mkdocs.yml
         changes: ${{ inputs.changes }}
     - id: prettier
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: prettier.yml
         changes: ${{ inputs.changes }}
     - id: shellcheck
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: shellcheck.yml
         changes: ${{ inputs.changes }}
     - id: src
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: src.yml
         changes: ${{ inputs.changes }}
     - id: action
-      uses: anttiharju/compare-changes@v0
+      uses: anttiharju/compare-changes-action@v0
       with:
         github-workflows-wildcard: action.yml
         changes: ${{ inputs.changes }}
