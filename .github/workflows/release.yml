@@ -204,10 +204,12 @@ jobs:
 
             https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
       - name: Tag current commit
+        working-directory: action
         run: |
           git tag "$tag"
           git push --tags
       - name: Setup major version branch
+        working-directory: action
         env:
           major_version: ${{ steps.version.outputs.major }}
         run: |
