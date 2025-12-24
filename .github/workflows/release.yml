@@ -190,14 +190,7 @@ jobs:
           path: action
       - name: Move action.yml to standalone repository
         working-directory: action
-        env:
-          major_version: ${{ steps.version.outputs.major }}
         run: |
-          git config push.autoSetupRemote true
-          git switch -c "$major_version"
-          if git ls-remote --exit-code --heads origin "$major_version" > /dev/null 2>&1; then
-            git pull
-          fi
           mv ../action.yml action.yml
           mv ../README.md README.md
           mv ../LICENSE LICENSE
@@ -214,3 +207,8 @@ jobs:
         run: |
           git tag "$tag"
           git push --tags
+      - name: Setup major version branch
+        env:
+          major_version: ${{ steps.version.outputs.major }}
+        run: |
+          git push origin "HEAD:$major_version"
