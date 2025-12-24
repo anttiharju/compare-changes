@@ -13,7 +13,7 @@ inputs:
   version:
     description: "compare-changes version to use, semver format without v prefix"
     required: false
-    default: "0.6.11"
+    default: "0.6.12"
   debug:
     description: "Enable compare-changes --debug output (true/false)"
     required: false
