@@ -46,7 +46,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        pr_number="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[0].number')"
+        pr_number="$(gh api "repos/${GITHUB_REPOSITORY}-action/commits/$GITHUB_SHA/pulls" --jq '.[0].number')"
         echo "number=$pr_number" >> "$GITHUB_OUTPUT"
     - name: Commit changes
       uses: anttiharju/actions/commit-changes@v0
