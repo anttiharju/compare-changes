@@ -1,0 +1,67 @@
+name: "Compare changes"
+description: "Conditionally run jobs and steps based on find-changes-action output."
+branding:
+  icon: minimize-2
+  color: orange
+inputs:
+  github-workflows-wildcard:
+    description: "Name of the GitHub Workflow wildcard .github/workflows/wildcard-*"
+    required: true
+  changes:
+    description: "JSON array of changed files (from anttiharju/find-changes-action)"
+    required: true
+  version:
+    description: "compare-changes version to use, semver format without v prefix"
+    required: false
+    default: "$PKG_VERSION"
+  debug:
+    description: "Enable compare-changes --debug output (true/false)"
+    required: false
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Check if compare-changes is in PATH
+      id: compare-changes
+      shell: sh
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/compare-changes.sh"
+    - if: steps.compare-changes.outputs.installed != 'true'
+      name: Convert target
+      id: convert
+      shell: sh
+      env:
+        OS: ${{ runner.os }} # Possible values are Linux, Windows, or macOS.
+        ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/convert.sh"
+    - if: steps.compare-changes.outputs.installed != 'true'
+      name: Cache
+      id: cache
+      uses: actions/cache@v5
+      with:
+        path: /usr/local/bin/compare-changes
+        key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
+    - if: steps.compare-changes.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
+      name: Install
+      working-directory: ${{ runner.temp }}
+      shell: sh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VERSION: ${{ inputs.version }}
+        TARGET: ${{ steps.convert.outputs.target }}
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/install.sh"
+    - name: Run
+      id: wildcard
+      shell: sh
+      env:
+        WILDCARD: ${{ inputs.github-workflows-wildcard }}
+        CHANGES: ${{ inputs.changes }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/run.sh"
+outputs:
+  changed:
+    description: "Boolean indicating if any changed files match paths in the wildcard file"
+    value: ${{ steps.wildcard.outputs.changed }}

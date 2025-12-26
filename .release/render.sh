@@ -4,29 +4,19 @@ cd "$(dirname "${BASH_SOURCE[0]}")" # normalize working directory so caller wd d
 
 # Validate pkg as enum
 pkg="${1:-}"
-case "$pkg" in
-  brew)
-    ext="rb"
-    ;;
-  nix)
-    ext="nix"
-    ;;
-  *)
-    echo "Usage: $0 <package> [--no-cache]"
-    echo "Valid packages: brew, nix"
-    exit 1
-    ;;
-esac
+if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
+  pkgs=(*/)
+  pkgs=("${pkgs[@]%/}")
+  echo "Usage: $0 <package> [--no-cache]"
+  echo "Valid packages: ${pkgs[*]}"
+  exit 1
+fi
 
 # Parse flags
 [[ " $* " =~ " --no-cache " ]] && export NO_CACHE=1
 
-# Paths
-cache="$pkg/values.cache"
-hash_cache="$pkg.cache"
-
 # Setup env
-source actions_env_mock.sh
+[[ -z "$GITHUB_REPOSITORY" ]] && source actions_env_mock.sh
 
 calculate_hash() {
   local file="$1"
@@ -34,6 +24,10 @@ calculate_hash() {
   hash=$(hashsum --sha256 "$file" | cut -d' ' -f1)
   echo "$branch-$hash"
 }
+
+# Paths
+cache="$pkg/values.cache"
+hash_cache="$pkg.cache"
 
 # Check if values.sh changed
 if [[ -f "$hash_cache" ]]; then
@@ -56,6 +50,7 @@ fi
 cd "$pkg"
 # shellcheck disable=SC1091
 source "values.cache"
-repository="${GITHUB_REPOSITORY##*/}"
-envsubst -i "template.$ext" -no-unset -no-empty > "$repository.$ext"
-cp "template.$ext" "$repository.tpl.$ext" # easier to visually diff two gitignored files
+filename="$PKG_FILENAME"
+ext="$PKG_EXTENSION"
+envsubst -i "template.$ext" -no-unset -no-empty > "$filename.$ext"
+cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files

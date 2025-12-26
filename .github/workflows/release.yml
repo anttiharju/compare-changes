@@ -76,14 +76,13 @@ jobs:
           path: nur-packages
       - working-directory: nur-packages
         run: nix flake update
-      - name: Source values and render template # TODO: use release/render.sh for this, needs output param
+      - name: Source values and render template
         env:
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
           output: nur-packages/pkgs/${{ github.event.repository.name }}
         run: |
-          source .release/nix/values.sh
-          mkdir -p "$output"
-          envsubst -i .release/nix/template.nix -no-unset -no-empty > "$output/default.nix"
+          .release/render.sh nix
+          mv .release/nix/default.nix "$output/default.nix"
           cp Cargo.lock "$output/Cargo.lock"
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
@@ -188,10 +187,12 @@ jobs:
           repository: anttiharju/${{ github.event.repository.name }}-action
           token: ${{ steps.generate-token.outputs.token }}
           path: action
-      - name: Move action.yml to standalone repository
+      - name: Update standalone repository
         working-directory: action
         run: |
-          mv ../action.yml action.yml
+          .release/render.sh action
+          mv ../.release/action/action.yml action.yml
+          mv ../.release/action/bin bin
           mv ../README.md README.md
           mv ../LICENSE LICENSE
       - name: Commit changes

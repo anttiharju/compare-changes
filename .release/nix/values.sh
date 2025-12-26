@@ -7,6 +7,8 @@ capture() {
 }
 
 capture PKG_REPO "${GITHUB_REPOSITORY##*/}"
+capture PKG_FILENAME default
+capture PKG_EXTENSION nix
 repo_root="$(git rev-parse --show-toplevel)"
 version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
 capture PKG_VERSION "$version"
