@@ -15,10 +15,6 @@ fi
 # Parse flags
 [[ " $* " =~ " --no-cache " ]] && export NO_CACHE=1
 
-# Paths
-cache="$pkg/values.cache"
-hash_cache="$pkg.cache"
-
 # Setup env
 source actions_env_mock.sh
 
@@ -28,6 +24,10 @@ calculate_hash() {
   hash=$(hashsum --sha256 "$file" | cut -d' ' -f1)
   echo "$branch-$hash"
 }
+
+# Paths
+cache="$pkg/values.cache"
+hash_cache="$pkg.cache"
 
 # Check if values.sh changed
 if [[ -f "$hash_cache" ]]; then
