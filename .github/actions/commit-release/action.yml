@@ -36,7 +36,6 @@ runs:
         git reset --hard && git clean -df
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
         cargo update --package "$package"
-        yq -i ".inputs.version.default = \"$version\"" action.yml
 
         export major="${version%%.*}"
         git ls-files -z | xargs --null gawk -i inplace -v repo="${GITHUB_REPOSITORY}-action" -v major="$major" '{gsub(repo "@v[0-9]+", repo "@v" major); print}'
