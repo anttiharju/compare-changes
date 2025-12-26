@@ -16,7 +16,7 @@ fi
 [[ " $* " =~ " --no-cache " ]] && export NO_CACHE=1
 
 # Setup env
-source actions_env_mock.sh
+[[ -z "$GITHUB_REPOSITORY" ]] && source actions_env_mock.sh
 
 calculate_hash() {
   local file="$1"
