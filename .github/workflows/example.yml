@@ -20,3 +20,4 @@ jobs:
       - if: steps.actionlint.outputs.changed == 'true'
         name: actionlint
         uses: anttiharju/actions/actionlint@v0
+# foo
