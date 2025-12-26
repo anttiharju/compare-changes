@@ -181,7 +181,7 @@ jobs:
         uses: ./.release/action
         with:
           github-workflows-wildcard: action.yml
-          changes: '["action.yml"]'
+          changes: '[".release/action/action.yml"]'
           debug: true
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action output (compiled binary)
