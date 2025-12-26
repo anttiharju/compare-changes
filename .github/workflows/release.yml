@@ -190,7 +190,7 @@ jobs:
       - name: Update standalone repository
         working-directory: action
         run: |
-          .release/render.sh action
+          ../.release/render.sh action
           mv ../.release/action/action.yml action.yml
           mv ../.release/action/bin bin
           mv ../README.md README.md
