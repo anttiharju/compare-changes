@@ -26,31 +26,18 @@ site
 homebrew-tap
 nur-packages
 
-# render.sh tmp files
-.release/*/*
-!.release/*/*.*
-.release/**/*.cache
-.release/brew/*.rb
-.release/nix/*.nix
-!.release/*/template.*
-
 # Archives
 *.tar.gz
 
 # Packaging happens under this directory
 tmp
 
-# rubocop-file action
-/*.lock
-
 # Nix
 .direnv
-!flake.lock
 
 # Rust
 target
-!Cargo.lock
 
 # Release automation
-release
-action
+/release
+/action
