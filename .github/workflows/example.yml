@@ -4,7 +4,6 @@ on:
     paths:
       - ".github/workflows/example.yml"
       - ".github/workflows/wildcard-actionlint.yml"
-      - "action.yml"
 jobs:
   test-example:
     name: Test example

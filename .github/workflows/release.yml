@@ -188,10 +188,9 @@ jobs:
           repository: anttiharju/${{ github.event.repository.name }}-action
           token: ${{ steps.generate-token.outputs.token }}
           path: action
-      - name: Move action.yml to standalone repository
+      - name: Update standalone repository
         working-directory: action
         run: |
-          mv ../action.yml action.yml
           mv ../README.md README.md
           mv ../LICENSE LICENSE
       - name: Commit changes
