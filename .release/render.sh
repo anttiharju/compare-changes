@@ -2,6 +2,9 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")" # normalize working directory so caller wd does not matter
 
+pkgs=(*/)
+pkgs=("${pkgs[@]%/}")
+
 # Validate pkg as enum
 pkg="${1:-}"
 case "$pkg" in
