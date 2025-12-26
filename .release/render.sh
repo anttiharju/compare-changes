@@ -2,24 +2,15 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")" # normalize working directory so caller wd does not matter
 
-pkgs=(*/)
-pkgs=("${pkgs[@]%/}")
-
 # Validate pkg as enum
 pkg="${1:-}"
-case "$pkg" in
-  brew)
-    ext="rb"
-    ;;
-  nix)
-    ext="nix"
-    ;;
-  *)
-    echo "Usage: $0 <package> [--no-cache]"
-    echo "Valid packages: brew, nix"
-    exit 1
-    ;;
-esac
+if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
+  pkgs=(*/)
+  pkgs=("${pkgs[@]%/}")
+  echo "Usage: $0 <package> [--no-cache]"
+  echo "Valid packages: ${pkgs[*]}"
+  exit 1
+fi
 
 # Parse flags
 [[ " $* " =~ " --no-cache " ]] && export NO_CACHE=1
@@ -59,6 +50,7 @@ fi
 cd "$pkg"
 # shellcheck disable=SC1091
 source "values.cache"
+ext="$PKG_EXTENSION"
 repository="${GITHUB_REPOSITORY##*/}"
 envsubst -i "template.$ext" -no-unset -no-empty > "$repository.$ext"
 cp "template.$ext" "$repository.tpl.$ext" # easier to visually diff two gitignored files
