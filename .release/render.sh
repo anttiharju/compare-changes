@@ -50,7 +50,7 @@ fi
 cd "$pkg"
 # shellcheck disable=SC1091
 source "values.cache"
+filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
-repository="${GITHUB_REPOSITORY##*/}"
-envsubst -i "template.$ext" -no-unset -no-empty > "$repository.$ext"
-cp "template.$ext" "$repository.tpl.$ext" # easier to visually diff two gitignored files
+envsubst -i "template.$ext" -no-unset -no-empty > "$filename.$ext"
+cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files

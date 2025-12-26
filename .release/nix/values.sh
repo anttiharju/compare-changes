@@ -6,8 +6,9 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-capture PKG_EXTENSION nix
 capture PKG_REPO "${GITHUB_REPOSITORY##*/}"
+capture PKG_FILENAME default
+capture PKG_EXTENSION nix
 repo_root="$(git rev-parse --show-toplevel)"
 version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
 capture PKG_VERSION "$version"

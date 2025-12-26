@@ -6,6 +6,7 @@ capture() {
   echo "export $1=\"$2\""
 }
 
+capture PKG_FILENAME action
 capture PKG_EXTENSION yml
 repo_root="$(git rev-parse --show-toplevel)"
 version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
