@@ -232,7 +232,7 @@ jobs:
       - name: Update standalone repository
         run: |
           .release/render.sh action --output action
-          cp .release/action/bin action/bin
+          cp -r .release/action/bin action/bin
           cp README.md action/README.md
           cp LICENSE action/LICENSE
       - name: Commit changes
