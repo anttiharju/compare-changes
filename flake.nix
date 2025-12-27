@@ -56,6 +56,7 @@
           # action-validator # disabled because it uses glob instead of this library
           actionlint
           anttiharju.relcheck
+          anttiharju.compare-changes
           editorconfig-checker
           (python313.withPackages (
             ps: with ps; [
