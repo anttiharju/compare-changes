@@ -34,7 +34,7 @@ cache_key="$pkg.cache"
 calculate_key() {
   local file="$1"
   branch=$(git rev-parse --abbrev-ref HEAD)
-  hash=$(hashsum --sha256 "$file" | cut -d' ' -f1)
+  hash=$(hashsum --sha256 "$file" | cut -d ' ' -f1)
   echo "$branch-$hash"
 }
 
