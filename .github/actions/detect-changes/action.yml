@@ -8,56 +8,67 @@ runs:
   using: "composite"
   steps:
     - id: actionlint
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard actionlint.yml
     - id: rust
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard rust.yml
     - id: rs
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard rs.yml
     - id: brew
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard brew.yml
     - id: github
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard github.yml
     - id: nix
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard nix.yml
     - id: mkdocs
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard mkdocs.yml
     - id: prettier
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard prettier.yml
     - id: shellcheck
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard shellcheck.yml
     - id: src
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard src.yml
     - id: action
+      shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
