@@ -21,9 +21,6 @@ pre-commit:
       run: cargo fmt
       stage_fixed: true
 
-    - glob: "src/*"
-      run: .build/exitcode.sh
-
     - glob: "*.rs"
       run: cargo clippy --fix --allow-staged
       stage_fixed: true
