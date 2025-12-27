@@ -76,13 +76,13 @@ jobs:
           path: nur-packages
       - working-directory: nur-packages
         run: nix flake update
-      - name: Source values and render template
+      - name: Render Nix expression
         env:
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
           output: nur-packages/pkgs/${{ github.event.repository.name }}
         run: |
-          .release/render.sh nix
-          mv .release/nix/default.nix "$output/default.nix"
+          mkdir -p "$output"
+          .release/render.sh nix -o "$output"
           cp Cargo.lock "$output/Cargo.lock"
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
@@ -112,6 +112,9 @@ jobs:
           git tag "$tag"
       - name: Cache
         uses: ./.github/actions/cache
+      - name: Create aarch64-apple-darwin archive
+        run: |
+          .release/archive.sh "$tag" aarch64-apple-darwin
       - name: Create aarch64-unknown-linux-gnu archive
         run: |
           .release/archive.sh "$tag" aarch64-unknown-linux-gnu
@@ -135,6 +138,49 @@ jobs:
           major_tag="v$major_version"
           git tag "$major_tag"
           git push origin "$major_tag" --force
+
+  homebrew-tap:
+    name: Homebrew
+    needs: github # Relies on binaries uploaded to the GitHub release
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ inputs.container || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Generate commit token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+          repositories: homebrew-tap
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          repository: anttiharju/homebrew-tap
+          token: ${{ steps.generate-token.outputs.token }}
+          path: homebrew-tap
+      - name: Render Brew formula
+        env:
+          GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
+          output: homebrew-tap/Formula
+          filename: ${{ github.event.repository.name }}.rb
+        run: |
+          mkdir -p "$output"
+          .release/render.sh brew -o "$output"
+      - name: Commit changes
+        uses: anttiharju/actions/commit-changes@v0
+        with:
+          working-directory: homebrew-tap
+          committer: ${{ github.actor }}
+          message: |
+            ${{ github.event.repository.name }} ${{ inputs.version }}
+
+            https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
 
   crate:
     name: crates.io

@@ -7,16 +7,23 @@ pkg="${1:-}"
 if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
   pkgs=(*/)
   pkgs=("${pkgs[@]%/}")
-  echo "Usage: $0 <package> [--no-cache]"
+  echo "Usage: $0 <package> [--no-cache] [--output|-o <path>]"
   echo "Valid packages: ${pkgs[*]}"
   exit 1
 fi
 
 # Parse flags
-[[ " $* " =~ " --no-cache " ]] && export NO_CACHE=1
+output="."
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-cache) export NO_CACHE=1; shift ;;
+    --output|-o) output="$2"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 
 # Setup env
-[[ -z "$GITHUB_REPOSITORY" ]] && source actions_env_mock.sh
+[[ -z "${GITHUB_REPOSITORY:-}" ]] && source actions_env_mock.sh
 
 calculate_hash() {
   local file="$1"
@@ -52,5 +59,5 @@ cd "$pkg"
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
-envsubst -i "template.$ext" -no-unset -no-empty > "$filename.$ext"
+envsubst -i "template.$ext" -no-unset -no-empty > "$output/$filename.$ext"
 cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files
