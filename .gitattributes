@@ -1,4 +1,4 @@
-.release linguist-vendored
 .cargo/zcc linguist-vendored
+.release linguist-vendored
 .envrc linguist-vendored
 flake.* linguist-vendored
