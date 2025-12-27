@@ -6,7 +6,7 @@ on:
     branches:
       - wildcard
     paths:
-      - ".build/zcc/**"
+      - ".cargo/zcc/**"
       - "flake.nix"
       - "flake.lock"
 jobs:
