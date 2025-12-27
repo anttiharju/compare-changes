@@ -25,6 +25,11 @@ done
 # Setup env
 [[ -z "${GITHUB_REPOSITORY:-}" ]] && source actions_env_mock.sh
 
+# Paths
+cache="$pkg/values.cache"
+hash_cache="$pkg.cache"
+
+# Check if values.sh changed
 calculate_hash() {
   local file="$1"
   branch=$(git rev-parse --abbrev-ref HEAD)
@@ -32,11 +37,6 @@ calculate_hash() {
   echo "$branch-$hash"
 }
 
-# Paths
-cache="$pkg/values.cache"
-hash_cache="$pkg.cache"
-
-# Check if values.sh changed
 if [[ -f "$hash_cache" ]]; then
   current_hash=$(calculate_hash "$pkg/values.sh")
   previous_hash=$(cat "$hash_cache")
