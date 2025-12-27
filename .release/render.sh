@@ -83,5 +83,6 @@ cd "$pkg"
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
+mkdir -p "$repo_root/$output"
 envsubst -i "template.$ext" -no-unset -no-empty > "$repo_root/$output/$filename.$ext"
 cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files

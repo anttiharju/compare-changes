@@ -81,7 +81,6 @@ jobs:
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
           output: nur-packages/pkgs/${{ github.event.repository.name }}
         run: |
-          mkdir -p "$output"
           .release/render.sh nix -o "$output"
           cp Cargo.lock "$output/Cargo.lock"
       - name: Commit changes
@@ -170,7 +169,6 @@ jobs:
           output: homebrew-tap/Formula
           filename: ${{ github.event.repository.name }}.rb
         run: |
-          mkdir -p "$output"
           .release/render.sh brew -o "$output"
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
