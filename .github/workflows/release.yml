@@ -78,7 +78,7 @@ jobs:
         run: nix flake update
       - name: Render Nix expression
         env:
-          GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
+          GH_TOKEN: ${{ github.token }}
           output: nur-packages/pkgs/${{ github.event.repository.name }}
         run: |
           .release/render.sh nix -o "$output"
@@ -165,10 +165,9 @@ jobs:
           path: homebrew-tap
       - name: Render Brew formula
         env:
-          GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
-          output: homebrew-tap/Formula
+          GH_TOKEN: ${{ github.token }}
         run: |
-          .release/render.sh brew -o "$output"
+          .release/render.sh brew -o homebrew-tap/Formula
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
         with:
@@ -231,13 +230,11 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           path: action
       - name: Update standalone repository
-        working-directory: action
         run: |
-          ../.release/render.sh action
-          mv ../.release/action/action.yml action.yml
-          mv ../.release/action/bin bin
-          mv ../README.md README.md
-          mv ../LICENSE LICENSE
+          .release/render.sh action -o action
+          cp .release/action/bin action/bin
+          cp README.md action/README.md
+          cp LICENSE action/LICENSE
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
         with:
