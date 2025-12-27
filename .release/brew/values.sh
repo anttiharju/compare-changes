@@ -6,11 +6,10 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-capture PKG_EXTENSION rb
 repo="${GITHUB_REPOSITORY##*/}"
+capture PKG_FILENAME "$repo"
+capture PKG_EXTENSION rb
 capture PKG_REPO "$repo"
-filename="$repo"
-capture PKG_FILENAME "$filename"
 capture PKG_EXTENSION rb
 class="$(echo "$repo" | awk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
 capture PKG_CLASS "$class"
