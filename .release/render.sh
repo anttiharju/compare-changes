@@ -56,7 +56,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 # Check if values.sh changed
 calculate_key() {
   local pkg="$1"
-  git log -1 --format=%H -- "$repo_root/.release/$pkg"
+  git log -1 --format=%H -- "$repo_root/.release/$pkg" "$repo_root/.release/render.sh"
 }
 
 if [[ -f "$cache_key" ]]; then
