@@ -113,13 +113,13 @@
           anttiharju = nur-anttiharju.packages.${system};
 
           # Fix not being able to run the unpatched node binaries that GitHub Actions mounts into the container
-          nix_ld_setup = pkgs.runCommand "nix-ld-setup" { } ''
+          ld = pkgs.runCommand "ld" { } ''
             mkdir -p $out/lib64
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
 
           # Package the in-repo zig wrappers so we can bake them into the image (relative path ./.cargo/zcc)
-          zcc_scripts = pkgs.runCommand "zcc-build" { } ''
+          zcc = pkgs.runCommand "zcc" { } ''
             mkdir -p $out/bin
             cp -a ${./.cargo/zcc}/* $out/bin/
             chmod +x $out/bin/*
@@ -130,9 +130,9 @@
             name = "ci";
             tag = container_version;
             contents = (devPackages pkgs anttiharju system) ++ [
-              nix_ld_setup
+              ld
+              zcc
               pkgs.binutils
-              zcc_scripts
               pkgs.dockerTools.caCertificates
               pkgs.sudo
               pkgs.nix.out
@@ -189,9 +189,9 @@
 
               # Install zig cc wrappers to /zcc
               mkdir -p /zcc
-              install -D -m755 ${zcc_scripts}/bin/aarch64-apple-darwin.sh /zcc/aarch64-apple-darwin.sh
-              install -D -m755 ${zcc_scripts}/bin/aarch64-unknown-linux-gnu.sh /zcc/aarch64-unknown-linux-gnu.sh
-              install -D -m755 ${zcc_scripts}/bin/x86_64-unknown-linux-gnu.sh /zcc/x86_64-unknown-linux-gnu.sh
+              install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /zcc/aarch64-apple-darwin.sh
+              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-gnu.sh /zcc/aarch64-unknown-linux-gnu.sh
+              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-gnu.sh /zcc/x86_64-unknown-linux-gnu.sh
             '';
           };
         }
