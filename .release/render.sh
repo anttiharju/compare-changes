@@ -14,7 +14,7 @@ if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
 fi
 
 # Parse flags
-output=".release"
+output=".release/$pkg"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-cache) export NO_CACHE=1; shift ;;
