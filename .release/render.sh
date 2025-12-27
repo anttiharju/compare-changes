@@ -50,7 +50,7 @@ mock_github_actions_env() {
 
 # Paths
 cache="$pkg/values.cache"
-cache_key="$pkg.cache"
+cache_key="$pkg/template.cache"
 repo_root="$(git rev-parse --show-toplevel)"
 
 # Check if values.sh changed
