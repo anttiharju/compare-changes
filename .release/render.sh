@@ -13,7 +13,7 @@ if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
 fi
 
 # Parse flags
-output="."
+output=".release"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-cache) export NO_CACHE=1; shift ;;
@@ -59,5 +59,6 @@ cd "$pkg"
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
-envsubst -i "template.$ext" -no-unset -no-empty > "$output/$filename.$ext"
+repo_root="$(git rev-parse --show-toplevel)"
+envsubst -i "template.$ext" -no-unset -no-empty > "$repo_root/$output/$filename.$ext"
 cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files
