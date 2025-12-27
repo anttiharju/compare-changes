@@ -27,26 +27,26 @@ done
 
 # Paths
 cache="$pkg/values.cache"
-hash_cache="$pkg.cache"
+cache_key="$pkg.cache"
 
 # Check if values.sh changed
-calculate_hash() {
+calculate_key() {
   local file="$1"
   branch=$(git rev-parse --abbrev-ref HEAD)
   hash=$(hashsum --sha256 "$file" | cut -d' ' -f1)
   echo "$branch-$hash"
 }
 
-if [[ -f "$hash_cache" ]]; then
-  current_hash=$(calculate_hash "$pkg/values.sh")
-  previous_hash=$(cat "$hash_cache")
-  [[ "$current_hash" != "$previous_hash" ]] && export NO_CACHE=1
+if [[ -f "$cache_key" ]]; then
+  current_key=$(calculate_key "$pkg/values.sh")
+  previous_key=$(cat "$cache_key")
+  [[ "$current_key" != "$previous_key" ]] && export NO_CACHE=1
 else
   export NO_CACHE=1
 fi
 
 # Render
-calculate_hash "$pkg/values.sh" > "$hash_cache"
+calculate_key "$pkg/values.sh" > "$cache_key"
 if [[ -f "$cache" && -z "${NO_CACHE:-}" ]]; then
   cat "$cache"
 else
