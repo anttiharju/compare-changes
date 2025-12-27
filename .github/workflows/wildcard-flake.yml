@@ -6,9 +6,9 @@ on:
     branches:
       - wildcard
     paths:
+      - ".build/zcc/**"
       - "flake.nix"
       - "flake.lock"
-      - "build/zcc/**"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

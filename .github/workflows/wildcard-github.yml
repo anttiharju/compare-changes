@@ -6,8 +6,8 @@ on:
     branches:
       - wildcard
     paths:
+      - ".build/archive.sh"
       - ".release/actions_env_mock.sh"
-      - "build/archive.sh"
       - "flake.nix"
       - "flake.lock"
 jobs:

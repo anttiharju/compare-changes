@@ -118,10 +118,10 @@
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
 
-          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./build/zcc)
+          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./.build/zcc)
           zcc_scripts = pkgs.runCommand "zcc-build" { } ''
             mkdir -p $out/bin
-            cp -a ${./build/zcc}/* $out/bin/
+            cp -a ${./.build/zcc}/* $out/bin/
             chmod +x $out/bin/*
           '';
         in
