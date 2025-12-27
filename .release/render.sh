@@ -29,17 +29,16 @@ done
 # Paths
 cache="$pkg/values.cache"
 cache_key="$pkg.cache"
+repo_root="$(git rev-parse --show-toplevel)"
 
 # Check if values.sh changed
 calculate_key() {
-  local file="$1"
-  branch=$(git rev-parse --abbrev-ref HEAD)
-  hash=$(hashsum --sha256 "$file" | cut -d ' ' -f1)
-  echo "$branch-$hash"
+  local pkg="$1"
+  git log -1 --format=%H -- "$repo_root/.release/$pkg"
 }
 
 if [[ -f "$cache_key" ]]; then
-  current_key=$(calculate_key "$pkg/values.sh")
+  current_key=$(calculate_key "$pkg")
   previous_key=$(cat "$cache_key")
   [[ "$current_key" != "$previous_key" ]] && export NO_CACHE=1
 else
@@ -47,7 +46,7 @@ else
 fi
 
 # Render
-calculate_key "$pkg/values.sh" > "$cache_key"
+calculate_key "$pkg" > "$cache_key"
 if [[ -f "$cache" && -z "${NO_CACHE:-}" ]]; then
   cat "$cache"
 else
@@ -60,6 +59,5 @@ cd "$pkg"
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
-repo_root="$(git rev-parse --show-toplevel)"
 envsubst -i "template.$ext" -no-unset -no-empty > "$repo_root/$output/$filename.$ext"
 cp "template.$ext" "$filename.tpl.$ext" # easier to visually diff two gitignored files
