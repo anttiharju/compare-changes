@@ -44,11 +44,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766773684,
-        "narHash": "sha256-0dyLuhxu049Aa0T2bhO45bInpZjEnkSTYOlLNad2UVk=",
+        "lastModified": 1766856736,
+        "narHash": "sha256-rlvZdV/etA13gIaV5uoqRcY0OMMahdLLCgR1PX16jHk=",
         "owner": "anttiharju",
         "repo": "nur-packages",
-        "rev": "87985f06e3e5d16632847a39267027ed8b69d4d4",
+        "rev": "e38a97079b5bdb095a164de605d3d3518d77c59c",
         "type": "github"
       },
       "original": {
