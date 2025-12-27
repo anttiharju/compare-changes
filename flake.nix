@@ -45,6 +45,7 @@
               "rustfmt"
               "rust-src"
             ])
+            fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
             fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
             fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.stable.rust-std
           ];
@@ -99,15 +100,7 @@
 
             shellHook = ''
               lefthook install
-            ''
-            + (
-              if pkgs.stdenv.isDarwin then
-                ''
-                  export CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER="$(xcrun --find cc)" # https://github.com/anttiharju/compare-changes/issues/35
-                ''
-              else
-                ""
-            );
+            '';
           };
         }
       );
@@ -147,6 +140,7 @@
             config = {
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Env = [
+                "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
                 "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
                 "CC_x86_64-unknown-linux-gnu=/zcc/x86_64-unknown-linux-gnu.sh"
                 "NIX_LD_LIBRARY_PATH=${
@@ -193,6 +187,7 @@
 
               # Install zig cc wrappers to /zcc
               mkdir -p /zcc
+              install -D -m755 ${zcc_scripts}/bin/aarch64-apple-darwin.sh /zcc/aarch64-apple-darwin.sh
               install -D -m755 ${zcc_scripts}/bin/aarch64-unknown-linux-gnu.sh /zcc/aarch64-unknown-linux-gnu.sh
               install -D -m755 ${zcc_scripts}/bin/x86_64-unknown-linux-gnu.sh /zcc/x86_64-unknown-linux-gnu.sh
             '';
