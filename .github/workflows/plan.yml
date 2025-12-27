@@ -139,7 +139,7 @@ jobs:
         run: cargo clippy -- --deny warnings
 
       - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
-        run: scripts/exitcode.sh
+        run: build/exitcode.sh
 
       - if: always() && !cancelled()
         name: relcheck

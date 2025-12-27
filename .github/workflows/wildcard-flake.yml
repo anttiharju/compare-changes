@@ -8,7 +8,7 @@ on:
     paths:
       - "flake.nix"
       - "flake.lock"
-      - "scripts/zcc/**"
+      - "build/zcc/**"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
