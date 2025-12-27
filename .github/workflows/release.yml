@@ -79,9 +79,9 @@ jobs:
       - name: Render Nix expression
         env:
           GH_TOKEN: ${{ github.token }}
-          repo: ${{ github.event.repository.name }}
+          output: "nur-packages/pkgs/${{ github.event.repository.name }}"
         run: |
-          .release/render.sh nix --output "nur-packages/pkgs/$repo"
+          .release/render.sh nix -o "$output"
           cp Cargo.lock "$output/Cargo.lock"
       - name: Commit changes
         uses: anttiharju/actions/commit-changes@v0
@@ -232,7 +232,7 @@ jobs:
       - name: Update standalone repository
         run: |
           .release/render.sh action --output action
-          cp .release/action/bin action/bin
+          cp -r .release/action/bin action/bin
           cp README.md action/README.md
           cp LICENSE action/LICENSE
       - name: Commit changes
