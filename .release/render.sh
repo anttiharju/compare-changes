@@ -50,12 +50,12 @@ calculate_hash "$pkg/values.sh" > "$hash_cache"
 if [[ -f "$cache" && -z "${NO_CACHE:-}" ]]; then
   cat "$cache"
 else
-  # shellcheck disable=SC1091
+  # shellcheck source=/dev/null
   source "$pkg/values.sh" | tee "$cache"
 fi
 
 cd "$pkg"
-# shellcheck disable=SC1091
+# shellcheck source=/dev/null
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
