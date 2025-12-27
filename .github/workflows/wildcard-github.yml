@@ -7,7 +7,7 @@ on:
       - wildcard
     paths:
       - ".release/actions_env_mock.sh"
-      - ".release/archive.sh"
+      - "build/archive.sh"
       - "flake.nix"
       - "flake.lock"
 jobs:
