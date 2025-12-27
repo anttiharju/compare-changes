@@ -4,6 +4,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")" # normalize working directory so caller wd d
 
 # Validate pkg as enum
 pkg="${1:-}"
+shift
 if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
   pkgs=(*/)
   pkgs=("${pkgs[@]%/}")
@@ -18,7 +19,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-cache) export NO_CACHE=1; shift ;;
     --output|-o) output="$2"; shift 2 ;;
-    *) shift ;;
+    *) echo "Error: Unknown param: $1" >&2; exit 1 ;;
   esac
 done
 
