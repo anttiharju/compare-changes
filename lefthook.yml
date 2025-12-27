@@ -15,8 +15,6 @@ pre-commit:
   parallel: true
   jobs:
     - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
-      env:
-        SDKROOT: /dev/null
       run: cargo build --all-features
 
     - glob: "*.rs"

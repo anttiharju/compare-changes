@@ -99,6 +99,7 @@
             ];
 
             shellHook = ''
+              export SDKROOT=/dev/null
               lefthook install
             '';
           };
