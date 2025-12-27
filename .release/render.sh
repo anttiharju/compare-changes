@@ -23,8 +23,30 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+mock_github_actions_env() {
+  #remote_url=https://example.com/owner/repository.git
+  #remote_url=git@example.com:owner/repository.git
+  remote_url="$(git remote get-url origin)"
+
+  local normalized_url="${remote_url/://}"
+  local temp="${normalized_url%/*}"
+  owner="$(basename "$temp")"
+
+  repo="$(basename --suffix .git "$remote_url")"
+  export GITHUB_REPOSITORY="$owner/$repo"
+
+  repo_root="$(git rev-parse --show-toplevel)"
+  tag="v$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
+  if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
+    rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')"
+  else
+    rev="$(gh api "repos/$GITHUB_REPOSITORY/commits/HEAD" --jq '.sha')"
+  fi
+  export GITHUB_SHA="$rev"
+}
+
 # Setup env
-[[ -z "${GITHUB_REPOSITORY:-}" ]] && source actions_env_mock.sh
+[[ -z "${GITHUB_REPOSITORY:-}" ]] && mock_github_actions_env
 
 # Paths
 cache="$pkg/values.cache"
