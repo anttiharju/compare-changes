@@ -99,6 +99,7 @@
             ];
 
             shellHook = ''
+              export SDKROOT=/dev/null
               lefthook install
             '';
           };
@@ -117,10 +118,10 @@
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
 
-          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./scripts/zcc)
-          zcc_scripts = pkgs.runCommand "zcc-scripts" { } ''
+          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./.cargo/zcc)
+          zcc_scripts = pkgs.runCommand "zcc-build" { } ''
             mkdir -p $out/bin
-            cp -a ${./scripts/zcc}/* $out/bin/
+            cp -a ${./.cargo/zcc}/* $out/bin/
             chmod +x $out/bin/*
           '';
         in
@@ -140,6 +141,7 @@
             config = {
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Env = [
+                "SDKROOT=/dev/null"
                 "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
                 "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
                 "CC_x86_64-unknown-linux-gnu=/zcc/x86_64-unknown-linux-gnu.sh"

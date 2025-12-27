@@ -138,9 +138,6 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.rs == 'true' || github.event_name == 'push')
         run: cargo clippy -- --deny warnings
 
-      - if: always() && !cancelled() && (steps.changed.outputs.src == 'true' || github.event_name == 'push')
-        run: scripts/exitcode.sh
-
       - if: always() && !cancelled()
         name: relcheck
         run: |

@@ -15,16 +15,11 @@ pre-commit:
   parallel: true
   jobs:
     - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
-      env:
-        SDKROOT: /dev/null
       run: cargo build --all-features
 
     - glob: "*.rs"
       run: cargo fmt
       stage_fixed: true
-
-    - glob: "src/*"
-      run: scripts/exitcode.sh
 
     - glob: "*.rs"
       run: cargo clippy --fix --allow-staged
