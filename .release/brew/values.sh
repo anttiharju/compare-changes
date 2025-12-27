@@ -31,7 +31,7 @@ if [[ "$version" = "0.0.0" ]] || ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags
   exit 0
 fi
 
-cd "$repo_root"
+cd "$repo_root/.release/brew"
 pattern="$repo-*.tar.gz"
 gh release download "$tag" --pattern "$pattern" --clobber
 for archive in $pattern; do
