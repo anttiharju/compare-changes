@@ -167,7 +167,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }} # values script may use gh cli that needs this
           output: homebrew-tap/Formula
-          filename: ${{ github.event.repository.name }}.rb
         run: |
           .release/render.sh brew -o "$output"
       - name: Commit changes
