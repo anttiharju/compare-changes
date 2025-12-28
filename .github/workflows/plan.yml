@@ -150,7 +150,7 @@ jobs:
         with:
           require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
 
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || github.event_name == 'push'
+      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Render action.yml
         run: |
           .release/render.sh action
