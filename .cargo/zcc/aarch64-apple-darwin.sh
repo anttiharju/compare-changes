@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Filter out -liconv since it being included is "kind of an accident", see https://github.com/rust-lang/rust/issues/112501#issuecomment-1616996273
+# The workaround filtering out `-liconv` can be removed once rust-lang/libc 1.0 is released https://github.com/rust-lang/libc/issues/3248
 ARGS=()
 for arg in "$@"; do
   if [[ "$arg" != "-liconv" ]]; then
