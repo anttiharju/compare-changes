@@ -93,6 +93,14 @@ jobs:
           if [[ "$local_digest" != "$remote_digest" ]]; then
             docker push "$image"
           fi
+      - if: steps.flake.outputs.changed == 'true'
+        name: Delete untagged versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}-ci
+          package-type: container
+          min-versions-to-keep: 1
+          delete-only-untagged-versions: false
     outputs:
       image: ${{ steps.tag.outputs.image }}
 
