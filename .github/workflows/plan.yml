@@ -55,7 +55,7 @@ jobs:
         name: Parse container version
         id: container
         run: |
-          version="$(nix eval .#container_version --raw)"
+          version=current
           echo "version=$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 

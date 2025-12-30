@@ -24,7 +24,6 @@
       ...
     }:
     let
-      container_version = "1.0.0";
       supportedSystems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -86,7 +85,6 @@
         ];
     in
     {
-      container_version = container_version; # This is here so that 'nix eval .#container_version --raw' works
       devShells = forAllSystems (
         system:
         let
@@ -129,7 +127,7 @@
         pkgs.lib.optionalAttrs (system == "x86_64-linux" || system == "aarch64-linux") {
           ci = pkgs.dockerTools.streamLayeredImage {
             name = "ci";
-            tag = container_version;
+            tag = "current";
             contents = (devPackages pkgs anttiharju system) ++ [
               ld
               zcc
@@ -185,7 +183,7 @@
               mkdir -p /tmp
               chmod 1777 /tmp
 
-              # Enable 'nix eval .#container_version --raw' and 'nix flake update' inside the container
+              # Enable 'nix flake update' inside the container
               mkdir -p /etc/nix
               echo "experimental-features = nix-command flakes" > /etc/nix/nix.conf
 
