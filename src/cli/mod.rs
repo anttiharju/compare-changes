@@ -1,47 +1,35 @@
-use clap::{arg, command, value_parser};
+use clap::Parser;
 use std::path::PathBuf;
 
 mod style;
 use style::get_style;
 
+#[derive(Parser)]
+#[command(
+    version,
+    about = "Outputs changed=true on first match of the wildcard's on.push.paths. Otherwise outputs changed=false.",
+    styles = get_style()
+)]
 pub struct Args {
+    /// Wildcard name, * in .github/workflows/wildcard-*
+    #[arg(short, long, value_name = "FILE")]
     pub wildcard: PathBuf,
-    pub changes_json: String,
+
+    /// JSON array string, for example '["foo/bar", "baz"]'
+    #[arg(short, long, value_name = "JSON")]
+    pub changes: String,
+
+    /// Enable debug output
+    #[arg(short, long)]
     pub debug: bool,
 }
 
 pub fn parse_args() -> Args {
-    let matches = command!()
-        .about("Outputs changed=true on first match of the wildcard's on.push.paths. Otherwise outputs changed=false.")
-        .styles(get_style())
-        .arg(
-            arg!(
-                -w --wildcard <FILE> "Wildcard name, * in .github/workflows/wildcard-*"
-            )
-            .required(true)
-            .value_parser(value_parser!(PathBuf)),
-        )
-        .arg(
-            arg!(
-                -c --changes <JSON> r#"JSON array string, for example '["foo/bar", "baz"]'"#
-            )
-            .required(true)
-            .value_parser(value_parser!(String)),
-        )
-        .arg(
-            arg!(
-                -d --debug "Enable debug output"
-            )
-            .required(false),
-        )
-        .get_matches();
+    let mut args = Args::parse();
 
-    let raw_wildcard = matches.get_one::<PathBuf>("wildcard").unwrap().clone();
-    let prefixed = PathBuf::from(".github/workflows").join(format!("wildcard-{}", raw_wildcard.display()));
+    // Apply the prefix transformation to wildcard
+    let prefixed = PathBuf::from(".github/workflows").join(format!("wildcard-{}", args.wildcard.display()));
+    args.wildcard = prefixed;
 
-    Args {
-        wildcard: prefixed,
-        changes_json: matches.get_one::<String>("changes").unwrap().clone(),
-        debug: matches.get_flag("debug"),
-    }
+    args
 }
