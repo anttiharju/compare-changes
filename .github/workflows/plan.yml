@@ -94,7 +94,7 @@ jobs:
           if [[ "$local_digest" != "$remote_digest" ]]; then
             docker push "$image"
           fi
-      - if: steps.flake.outputs.changed == 'true'
+      - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         name: Delete untagged versions
         uses: actions/delete-package-versions@v5
         with:
