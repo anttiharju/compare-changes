@@ -23,7 +23,7 @@ fn main() {
         }
     };
 
-    let files = match parse::get_files(&args.changes_json) {
+    let files = match parse::get_files(&args.changes) {
         Ok(files) => {
             if args.debug {
                 println!("files:");

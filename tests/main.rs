@@ -37,7 +37,7 @@ fn prepare_workflow_with_patterns(patterns: &[&str]) -> TempDir {
 }
 
 fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (String, String) {
-    let changes_json = serde_json::to_string(&changes).unwrap();
+    let changes = serde_json::to_string(&changes).unwrap();
 
     let mut binding = cargo_bin_cmd!("compare-changes");
     let mut cmd = binding
@@ -45,7 +45,7 @@ fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (Strin
         .arg("--wildcard")
         .arg("template.yml")
         .arg("--changes")
-        .arg(&changes_json);
+        .arg(&changes);
 
     if debug {
         cmd = cmd.arg("--debug");
