@@ -51,7 +51,7 @@
         in
         [
           rustToolchain
-          nur-anttiharju.legacyPackages.${system}.zig."custom" # TODO: switch back to upstream Zig once a version with https://codeberg.org/ziglang/zig/pulls/30206 is available through stable nixpkgs
+          nur-anttiharju.legacyPackages.${system}.zig."custom" # TODO: switch back to upstream Zig once 0.16 is available through stable nixpkgs (https://codeberg.org/ziglang/zig/pulls/30628)
           # action-validator # disabled because it uses glob instead of this library
           actionlint
           anttiharju.relcheck
