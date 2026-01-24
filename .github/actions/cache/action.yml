@@ -9,5 +9,10 @@ runs:
       with:
         path: |
           ~/.cargo
+        key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+    - name: Cache
+      uses: actions/cache@v4
+      with:
+        path: |
           ~/.cache/zig
         key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
