@@ -4,10 +4,29 @@ description: "Do not repeat yourself"
 runs:
   using: "composite"
   steps:
-    - name: Cache
-      uses: actions/cache@v4
+    - name: Compute dependency hash
+      id: stable_deps
+      shell: bash
+      run: |
+        # Hardcode compare-changes version to 0.0.0 to have a stable hash when dependencies have not changed
+        toml set Cargo.toml package.version "0.0.0" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
+        cargo update --package compare-changes
+        HASH=$(cat Cargo.toml Cargo.lock flake.nix flake.lock | hashsum --sha256 --no-names)
+        git checkout -- Cargo.toml Cargo.lock
+        echo "hash=$HASH"
+        echo "hash=$HASH" >> $GITHUB_OUTPUT
+    - name: Cargo cache
+      uses: actions/cache@v5
       with:
-        path: |
-          ~/.cargo
-          ~/.cache/zig
-        key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+        path: ~/.cargo
+        key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ steps.stable_deps.outputs.hash }}
+    - name: Zig cache
+      uses: actions/cache@v5
+      with:
+        path: ~/.cache/zig
+        key: Zig-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+    - name: Build cache
+      uses: actions/cache@v5
+      with:
+        path: target
+        key: Build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
