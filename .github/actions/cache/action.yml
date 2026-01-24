@@ -15,15 +15,18 @@ runs:
         git checkout -- Cargo.toml Cargo.lock
         echo "hash=$HASH"
         echo "hash=$HASH" >> $GITHUB_OUTPUT
-    - name: Cache
+    - name: Cargo cache
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.cargo
+        path: ~/.cargo
         key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ steps.stable_deps.outputs.hash }}
-    - name: Cache
+    - name: Zig cache
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.cache/zig
+        path: ~/.cache/zig
         key: Zig-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
+    - name: Build cache
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: Build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
