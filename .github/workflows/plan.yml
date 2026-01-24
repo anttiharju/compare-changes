@@ -127,6 +127,13 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
+        id: semantic
+        name: Require semantic version label
+        uses: anttiharju/actions/semver-label@v0
+        with:
+          require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
+
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         name: Cache
         uses: ./.github/actions/cache
@@ -151,13 +158,6 @@ jobs:
         name: relcheck
         run: |
           relcheck all --verbose --color=always
-
-      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push') && ! endsWith(github.event.head_commit.author.name, '[bot]')
-        id: semantic
-        name: Require semantic version label
-        uses: anttiharju/actions/semver-label@v0
-        with:
-          require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Render action.yml
