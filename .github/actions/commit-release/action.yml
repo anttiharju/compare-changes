@@ -15,7 +15,7 @@ runs:
   using: "composite"
   steps:
     - name: Generate commit token
-      uses: actions/create-github-app-token@v1
+      uses: actions/create-github-app-token@v2
       id: generate
       with:
         app-id: ${{ inputs.ANTTIHARJU_BOT_ID }}
