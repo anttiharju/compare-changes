@@ -127,6 +127,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           title: ${{ inputs.version }}
         run: |
+          git reset --hard && git clean -df
           git push origin "$tag"
           gh release create "$tag" --title="$title" --generate-notes --draft
           find . -maxdepth 1 -name '${{ github.event.repository.name }}-*.tar.gz' -exec gh release upload "$tag" {} \;
@@ -200,6 +201,7 @@ jobs:
 
   action:
     name: Action
+    needs: github
     runs-on: ubuntu-24.04
     container:
       image: ${{ inputs.container || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
