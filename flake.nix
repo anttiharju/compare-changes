@@ -198,7 +198,7 @@
               install -D -m755 ${zcc}/bin/x86_64-unknown-linux-gnu.sh /zcc/x86_64-unknown-linux-gnu.sh
 
               # Just avoid extra diffs when using a Dockerfile to inspect changes
-              mkdir /proc /dev /sys
+              mkdir -p /proc /dev /sys
             '';
           };
         }
