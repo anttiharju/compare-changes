@@ -53,6 +53,8 @@ runs:
     - name: Tag current commit
       working-directory: action
       shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
       run: |
         git tag "$tag"
         git push --tags
