@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 if [[ "$TYPE" == "major-release" ]]; then
   echo "version=$((MAJOR_RELEASE + 1)).0.0" >> "$GITHUB_OUTPUT"
