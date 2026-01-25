@@ -23,6 +23,7 @@ runs:
         path: documentation
     - name: Deploy to GitHub Pages
       shell: sh
+      working-directory: documentation
       env:
         GIT_AUTHOR_NAME: ${{ github.actor }}
         GIT_AUTHOR_EMAIL: "${{ github.actor }}@users.noreply.github.com"
