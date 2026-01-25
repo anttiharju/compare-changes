@@ -76,9 +76,9 @@ runs:
       shell: bash
       env:
         TYPE: ${{ steps.release.outputs.type }}
-        MAJOR_RELEASE: ${{ steps.latest.outputs.major-release }}
-        MINOR_RELEASE: ${{ steps.latest.outputs.minor-release }}
-        PATCH_RELEASE: ${{ steps.latest.outputs.patch-release }}
+        MAJOR_RELEASE: ${{ steps.latest.outputs.major-release || 'no-major' }}
+        MINOR_RELEASE: ${{ steps.latest.outputs.minor-release || 'no-minor' }}
+        PATCH_RELEASE: ${{ steps.latest.outputs.patch-release || 'no-patch' }}
       run: |
         $GITHUB_ACTION_PATH/bump.sh
 
