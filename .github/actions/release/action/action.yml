@@ -1,5 +1,5 @@
-name: "Release homebrew-tap"
-description: "Update formula in homebrew-tap repository"
+name: "Release standalone action"
+description: "Update standalone action repository for a new release"
 inputs:
   version:
     description: "Version to release"
