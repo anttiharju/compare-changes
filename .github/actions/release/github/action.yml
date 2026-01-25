@@ -55,7 +55,6 @@ runs:
       shell: sh
       env:
         version: ${{ inputs.version }}
-        tag: "v${{ inputs.version }}"
       run: |
         major_version=$(echo "$version" | cut -d. -f1)
         major_tag="v$major_version"
