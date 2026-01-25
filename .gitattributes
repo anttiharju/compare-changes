@@ -1,4 +1,5 @@
 .cargo/zcc/** linguist-vendored
+.github/** linguist-vendored
 .release/** linguist-vendored
 .envrc linguist-vendored
 flake.* linguist-vendored
