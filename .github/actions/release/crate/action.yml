@@ -1,5 +1,5 @@
-name: "Release documentation"
-description: "Build and deploy documentation to GitHub Pages"
+name: "Release crate to crates.io"
+description: "Publish the Rust crate to crates.io"
 inputs:
   crates_io_publish_token:
     description: "Crates.io publish token"
