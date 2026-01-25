@@ -48,7 +48,7 @@ runs:
         pr_number="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[0].number')"
         echo "number=$pr_number" >> "$GITHUB_OUTPUT"
     - name: Commit changes
-      uses: anttiharju/actions/commit-changes@v0
+      uses: ./.github/actions/commit-changes
       with:
         author: "${{ github.actor }}[bot]"
         committer: "${{ github.actor }}[bot]"

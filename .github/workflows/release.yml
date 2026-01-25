@@ -86,7 +86,7 @@ jobs:
           .release/render.sh nix -o "$output"
           cp Cargo.lock "$output/Cargo.lock"
       - name: Commit changes
-        uses: anttiharju/actions/commit-changes@v0
+        uses: ./.github/actions/commit-changes
         with:
           working-directory: nur-packages
           committer: ${{ github.actor }}
@@ -172,7 +172,7 @@ jobs:
         run: |
           .release/render.sh brew --output homebrew-tap/Formula
       - name: Commit changes
-        uses: anttiharju/actions/commit-changes@v0
+        uses: ./.github/actions/commit-changes
         with:
           working-directory: homebrew-tap
           committer: ${{ github.actor }}
@@ -240,7 +240,7 @@ jobs:
           cp README.md action/README.md
           cp LICENSE action/LICENSE
       - name: Commit changes
-        uses: anttiharju/actions/commit-changes@v0
+        uses: ./.github/actions/commit-changes
         with:
           working-directory: action
           committer: ${{ github.actor }}
