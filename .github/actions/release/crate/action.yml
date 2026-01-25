@@ -1,0 +1,15 @@
+name: "Release crate to crates.io"
+description: "Publish the Rust crate to crates.io"
+inputs:
+  crates_io_publish_token:
+    description: "Crates.io publish token"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Publish to crates.io
+      shell: sh
+      env:
+        CRATES_IO_PUBLISH_TOKEN: ${{ inputs.crates_io_publish_token }}
+      run: |
+        cargo publish --all-features --token "$CRATES_IO_PUBLISH_TOKEN"

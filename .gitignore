@@ -30,7 +30,8 @@ site
 .direnv
 
 # actions/checkout.path
+/documentation
+/nur-packages
 /release
 /action
 /homebrew-tap
-/nur-packages

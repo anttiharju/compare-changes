@@ -1,0 +1,65 @@
+name: "Release standalone action"
+description: "Update standalone action repository for a new release"
+inputs:
+  version:
+    description: "Version to release"
+    required: true
+  anttiharju-bot-id:
+    description: "GitHub App ID for anttiharju[bot]"
+    required: true
+  anttiharju-bot-private-key:
+    description: "GitHub App private key for anttiharju[bot]"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Calculate major version
+      id: version
+      shell: sh
+      env:
+        version: ${{ inputs.version }}
+      run: |
+        major="$(echo "$version" | cut -d. -f1)"
+        echo "major=v$major" >> "$GITHUB_OUTPUT"
+    - name: Generate commit token
+      id: generate-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.anttiharju-bot-id }}
+        private-key: ${{ inputs.anttiharju-bot-private-key }}
+        repositories: ${{ github.event.repository.name }}-action
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        repository: anttiharju/${{ github.event.repository.name }}-action
+        token: ${{ steps.generate-token.outputs.token }}
+        path: action
+    - name: Update standalone repository
+      shell: sh
+      run: |
+        .release/render.sh action --output action
+        cp -r .release/action/bin action/
+        cp README.md action/README.md
+        cp LICENSE action/LICENSE
+    - name: Commit changes
+      uses: ./.github/actions/commit-changes
+      with:
+        working-directory: action
+        committer: ${{ github.actor }}
+        message: |
+          ${{ github.event.repository.name }} ${{ inputs.version }}
+
+          https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
+    - name: Tag current commit
+      working-directory: action
+      shell: sh
+      run: |
+        git tag "$tag"
+        git push --tags
+    - name: Setup major version branch
+      working-directory: action
+      shell: sh
+      env:
+        major_version: ${{ steps.version.outputs.major }}
+      run: |
+        git push origin "HEAD:$major_version"
