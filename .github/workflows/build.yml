@@ -52,9 +52,9 @@ jobs:
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: crates.io
-        uses: ./.github/actions/release/crates
+        uses: ./.github/actions/release/crate
         with:
-          crates-io-publish-token: ${{ secrets.CRATES_IO_PUBLISH_TOKEN }}
+          crates_io_publish_token: ${{ secrets.CRATES_IO_PUBLISH_TOKEN }}
 
       - name: Homebrew Tap
         uses: ./.github/actions/release/homebrew-tap
