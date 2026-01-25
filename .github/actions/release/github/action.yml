@@ -1,8 +1,8 @@
 name: "Release GitHub"
 description: "Create a GitHub Release"
 inputs:
-  tag:
-    description: "Git tag to create"
+  version:
+    description: "Version to release"
     required: true
   anttiharju-bot-id:
     description: "GitHub App ID for anttiharju[bot]"
@@ -15,20 +15,28 @@ runs:
   steps:
     - name: Tag current commit
       shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
       run: |
         git tag "$tag"
     - name: Cache
       uses: ./.github/actions/cache
     - name: Create aarch64-apple-darwin archive
       shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
       run: |
         .release/archive.sh "$tag" aarch64-apple-darwin
     - name: Create aarch64-unknown-linux-gnu archive
       shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
       run: |
         .release/archive.sh "$tag" aarch64-unknown-linux-gnu
     - name: Create x86_64-unknown-linux-gnu archive
       shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
       run: |
         .release/archive.sh "$tag" x86_64-unknown-linux-gnu
     - name: Release
@@ -36,6 +44,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
         title: ${{ inputs.version }}
+        tag: "v${{ inputs.version }}"
       run: |
         git reset --hard && git clean -df
         git push origin "$tag"
@@ -46,6 +55,7 @@ runs:
       shell: sh
       env:
         version: ${{ inputs.version }}
+        tag: "v${{ inputs.version }}"
       run: |
         major_version=$(echo "$version" | cut -d. -f1)
         major_tag="v$major_version"

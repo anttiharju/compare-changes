@@ -47,7 +47,7 @@ jobs:
       - name: GitHub
         uses: ./.github/actions/release/github
         with:
-          tag: "v${{ needs.plan.outputs.version }}"
+          version: ${{ needs.plan.outputs.version }}
           anttiharju-bot-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
