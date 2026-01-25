@@ -45,26 +45,22 @@ runs:
     - if: ${{ steps.major-release.outputs.match == 'false' && steps.minor-release.outputs.match == 'false' && steps.patch-release.outputs.match == 'false' }}
       id: fail
       name: Fail if no semver label matched
-      shell: sh
+      shell: bash
       env:
-        require: ${{ inputs.require }}
-        msg: ${{ inputs.error-message }}
+        REQUIRE: ${{ inputs.require }}
+        MSG: ${{ inputs.error-message }}
       run: |
-        if [ "$require" = "true" ]; then
-          echo "Error: $msg"
-          exit 1
-        else
-          echo "skipped=true"
-          echo "skipped=true" >> "$GITHUB_OUTPUT"
-        fi
+        $GITHUB_ACTION_PATH/fail.sh
 
     # This is not baked into output value to avoid falsely setting release type if a step fails
     - if: steps.fail.outputs.skipped != 'true'
       name: Set output
       id: release
       shell: sh
+      env:
+        type: ${{ steps.major-release.outputs.match == 'true' && 'major-release' || steps.minor-release.outputs.match == 'true' && 'minor-release' || steps.patch-release.outputs.match == 'true' && 'patch-release' }}
       run: |
-        echo "type=${{ steps.major-release.outputs.match == 'true' && 'major-release' || steps.minor-release.outputs.match == 'true' && 'minor-release' || steps.patch-release.outputs.match == 'true' && 'patch-release' }}" >> "$GITHUB_OUTPUT"
+        echo "type=$type" >> "$GITHUB_OUTPUT"
 
     - name: Parse latest release
       id: latest
@@ -72,43 +68,19 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        if [ -f Cargo.toml ]; then
-          version=$(yq '.package.version' Cargo.toml)
-        else
-          version=$(gh release view --json name -q '.name' 2>/dev/null || echo '0.0.0')
-        fi
-        echo "version=$version" >> "$GITHUB_OUTPUT"
-
-        major-release="$(echo "$version" | cut -d. -f1)"
-        minor-release="$(echo "$version" | cut -d. -f2)"
-        patch-release="$(echo "$version" | cut -d. -f3)"
-        {
-          echo "major-release=$major-release"
-          echo "minor-release=$minor-release"
-          echo "patch-release=$patch-release"
-        } >> "$GITHUB_OUTPUT"
-        echo "current=$version(as-is)=$major-release.$minor-release.$patch-release(parsed)"
+        $GITHUB_ACTION_PATH/latest.sh
 
     - if: steps.fail.outputs.skipped != 'true'
       name: Bump version
       id: bump
       shell: bash
       env:
-        type: ${{ steps.release.outputs.type }}
-        major-release: ${{ steps.latest.outputs.major-release }}
-        minor-release: ${{ steps.latest.outputs.minor-release }}
-        patch-release: ${{ steps.latest.outputs.patch-release }}
+        TYPE: ${{ steps.release.outputs.type }}
+        MAJOR_RELEASE: ${{ steps.latest.outputs.major-release }}
+        MINOR_RELEASE: ${{ steps.latest.outputs.minor-release }}
+        PATCH_RELEASE: ${{ steps.latest.outputs.patch-release }}
       run: |
-        if [[ "$type" == "major-release" ]]; then
-          echo "version=$((major-release + 1)).0.0" >> "$GITHUB_OUTPUT"
-        elif [[ "$type" == "minor-release" ]]; then
-          echo "version=$major-release.$((minor-release + 1)).0" >> "$GITHUB_OUTPUT"
-        elif [[ "$type" == "patch-release" ]]; then
-          echo "version=$major-release.$minor-release.$((patch-release + 1))" >> "$GITHUB_OUTPUT"
-        else
-          echo "Invalid type: $type" >&2
-          exit 1
-        fi
+        $GITHUB_ACTION_PATH/bump.sh
 
     - if: steps.fail.outputs.skipped != 'true'
       name: Log next version
