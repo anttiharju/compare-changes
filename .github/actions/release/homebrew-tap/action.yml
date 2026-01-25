@@ -1,6 +1,9 @@
 name: "Release homebrew-tap"
 description: "Update formula in homebrew-tap repository"
 inputs:
+  version:
+    description: "Version to release"
+    required: true
   anttiharju-bot-id:
     description: "GitHub App ID for anttiharju[bot]"
     required: true

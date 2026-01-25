@@ -1,6 +1,9 @@
 name: "Release nur-packages"
 description: "Release in nur-packages repository"
 inputs:
+  version:
+    description: "Version to release"
+    required: true
   anttiharju-bot-id:
     description: "GitHub App ID for anttiharju[bot]"
     required: true
