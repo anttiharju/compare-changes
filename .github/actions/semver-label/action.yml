@@ -8,7 +8,7 @@ inputs:
   error-message:
     description: "Message to echo upon failure"
     required: false
-    default: "PR must have exactly one of the following labels: major, minor, patch"
+    default: "PR must have exactly one of the following labels: major-release, minor-release, patch-release, dependencies"
 runs:
   using: "composite"
   steps:
@@ -42,7 +42,16 @@ runs:
         error-message: ${{ inputs.error-message }}
         fail-on-match: ${{ steps.minor.outputs.match == 'true' || steps.major.outputs.match == 'true' }}
 
-    - if: ${{ steps.major.outputs.match == 'false' && steps.minor.outputs.match == 'false' && steps.patch.outputs.match == 'false' }}
+    - name: Check for dependencies label
+      id: dependencies
+      uses: anttiharju/actions/require-label@v0
+      with:
+        labels: ${{ steps.label.outputs.names }}
+        name: "dependencies"
+        error-message: ${{ inputs.error-message }}
+        fail-on-match: ${{ steps.minor.outputs.match == 'true' || steps.major.outputs.match == 'true' || steps.patch.outputs.match == 'true' }}
+
+    - if: ${{ steps.major.outputs.match == 'false' && steps.minor.outputs.match == 'false' && steps.patch.outputs.match == 'false' && steps.dependencies.outputs.match == 'false' }}
       id: fail
       name: Fail if no semver label matched
       shell: sh
@@ -64,7 +73,7 @@ runs:
       id: release
       shell: sh
       run: |
-        echo "type=${{ steps.major.outputs.match == 'true' && 'major' || steps.minor.outputs.match == 'true' && 'minor' || steps.patch.outputs.match == 'true' && 'patch' }}" >> "$GITHUB_OUTPUT"
+        echo "type=${{ steps.major.outputs.match == 'true' && 'major' || steps.minor.outputs.match == 'true' && 'minor' || (steps.patch.outputs.match == 'true' || steps.dependencies.outputs.match == 'true') && 'patch' }}" >> "$GITHUB_OUTPUT"
 
     - name: Parse latest release
       id: latest
