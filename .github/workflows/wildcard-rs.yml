@@ -9,6 +9,7 @@ on:
       - "**.rs"
       - "flake.nix"
       - "flake.lock"
+      - ".github/workflows/wildcard-rs.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

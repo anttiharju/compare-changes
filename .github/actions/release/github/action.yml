@@ -23,22 +23,16 @@ runs:
       uses: ./.github/actions/cache
     - name: Create aarch64-apple-darwin archive
       shell: sh
-      env:
-        tag: "v${{ inputs.version }}"
       run: |
-        .release/archive.sh "$tag" aarch64-apple-darwin
+        .release/archive.sh aarch64-apple-darwin
     - name: Create aarch64-unknown-linux-gnu archive
       shell: sh
-      env:
-        tag: "v${{ inputs.version }}"
       run: |
-        .release/archive.sh "$tag" aarch64-unknown-linux-gnu
+        .release/archive.sh aarch64-unknown-linux-gnu
     - name: Create x86_64-unknown-linux-gnu archive
       shell: sh
-      env:
-        tag: "v${{ inputs.version }}"
       run: |
-        .release/archive.sh "$tag" x86_64-unknown-linux-gnu
+        .release/archive.sh x86_64-unknown-linux-gnu
     - name: Release
       shell: sh
       env:

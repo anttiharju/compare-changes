@@ -13,6 +13,7 @@ on:
       - "Cargo.toml"
       - "flake.nix"
       - "flake.lock"
+      - ".github/workflows/wildcard-rust.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

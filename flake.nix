@@ -51,6 +51,7 @@
         in
         [
           rustToolchain
+          toml-cli
           nur-anttiharju.legacyPackages.${system}.zig."custom" # TODO: switch back to upstream Zig once 0.16 is available through stable nixpkgs (https://codeberg.org/ziglang/zig/pulls/30628)
           # action-validator # disabled because it uses glob instead of this library
           actionlint
@@ -67,7 +68,6 @@
           shellcheck
           gh
           yq-go
-          toml-cli
           ripgrep
           # Everything below is required by GitHub Actions
           uutils-coreutils-noprefix
