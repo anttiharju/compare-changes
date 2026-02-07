@@ -3,9 +3,8 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
-tag="$1"
-target="$2"
-echo "$0 $tag $target"
+target="$1"
+echo "$0 $target"
 
 remote_url="$(git remote get-url origin)"
 repo="$(basename --suffix .git "$remote_url")"

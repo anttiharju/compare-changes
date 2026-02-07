@@ -6,10 +6,10 @@ on:
     branches:
       - wildcard
     paths:
-      - ".github/workflows/wildcard-action.yml"
       - ".release/action/**"
       - "flake.nix"
       - "flake.lock"
+      - ".github/workflows/wildcard-action.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
