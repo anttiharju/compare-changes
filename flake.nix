@@ -105,6 +105,14 @@
               export CC_aarch64_apple_darwin="$PWD/.cargo/zcc/aarch64-apple-darwin.sh"
               export CC_aarch64_unknown_linux_musl="$PWD/.cargo/zcc/aarch64-unknown-linux-musl.sh"
               export CC_x86_64_unknown_linux_musl="$PWD/.cargo/zcc/x86_64-unknown-linux-musl.sh"
+              ${
+                if system == "x86_64-linux" then
+                  ''export CARGO_BUILD_TARGET="x86_64-unknown-linux-musl"''
+                else if system == "aarch64-linux" then
+                  ''export CARGO_BUILD_TARGET="aarch64-unknown-linux-musl"''
+                else
+                  ""
+              }
               lefthook install
             '';
           };
@@ -157,6 +165,9 @@
                 "CC_aarch64_apple_darwin=/zcc/aarch64-apple-darwin.sh"
                 "CC_aarch64_unknown_linux_musl=/zcc/aarch64-unknown-linux-musl.sh"
                 "CC_x86_64_unknown_linux_musl=/zcc/x86_64-unknown-linux-musl.sh"
+                "CARGO_BUILD_TARGET=${
+                  if system == "x86_64-linux" then "x86_64-unknown-linux-musl" else "aarch64-unknown-linux-musl"
+                }"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
