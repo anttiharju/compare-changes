@@ -90,11 +90,19 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
+
+          # Package the in-repo zig wrappers
+          zcc = pkgs.runCommand "zcc" { } ''
+            mkdir -p $out/bin
+            cp -a ${./.cargo/zcc}/* $out/bin/
+            chmod +x $out/bin/*
+          '';
         in
         {
           default = pkgs.mkShell {
             packages = (devPackages pkgs anttiharju system) ++ [
               fenix.packages.${system}.stable.rust-analyzer
+              zcc
             ];
 
             shellHook = ''
@@ -102,9 +110,9 @@
               export CC="zig cc"
               export AR="zig ar"
               export RANLIB="zig ranlib"
-              export CC_aarch64_apple_darwin="$PWD/.cargo/zcc/aarch64-apple-darwin.sh"
-              export CC_aarch64_unknown_linux_musl="$PWD/.cargo/zcc/aarch64-unknown-linux-musl.sh"
-              export CC_x86_64_unknown_linux_musl="$PWD/.cargo/zcc/x86_64-unknown-linux-musl.sh"
+              export CC_aarch64_apple_darwin="${zcc}/bin/aarch64-apple-darwin.sh"
+              export CC_aarch64_unknown_linux_musl="${zcc}/bin/aarch64-unknown-linux-musl.sh"
+              export CC_x86_64_unknown_linux_musl="${zcc}/bin/x86_64-unknown-linux-musl.sh"
               ${
                 if system == "x86_64-linux" then
                   ''export CARGO_BUILD_TARGET="x86_64-unknown-linux-musl"''
