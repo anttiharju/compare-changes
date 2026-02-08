@@ -162,9 +162,9 @@
                 "CC=zig cc"
                 "AR=zig ar"
                 "RANLIB=zig ranlib"
-                "CC_aarch64_apple_darwin=/zcc/aarch64-apple-darwin.sh"
-                "CC_aarch64_unknown_linux_musl=/zcc/aarch64-unknown-linux-musl.sh"
-                "CC_x86_64_unknown_linux_musl=/zcc/x86_64-unknown-linux-musl.sh"
+                "CC_aarch64_apple_darwin=/usr/local/bin/aarch64-apple-darwin.sh"
+                "CC_aarch64_unknown_linux_musl=/usr/local/bin/aarch64-unknown-linux-musl.sh"
+                "CC_x86_64_unknown_linux_musl=/usr/local/bin/x86_64-unknown-linux-musl.sh"
                 "CARGO_BUILD_TARGET=${
                   if system == "x86_64-linux" then "x86_64-unknown-linux-musl" else "aarch64-unknown-linux-musl"
                 }"
@@ -208,20 +208,12 @@
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
 
-              # Fix 'error: linker `cc` not found'
-              cat > /usr/local/bin/cc << 'EOF'
-              #!/usr/bin/env bash
-              set -euo pipefail
-
-              exec zig cc "$@"
-              EOF
-              chmod +x /usr/local/bin/cc
-
-              # Install zig cc wrappers to /zcc
-              mkdir -p /zcc
-              install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /zcc/aarch64-apple-darwin.sh
-              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-musl.sh /zcc/aarch64-unknown-linux-musl.sh
-              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-musl.sh /zcc/x86_64-unknown-linux-musl.sh
+              # Install zig cc wrappers to /usr/local/bin
+              mkdir -p /usr/local/bin
+              install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /usr/local/bin/aarch64-apple-darwin.sh
+              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-musl.sh /usr/local/bin/aarch64-unknown-linux-musl.sh
+              install -D -m755 ${zcc}/bin/cc.sh /usr/local/bin/cc
+              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-musl.sh /usr/local/bin/x86_64-unknown-linux-musl.sh
 
               # Just avoid extra diffs when using a Dockerfile to inspect changes
               mkdir -p /proc /dev /sys
