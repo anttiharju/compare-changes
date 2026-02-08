@@ -102,6 +102,9 @@
               export CC="zig cc"
               export AR="zig ar"
               export RANLIB="zig ranlib"
+              export CC_aarch64_apple_darwin="$PWD/.cargo/zcc/aarch64-apple-darwin.sh"
+              export CC_aarch64_unknown_linux_musl="$PWD/.cargo/zcc/aarch64-unknown-linux-musl.sh"
+              export CC_x86_64_unknown_linux_musl="$PWD/.cargo/zcc/x86_64-unknown-linux-musl.sh"
               lefthook install
             '';
           };
@@ -151,9 +154,9 @@
                 "CC=zig cc"
                 "AR=zig ar"
                 "RANLIB=zig ranlib"
-                "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
-                "CC_aarch64-unknown-linux-musl=/zcc/aarch64-unknown-linux-musl.sh"
-                "CC_x86_64-unknown-linux-musl=/zcc/x86_64-unknown-linux-musl.sh"
+                "CC_aarch64_apple_darwin=/zcc/aarch64-apple-darwin.sh"
+                "CC_aarch64_unknown_linux_musl=/zcc/aarch64-unknown-linux-musl.sh"
+                "CC_x86_64_unknown_linux_musl=/zcc/x86_64-unknown-linux-musl.sh"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
