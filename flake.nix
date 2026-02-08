@@ -99,6 +99,7 @@
 
             shellHook = ''
               export SDKROOT=/dev/null
+              export CC="zig cc"
               export AR="zig ar"
               export RANLIB="zig ranlib"
               lefthook install
@@ -147,6 +148,7 @@
               };
               Env = [
                 "SDKROOT=/dev/null"
+                "CC=zig cc"
                 "AR=zig ar"
                 "RANLIB=zig ranlib"
                 "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
