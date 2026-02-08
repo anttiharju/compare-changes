@@ -99,6 +99,8 @@
 
             shellHook = ''
               export SDKROOT=/dev/null
+              export AR="zig ar"
+              export RANLIB="zig ranlib"
               lefthook install
             '';
           };
@@ -131,7 +133,6 @@
             contents = (devPackages pkgs anttiharju system) ++ [
               ld
               zcc
-              pkgs.binutils
               pkgs.dockerTools.caCertificates
               pkgs.sudo
               pkgs.nix.out
@@ -146,6 +147,8 @@
               };
               Env = [
                 "SDKROOT=/dev/null"
+                "AR=zig ar"
+                "RANLIB=zig ranlib"
                 "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
                 "CC_aarch64-unknown-linux-musl=/zcc/aarch64-unknown-linux-musl.sh"
                 "CC_x86_64-unknown-linux-musl=/zcc/x86_64-unknown-linux-musl.sh"
@@ -164,7 +167,6 @@
             enableFakechroot = true;
             fakeRootCommands = ''
               #!${pkgs.runtimeShell}
-              install -D -m755 ${pkgs.binutils}/bin/ar /usr/bin/ar
 
               # https://docs.github.com/en/actions/reference/runners/github-hosted-runners#administrative-privileges
               ${pkgs.dockerTools.shadowSetup}
