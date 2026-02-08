@@ -45,8 +45,8 @@
               "rust-src"
             ])
             fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
-            fenix.packages.${system}.targets.aarch64-unknown-linux-gnu.stable.rust-std
-            fenix.packages.${system}.targets.x86_64-unknown-linux-gnu.stable.rust-std
+            fenix.packages.${system}.targets.aarch64-unknown-linux-musl.stable.rust-std
+            fenix.packages.${system}.targets.x86_64-unknown-linux-musl.stable.rust-std
           ];
         in
         [
@@ -147,8 +147,8 @@
               Env = [
                 "SDKROOT=/dev/null"
                 "CC_aarch64-apple-darwin=/zcc/aarch64-apple-darwin.sh"
-                "CC_aarch64-unknown-linux-gnu=/zcc/aarch64-unknown-linux-gnu.sh"
-                "CC_x86_64-unknown-linux-gnu=/zcc/x86_64-unknown-linux-gnu.sh"
+                "CC_aarch64-unknown-linux-musl=/zcc/aarch64-unknown-linux-musl.sh"
+                "CC_x86_64-unknown-linux-musl=/zcc/x86_64-unknown-linux-musl.sh"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
@@ -194,8 +194,8 @@
               # Install zig cc wrappers to /zcc
               mkdir -p /zcc
               install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /zcc/aarch64-apple-darwin.sh
-              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-gnu.sh /zcc/aarch64-unknown-linux-gnu.sh
-              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-gnu.sh /zcc/x86_64-unknown-linux-gnu.sh
+              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-musl.sh /zcc/aarch64-unknown-linux-musl.sh
+              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-musl.sh /zcc/x86_64-unknown-linux-musl.sh
 
               # Just avoid extra diffs when using a Dockerfile to inspect changes
               mkdir -p /proc /dev /sys
