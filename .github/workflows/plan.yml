@@ -141,9 +141,9 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --all-features --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
-        run: cargo build --all-features --target aarch64-unknown-linux-gnu
+        run: cargo build --all-features --target aarch64-unknown-linux-musl
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action == 'true' )
-        run: cargo build --all-features --target x86_64-unknown-linux-gnu
+        run: cargo build --all-features --target x86_64-unknown-linux-musl
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo test --all-features
@@ -182,7 +182,7 @@ jobs:
         env:
           binary: ${{ github.event.repository.name }}
         run: |
-          mv "target/x86_64-unknown-linux-gnu/debug/$binary" /usr/local/bin/
+          mv "target/x86_64-unknown-linux-musl/debug/$binary" /usr/local/bin/
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
         id: action

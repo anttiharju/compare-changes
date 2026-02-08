@@ -38,7 +38,7 @@ for archive in $pattern; do
 done
 mac_arm_sha="$([[ -f "$repo-aarch64-apple-darwin.tar.gz" ]] && hashsum --sha256 "$repo-aarch64-apple-darwin.tar.gz" --no-names || echo "TBD")"
 capture PKG_MAC_ARM_SHA "$mac_arm_sha"
-linux_arm_sha="$([[ -f "$repo-aarch64-unknown-linux-gnu.tar.gz" ]] && hashsum --sha256 "$repo-aarch64-unknown-linux-gnu.tar.gz" --no-names || echo "TBD")"
+linux_arm_sha="$([[ -f "$repo-aarch64-unknown-linux-musl.tar.gz" ]] && hashsum --sha256 "$repo-aarch64-unknown-linux-musl.tar.gz" --no-names || echo "TBD")"
 capture PKG_LINUX_ARM_SHA "$linux_arm_sha"
-linux_intel_sha="$([[ -f "$repo-x86_64-unknown-linux-gnu.tar.gz" ]] && hashsum --sha256 "$repo-x86_64-unknown-linux-gnu.tar.gz" --no-names || echo "TBD")"
+linux_intel_sha="$([[ -f "$repo-x86_64-unknown-linux-musl.tar.gz" ]] && hashsum --sha256 "$repo-x86_64-unknown-linux-musl.tar.gz" --no-names || echo "TBD")"
 capture PKG_LINUX_INTEL_SHA "$linux_intel_sha"

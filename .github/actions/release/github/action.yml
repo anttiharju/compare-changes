@@ -25,14 +25,14 @@ runs:
       shell: sh
       run: |
         .release/archive.sh aarch64-apple-darwin
-    - name: Create aarch64-unknown-linux-gnu archive
+    - name: Create aarch64-unknown-linux-musl archive
       shell: sh
       run: |
-        .release/archive.sh aarch64-unknown-linux-gnu
-    - name: Create x86_64-unknown-linux-gnu archive
+        .release/archive.sh aarch64-unknown-linux-musl
+    - name: Create x86_64-unknown-linux-musl archive
       shell: sh
       run: |
-        .release/archive.sh x86_64-unknown-linux-gnu
+        .release/archive.sh x86_64-unknown-linux-musl
     - name: Release
       shell: sh
       env:
