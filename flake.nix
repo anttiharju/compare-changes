@@ -197,6 +197,15 @@
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
 
+              # Fix 'error: linker `cc` not found'
+              cat > /usr/local/bin/cc << 'EOF'
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              exec zig cc "$@"
+              EOF
+              chmod +x /usr/local/bin/cc
+
               # Install zig cc wrappers to /zcc
               mkdir -p /zcc
               install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /zcc/aarch64-apple-darwin.sh
