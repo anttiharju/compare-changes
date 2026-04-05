@@ -53,7 +53,7 @@
           rustToolchain
           toml-cli
           nur-anttiharju.legacyPackages.${system}.zig."custom" # TODO: switch back to upstream Zig once 0.16 is available through stable nixpkgs (https://codeberg.org/ziglang/zig/pulls/30628)
-          # action-validator # disabled because it uses glob instead of this library
+          anttiharju.action-validator
           actionlint
           anttiharju.relcheck
           anttiharju.compare-changes
