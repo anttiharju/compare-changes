@@ -67,10 +67,6 @@ Crate supports diverse real-world use cases:
 - [ ] Caller decides where to copy and place data (C-CALLER-CONTROL)
 - [ ] Functions minimize assumptions about parameters by using generics (C-GENERIC)
 
-## Contributing
-
-Refer to [CONTRIBUTING.md](../CONTRIBUTING.md).
-
 ## Stargazers over time
 
 Starring the repository is helpful for releasing the project on upstream package managers.

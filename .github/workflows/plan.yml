@@ -26,7 +26,7 @@ on:
 
 jobs:
   container:
-    if: github.event.repository.name != 'rust-starter'
+    if: "!endsWith(github.event.repository.name, '-starter')"
     name: Container
     runs-on: ubuntu-24.04
     permissions:
