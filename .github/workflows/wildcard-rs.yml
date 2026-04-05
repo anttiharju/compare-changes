@@ -6,10 +6,12 @@ on:
     branches:
       - wildcard
     paths:
-      - "**.rs"
-      - "flake.nix"
-      - "flake.lock"
       - ".github/workflows/wildcard-rs.yml"
+      - "**.rs"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "flake.lock"
+      - "flake.nix"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
