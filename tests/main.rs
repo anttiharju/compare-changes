@@ -3,7 +3,7 @@ use assert_cmd::cargo::cargo_bin_cmd;
 use serde_json;
 use std::fs;
 use std::path::Path;
-use tempfile::{tempdir, TempDir};
+use tempfile::{TempDir, tempdir};
 
 fn prepare_workflow_with_patterns(patterns: &[&str]) -> TempDir {
     let temp = tempdir().unwrap();
