@@ -10,7 +10,7 @@ repo="${GITHUB_REPOSITORY##*/}"
 capture PKG_FILENAME "$repo"
 capture PKG_EXTENSION rb
 capture PKG_REPO "$repo"
-class="$(echo "$repo" | awk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
+class="$(echo "$repo" | gawk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
 capture PKG_CLASS "$class"
 desc="$(gh repo view --json description --jq .description)"
 capture PKG_DESC "$desc"
