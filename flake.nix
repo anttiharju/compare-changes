@@ -77,7 +77,7 @@
           jq
           gzip
           envsubst
-          gawkInteractive
+          gawk
           xz
           gnugrep
         ];
