@@ -68,7 +68,7 @@
           shellcheck
           gh
           # Everything below is required by GitHub Actions
-          uutils-coreutils-noprefix
+          coreutils
           bash
           gitMinimal # With plain 'git' perl etc. get bundled in
           findutils

@@ -11,7 +11,7 @@ runs:
         # Hardcode version to 0.0.0 to have a stable hash when dependencies have not changed
         toml set Cargo.toml package.version "0.0.0" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
         cargo update --package ${GITHUB_REPOSITORY#*/}
-        HASH=$(cat Cargo.toml Cargo.lock flake.nix flake.lock | hashsum --sha256 --no-names)
+        HASH=$(cat Cargo.toml Cargo.lock flake.nix flake.lock | sha256sum | cut -d ' ' -f1)
         git checkout -- Cargo.toml Cargo.lock
         echo "hash=$HASH"
         echo "hash=$HASH" >> $GITHUB_OUTPUT
