@@ -67,7 +67,6 @@
           rubocop
           shellcheck
           gh
-          yq-go
           ripgrep
           # Everything below is required by GitHub Actions
           uutils-coreutils-noprefix

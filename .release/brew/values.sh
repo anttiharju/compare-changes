@@ -17,7 +17,7 @@ capture PKG_DESC "$desc"
 homepage="$(gh api "repos/$GITHUB_REPOSITORY" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
 repo_root="$(git rev-parse --show-toplevel)"
-version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
+version="$(toml get "$repo_root/Cargo.toml" package.version --raw)"
 capture PKG_VERSION "$version"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
