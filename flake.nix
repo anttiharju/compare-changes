@@ -60,7 +60,7 @@
           editorconfig-checker
           (python313.withPackages (
             ps: with ps; [
-              mkdocs-material
+              mkdocs-material # TODO: switch to zensical. Note that find-changes action is python-based, so that needs to be rewritten.
             ]
           ))
           prettier
