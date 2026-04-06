@@ -36,7 +36,7 @@ mock_github_actions_env() {
   export GITHUB_REPOSITORY="$owner/$repo"
 
   repo_root="$(git rev-parse --show-toplevel)"
-  tag="v$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
+  tag="v$(toml get "$repo_root/Cargo.toml" package.version --raw)"
   if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
     rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')"
   else

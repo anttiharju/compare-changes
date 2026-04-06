@@ -60,26 +60,24 @@
           editorconfig-checker
           (python313.withPackages (
             ps: with ps; [
-              mkdocs-material
+              mkdocs-material # TODO: switch to zensical. Note that find-changes action is python-based, so that needs to be rewritten.
             ]
           ))
           prettier
           rubocop
           shellcheck
           gh
-          yq-go
-          ripgrep
           # Everything below is required by GitHub Actions
-          uutils-coreutils-noprefix
+          coreutils
           bash
-          git
+          gitMinimal # With plain 'git' perl etc. get bundled in
           findutils
           gnutar
           curl
           jq
           gzip
           envsubst
-          gawkInteractive
+          gawk
           xz
           gnugrep
         ];

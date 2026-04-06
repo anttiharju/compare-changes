@@ -11,7 +11,7 @@ capture PKG_FILENAME "default"
 capture PKG_EXTENSION nix
 capture PKG_REPO "$repo"
 repo_root="$(git rev-parse --show-toplevel)"
-version="$(yq -p toml -oy '.package.version' "$repo_root/Cargo.toml")"
+version="$(toml get "$repo_root/Cargo.toml" package.version --raw)"
 capture PKG_VERSION "$version"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 capture PKG_REV "$GITHUB_SHA"

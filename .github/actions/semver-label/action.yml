@@ -82,7 +82,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
       run: |
         if [ -f Cargo.toml ]; then
-          version=$(yq '.package.version' Cargo.toml)
+          version=$(toml get Cargo.toml package.version --raw)
         else
           version=$(gh release view --json name -q '.name' 2>/dev/null || echo '0.0.0')
         fi
