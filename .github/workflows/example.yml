@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v1 # handles checkout
+        uses: anttiharju/find-changes-action@v2 # handles checkout
       - id: actionlint
         uses: anttiharju/compare-changes-action@v0
         with:
