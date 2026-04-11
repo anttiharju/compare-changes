@@ -57,12 +57,15 @@ jobs:
       - if: steps.flake.outputs.changed == 'true'
         name: Parse container version
         id: container
+        env:
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
         run: |
           nix_hash="$(basename "$(readlink ./result)" | cut -d '-' -f1)"
           echo "nix_hash=$nix_hash"
           echo "nix_hash=$nix_hash" >> "$GITHUB_OUTPUT"
 
-          image_id="ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-ci"
+          image_id="ghcr.io/$owner/$repo-ci"
           image_id="$(echo "$image_id" | tr '[:upper:]' '[:lower:]')"
           echo "image_id=$image_id"
           echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
@@ -72,8 +75,11 @@ jobs:
           echo "image=$image" >> "$GITHUB_OUTPUT"
       - if: steps.flake.outputs.changed == 'true'
         name: Log in to registry
+        env:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          actor: ${{ github.actor }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "$github_token" | docker login ghcr.io -u "$actor" --password-stdin
       - if: steps.flake.outputs.changed == 'true'
         name: Check registry
         id: image

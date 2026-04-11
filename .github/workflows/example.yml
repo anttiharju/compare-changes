@@ -8,6 +8,8 @@ jobs:
   test-example:
     name: Test example
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - name: Find changes
         id: changes
