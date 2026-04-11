@@ -61,3 +61,7 @@ pre-commit:
       exclude: "template.nix"
       run: nixfmt {staged_files}
       stage_fixed: true
+
+    - name: zizmor
+      glob: "{.github/workflows/*.yml,*/action.yml}"
+      run: zizmor {staged_files}
