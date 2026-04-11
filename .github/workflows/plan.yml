@@ -266,7 +266,7 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.zizmor == 'true' || github.event_name == 'push')
         name: zizmor
         run: |
-          git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null zizmor
+          zizmor .
 
       - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.event.head_commit.author.name, '[bot]')
         name: Create release commit
