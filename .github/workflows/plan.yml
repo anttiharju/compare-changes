@@ -83,9 +83,6 @@ jobs:
           if docker manifest inspect "$image" > /dev/null 2>&1; then
             echo "exists=true"
             echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false"
-            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
         run: |
