@@ -1,0 +1,30 @@
+[project]
+site_name = "compare-changes"
+repo_url = "https://github.com/anttiharju/compare-changes"
+edit_uri = "edit/main/docs/"
+
+[project.theme]
+language = "en"
+
+features = [
+    "content.action.edit",
+    "content.code.copy",
+    "content.code.select",
+    "content.footnote.tooltips",
+    "navigation.instant",
+    "navigation.instant.prefetch",
+    "navigation.path",
+    "navigation.sections",
+    "navigation.tracking",
+    "search.highlight",
+]
+
+[[project.theme.palette]]
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"

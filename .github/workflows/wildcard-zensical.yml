@@ -7,7 +7,7 @@ on:
       - wildcard
     paths:
       - "docs/**"
-      - "zensical.yml"
+      - "zensical.toml"
       - "flake.nix"
       - "flake.lock"
       - ".github/workflows/wildcard-zensical.yml"
