@@ -76,24 +76,24 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - if: steps.flake.outputs.changed == 'true'
         name: Check registry
-        id: registry
+        id: image
         env:
           image: ${{ steps.container.outputs.image }}
         run: |
           if docker manifest inspect "$image" > /dev/null 2>&1; then
-            echo "exists=true"
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "pushed=true"
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
-      - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
+      - if: steps.flake.outputs.changed == 'true' && steps.image.outputs.pushed != 'true'
         run: |
           ./result | docker load
-      - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
+      - if: steps.flake.outputs.changed == 'true' && steps.image.outputs.pushed != 'true'
         name: Tag image
         env:
           image: ${{ steps.container.outputs.image }}
         run: |
           docker tag ci:flake "$image"
-      - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
+      - if: steps.flake.outputs.changed == 'true' && steps.image.outputs.pushed != 'true'
         name: Push image
         env:
           image: ${{ steps.container.outputs.image }}
