@@ -100,12 +100,12 @@ jobs:
         run: |
           docker push "$image"
       - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
-        name: Push latest tag
+        name: Tag as latest
         env:
           image_id: ${{ steps.container.outputs.image_id }}
           image: ${{ steps.container.outputs.image }}
         run: |
-          docker buildx imagetools create --tag "$image_id:latest" "$image"
+          skopeo copy --all "docker://$image" "docker://$image_id:latest"
       - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         name: Delete previous versions
         uses: actions/delete-package-versions@v5
