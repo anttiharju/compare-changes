@@ -66,7 +66,7 @@
           # Everything below is required by GitHub Actions
           coreutils
           bash
-          gitMinimal # With plain 'git' perl etc. get bundled in
+          gitMinimal
           findutils
           gnutar
           curl
