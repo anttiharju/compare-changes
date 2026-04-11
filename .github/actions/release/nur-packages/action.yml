@@ -26,6 +26,7 @@ runs:
         repository: anttiharju/nur-packages
         token: ${{ steps.generate-token.outputs.token }}
         path: nur-packages
+        persist-credentials: true
     - working-directory: nur-packages
       shell: sh
       run: nix flake update
@@ -46,3 +47,8 @@ runs:
           ${{ github.event.repository.name }} ${{ inputs.version }}
 
           https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
+    - if: always()
+      name: Cleanup
+      shell: sh
+      run: |
+        rm -rf nur-packages

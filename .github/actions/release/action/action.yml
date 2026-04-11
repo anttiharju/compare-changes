@@ -34,6 +34,7 @@ runs:
         repository: anttiharju/${{ github.event.repository.name }}-action
         token: ${{ steps.generate-token.outputs.token }}
         path: action
+        persist-credentials: true
     - name: Update standalone repository
       shell: sh
       run: |
@@ -65,3 +66,8 @@ runs:
         major_version: ${{ steps.version.outputs.major }}
       run: |
         git push origin "HEAD:$major_version"
+    - if: always()
+      name: Cleanup
+      shell: sh
+      run: |
+        rm -rf action

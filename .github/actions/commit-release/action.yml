@@ -26,6 +26,7 @@ runs:
       with:
         token: ${{ steps.generate.outputs.token }}
         path: release
+        persist-credentials: true
     - name: Update version
       working-directory: release
       shell: sh
@@ -54,3 +55,8 @@ runs:
         committer: "${{ github.actor }}[bot]"
         message: "${{ inputs.version }}${{ steps.pr.outputs.number && format(' #{0}', steps.pr.outputs.number) || '' }}"
         working-directory: release
+    - if: always()
+      name: Cleanup
+      shell: sh
+      run: |
+        rm -rf release

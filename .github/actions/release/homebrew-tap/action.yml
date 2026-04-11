@@ -26,6 +26,7 @@ runs:
         repository: anttiharju/homebrew-tap
         token: ${{ steps.generate-token.outputs.token }}
         path: homebrew-tap
+        persist-credentials: true
     - name: Render Brew formula
       shell: sh
       env:
@@ -41,3 +42,8 @@ runs:
           ${{ github.event.repository.name }} ${{ inputs.version }}
 
           https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
+    - if: always()
+      name: Cleanup
+      shell: sh
+      run: |
+        rm -rf homebrew-tap

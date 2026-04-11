@@ -57,12 +57,15 @@ jobs:
       - if: steps.flake.outputs.changed == 'true'
         name: Parse container version
         id: container
+        env:
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
         run: |
           nix_hash="$(basename "$(readlink ./result)" | cut -d '-' -f1)"
           echo "nix_hash=$nix_hash"
           echo "nix_hash=$nix_hash" >> "$GITHUB_OUTPUT"
 
-          image_id="ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-ci"
+          image_id="ghcr.io/$owner/$repo-ci"
           image_id="$(echo "$image_id" | tr '[:upper:]' '[:lower:]')"
           echo "image_id=$image_id"
           echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
@@ -72,8 +75,11 @@ jobs:
           echo "image=$image" >> "$GITHUB_OUTPUT"
       - if: steps.flake.outputs.changed == 'true'
         name: Log in to registry
+        env:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          actor: ${{ github.actor }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "$github_token" | docker login ghcr.io -u "$actor" --password-stdin
       - if: steps.flake.outputs.changed == 'true'
         name: Check registry
         id: image
@@ -100,12 +106,12 @@ jobs:
         run: |
           docker push "$image"
       - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
-        name: Push latest tag
+        name: Tag as latest
         env:
           image_id: ${{ steps.container.outputs.image_id }}
           image: ${{ steps.container.outputs.image }}
         run: |
-          docker buildx imagetools create --tag "$image_id:latest" "$image"
+          skopeo copy --all "docker://$image" "docker://$image_id:latest"
       - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         name: Delete previous versions
         uses: actions/delete-package-versions@v5
@@ -124,7 +130,7 @@ jobs:
     permissions:
       contents: write
     container:
-      image: ${{ needs.container.outputs.image }}
+      image: ${{ needs.container.outputs.image }} # zizmor: ignore[unpinned-images] it is meant to be dynamic
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -257,13 +263,18 @@ jobs:
         run: |
           git ls-files -z '*.sh' | xargs --null shellcheck --color=always
 
+      - if: always() && !cancelled() && (steps.changed.outputs.zizmor == 'true' || github.event_name == 'push')
+        name: zizmor
+        run: |
+          zizmor .
+
       - if: steps.semantic.outputs.version != '' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && !endsWith(github.event.head_commit.author.name, '[bot]')
         name: Create release commit
         uses: ./.github/actions/commit-release
         with:
           version: ${{ steps.semantic.outputs.version }}
-          ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }}
-          ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+          ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }} # zizmor: ignore[secrets-outside-env] TODO: https://github.com/anttiharju/compare-changes/issues/173
+          ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env] TODO: https://github.com/anttiharju/compare-changes/issues/173
 
       - if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && endsWith(github.event.head_commit.author.name, '[bot]')
         id: parse

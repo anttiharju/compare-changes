@@ -6,11 +6,11 @@ on:
     branches:
       - wildcard
     paths:
-      - ".github/workflows/*.yml"
       - "**/action.yml"
-      - "flake.nix"
+      - ".github/workflows/*.yml"
+      - ".github/workflows/wildcard-zizmor.yml"
       - "flake.lock"
-      - ".github/workflows/wildcard-action-validator.yml"
+      - "flake.nix"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

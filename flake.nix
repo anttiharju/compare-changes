@@ -63,6 +63,7 @@
           rubocop
           shellcheck
           gh
+          zizmor
           # Everything below is required by GitHub Actions
           coreutils
           bash
