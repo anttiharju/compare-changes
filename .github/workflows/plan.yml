@@ -52,48 +52,63 @@ jobs:
             accept-flake-config = true
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - if: steps.flake.outputs.changed == 'true'
+        run: |
+          nix build .#ci
+      - if: steps.flake.outputs.changed == 'true'
         name: Parse container version
         id: container
         run: |
-          version=current
-          echo "version=$version"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+          nix_hash="$(basename "$(readlink ./result)" | cut -d '-' -f1)"
+          echo "nix_hash=$nix_hash"
+          echo "nix_hash=$nix_hash" >> "$GITHUB_OUTPUT"
 
           image_id="ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-ci"
           image_id="$(echo "$image_id" | tr '[:upper:]' '[:lower:]')"
           echo "image_id=$image_id"
           echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
-      - if: steps.flake.outputs.changed == 'true'
-        run: |
-          nix build .#ci
-      - if: steps.flake.outputs.changed == 'true'
-        run: |
-          ./result | docker load
-      - if: steps.flake.outputs.changed == 'true'
-        name: Tag image
-        id: tag
-        env:
-          image_id: ${{ steps.container.outputs.image_id }}
-          version: ${{ steps.container.outputs.version }}
-          latest: ${{ github.event_name == 'pull_request' && steps.container.outputs.version || 'latest' }}
-        run: |
-          docker tag "ci:$version" "$image_id:$latest"
-          echo "image=$image_id:$latest"
-          echo "image=$image_id:$latest" >> "$GITHUB_OUTPUT"
+
+          image="$image_id:$nix_hash"
+          echo "image=$image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
       - if: steps.flake.outputs.changed == 'true'
         name: Log in to registry
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - if: steps.flake.outputs.changed == 'true'
+        name: Check registry
+        id: registry
+        env:
+          image: ${{ steps.container.outputs.image }}
+        run: |
+          if docker manifest inspect "$image" > /dev/null 2>&1; then
+            echo "exists=true"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
+        run: |
+          ./result | docker load
+      - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
+        name: Tag image
+        env:
+          image: ${{ steps.container.outputs.image }}
+        run: |
+          docker tag ci:flake "$image"
+      - if: steps.flake.outputs.changed == 'true' && steps.registry.outputs.exists != 'true'
         name: Push image
         env:
-          image: ${{ steps.tag.outputs.image }}
+          image: ${{ steps.container.outputs.image }}
         run: |
-          local_digest="$(docker inspect "$image" --format='{{.Id}}')"
-          remote_digest="$(docker manifest inspect "$image" | jq -r '.config.digest')"
-          if [[ "$local_digest" != "$remote_digest" ]]; then
-            docker push "$image"
-          fi
+          docker push "$image"
+      - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+        name: Push latest tag
+        env:
+          image_id: ${{ steps.container.outputs.image_id }}
+          image: ${{ steps.container.outputs.image }}
+        run: |
+          docker buildx imagetools create --tag "$image_id:latest" "$image"
       - if: steps.flake.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         name: Delete untagged versions
         uses: actions/delete-package-versions@v5
@@ -103,7 +118,7 @@ jobs:
           min-versions-to-keep: 1
           delete-only-untagged-versions: false
     outputs:
-      image: ${{ steps.tag.outputs.image }}
+      image: ${{ steps.container.outputs.image }}
 
   validate:
     name: Validate

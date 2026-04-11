@@ -143,7 +143,7 @@
         pkgs.lib.optionalAttrs (system == "x86_64-linux" || system == "aarch64-linux") {
           ci = pkgs.dockerTools.streamLayeredImage {
             name = "ci";
-            tag = "current";
+            tag = "flake";
             contents = (devPackages pkgs anttiharju system) ++ [
               ld
               zcc
