@@ -33,26 +33,26 @@ runs:
       with:
         repository: anttiharju/${{ github.event.repository.name }}-action
         token: ${{ steps.generate-token.outputs.token }}
-        path: action
+        path: release-action
         persist-credentials: true
     - name: Update standalone repository
       shell: sh
       run: |
-        .release/render.sh action --output action
-        cp -r .release/action/bin action/
-        cp README.md action/README.md
-        cp LICENSE action/LICENSE
+        .release/render.sh action --output release-action
+        cp -r .release/action/bin release-action/
+        cp README.md release-action/README.md
+        cp LICENSE release-action/LICENSE
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
-        working-directory: action
+        working-directory: release-action
         committer: ${{ github.actor }}
         message: |
           ${{ github.event.repository.name }} ${{ inputs.version }}
 
           https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/release.yml
     - name: Tag current commit
-      working-directory: action
+      working-directory: release-action
       shell: sh
       env:
         tag: "v${{ inputs.version }}"
@@ -60,7 +60,7 @@ runs:
         git tag "$tag"
         git push --tags
     - name: Setup major version branch
-      working-directory: action
+      working-directory: release-action
       shell: sh
       env:
         major_version: ${{ steps.version.outputs.major }}
@@ -70,4 +70,4 @@ runs:
       name: Cleanup
       shell: sh
       run: |
-        rm -rf action
+        rm -rf release-action

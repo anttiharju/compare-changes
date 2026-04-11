@@ -25,10 +25,10 @@ runs:
       uses: actions/checkout@v6
       with:
         token: ${{ steps.generate.outputs.token }}
-        path: release
+        path: release-github
         persist-credentials: true
     - name: Update version
-      working-directory: release
+      working-directory: release-github
       shell: sh
       env:
         version: ${{ inputs.version }}
@@ -39,7 +39,7 @@ runs:
         cargo update --package "$package"
 
         export major="${version%%.*}"
-        git ls-files -z | xargs --null gawk -i inplace -v repo="${GITHUB_REPOSITORY}-action" -v major="$major" '{gsub(repo "@v[0-9]+", repo "@v" major); print}'
+        git ls-files -z | xargs --null gawk -i inplace -v action="${GITHUB_REPOSITORY}-action" -v major="$major" '{gsub(action "@v[0-9]+", action "@v" major); print}'
     - name: Get pull request number
       id: pr
       shell: sh
@@ -54,9 +54,9 @@ runs:
         author: "${{ github.actor }}[bot]"
         committer: "${{ github.actor }}[bot]"
         message: "${{ inputs.version }}${{ steps.pr.outputs.number && format(' #{0}', steps.pr.outputs.number) || '' }}"
-        working-directory: release
+        working-directory: release-github
     - if: always()
       name: Cleanup
       shell: sh
       run: |
-        rm -rf release
+        rm -rf release-github

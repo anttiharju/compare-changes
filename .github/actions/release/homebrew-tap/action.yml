@@ -25,18 +25,18 @@ runs:
       with:
         repository: anttiharju/homebrew-tap
         token: ${{ steps.generate-token.outputs.token }}
-        path: homebrew-tap
+        path: release-homebrew-tap
         persist-credentials: true
     - name: Render Brew formula
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        .release/render.sh brew --output homebrew-tap/Formula
+        .release/render.sh brew --output release-homebrew-tap/Formula
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
-        working-directory: homebrew-tap
+        working-directory: release-homebrew-tap
         committer: ${{ github.actor }}
         message: |
           ${{ github.event.repository.name }} ${{ inputs.version }}
@@ -46,4 +46,4 @@ runs:
       name: Cleanup
       shell: sh
       run: |
-        rm -rf homebrew-tap
+        rm -rf release-homebrew-tap

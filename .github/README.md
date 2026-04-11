@@ -39,34 +39,6 @@ brew install anttiharju/tap/compare-changes
 
 Via [anttiharju's nur-packages](https://github.com/anttiharju/nur-packages). Please note that as of writing it is not connected to the upstream NUR.
 
-## TODO
-
-- [ ] Improve instructions on how to contribute.
-- [ ] Produce static Linux binaries for wider compatibility with GitHub runners
-  - [ ] Setup benchmarks, compare allocators
-- [ ] Release binaries for Windows ARM64/X64 and macOS X64 ([to support all github-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-github-hosted-runners-for-public-repositories))
-
-### crates.io
-
-https://rust-lang.github.io/api-guidelines/checklist.html
-
-#### Documentation
-
-Crate is abundantly documented:
-
-- [ ] Crate level docs are thorough and include examples (C-CRATE-DOC)
-- [ ] All items have a rustdoc example (C-EXAMPLE)
-- [ ] Examples use ?, not try!, not unwrap (C-QUESTION-MARK)
-- [ ] Function docs include error, panic, and safety considerations (C-FAILURE)
-- [ ] Prose contains hyperlinks to relevant things (C-LINK)
-
-#### Flexibility
-
-Crate supports diverse real-world use cases:
-
-- [ ] Caller decides where to copy and place data (C-CALLER-CONTROL)
-- [ ] Functions minimize assumptions about parameters by using generics (C-GENERIC)
-
 ## Stargazers over time
 
 Starring the repository is helpful for releasing the project on upstream package managers.
