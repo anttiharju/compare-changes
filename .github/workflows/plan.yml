@@ -59,13 +59,13 @@ jobs:
         id: container
         env:
           owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
+          repository: ${{ github.event.repository.name }}
         run: |
           nix_hash="$(basename "$(readlink ./result)" | cut -d '-' -f1)"
           echo "nix_hash=$nix_hash"
           echo "nix_hash=$nix_hash" >> "$GITHUB_OUTPUT"
 
-          image_id="ghcr.io/$owner/$repo-ci"
+          image_id="ghcr.io/$owner/$repository-ci"
           image_id="$(echo "$image_id" | tr '[:upper:]' '[:lower:]')"
           echo "image_id=$image_id"
           echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
