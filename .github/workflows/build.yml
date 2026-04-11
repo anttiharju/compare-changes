@@ -21,7 +21,7 @@ jobs:
     needs: plan
     runs-on: ubuntu-24.04
     container:
-      image: ${{ needs.plan.outputs.container || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
+      image: ${{ needs.plan.outputs.container }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
