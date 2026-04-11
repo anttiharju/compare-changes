@@ -25,23 +25,23 @@ runs:
       with:
         repository: anttiharju/nur-packages
         token: ${{ steps.generate-token.outputs.token }}
-        path: nur-packages
+        path: release-nur-packages
         persist-credentials: true
-    - working-directory: nur-packages
+    - working-directory: release-nur-packages
       shell: sh
       run: nix flake update
     - name: Render Nix expression
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
-        output: "nur-packages/pkgs/${{ github.event.repository.name }}"
+        output: "release-nur-packages/pkgs/${{ github.event.repository.name }}"
       run: |
         .release/render.sh nix -o "$output"
         cp Cargo.lock "$output/Cargo.lock"
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
-        working-directory: nur-packages
+        working-directory: release-nur-packages
         committer: ${{ github.actor }}
         message: |
           ${{ github.event.repository.name }} ${{ inputs.version }}
@@ -51,4 +51,4 @@ runs:
       name: Cleanup
       shell: sh
       run: |
-        rm -rf nur-packages
+        rm -rf release-nur-packages

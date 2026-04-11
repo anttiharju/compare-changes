@@ -29,8 +29,5 @@ site
 # Nix
 .direnv
 
-# actions/checkout.path
-/nur-packages
-/release
-/action
-/homebrew-tap
+# Nested release checkouts
+/release-*
