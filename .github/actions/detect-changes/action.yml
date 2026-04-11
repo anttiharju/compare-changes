@@ -43,12 +43,12 @@ runs:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard nix.yml
-    - id: mkdocs
+    - id: zensical
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard mkdocs.yml
+        compare-changes --changes "$array" --wildcard zensical.yml
     - id: prettier
       shell: sh
       env:
@@ -95,9 +95,9 @@ outputs:
   release:
     description: "Whether any release has changed"
     value: ${{ steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed || steps.action.outputs.changed }}
-  mkdocs:
-    description: "Whether MkDocs has changed"
-    value: ${{ steps.mkdocs.outputs.changed }}
+  zensical:
+    description: "Whether Zensical has changed"
+    value: ${{ steps.zensical.outputs.changed }}
   prettier:
     description: "Whether Prettier has changed"
     value: ${{ steps.prettier.outputs.changed }}

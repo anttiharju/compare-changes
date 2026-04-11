@@ -6,7 +6,7 @@
     "https://anttiharju.cachix.org"
   ];
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
     nur-anttiharju.url = "github:anttiharju/nur-packages";
     nur-anttiharju.inputs.nixpkgs.follows = "nixpkgs";
     fenix = {
@@ -53,16 +53,12 @@
           rustToolchain
           toml-cli
           nur-anttiharju.legacyPackages.${system}.zig."custom" # TODO: switch back to upstream Zig once 0.16 is available through stable nixpkgs (https://codeberg.org/ziglang/zig/pulls/30628)
-          # action-validator # disabled because it uses glob instead of this library
+          anttiharju.action-validator # Switch to upstream after 25.11
           actionlint
           anttiharju.relcheck
           anttiharju.compare-changes
           editorconfig-checker
-          (python313.withPackages (
-            ps: with ps; [
-              mkdocs-material # TODO: switch to zensical. Note that find-changes action is python-based, so that needs to be rewritten.
-            ]
-          ))
+          zensical
           prettier
           rubocop
           shellcheck
@@ -70,7 +66,7 @@
           # Everything below is required by GitHub Actions
           coreutils
           bash
-          gitMinimal # With plain 'git' perl etc. get bundled in
+          gitMinimal
           findutils
           gnutar
           curl

@@ -228,9 +228,9 @@ jobs:
           fi
           echo "No .yaml files found. Good job!"
 
-      - if: always() && !cancelled() && (steps.changed.outputs.mkdocs == 'true' || github.event_name == 'push')
-        name: mkdocs
-        run: mkdocs build --strict
+      - if: always() && !cancelled() && (steps.changed.outputs.zensical == 'true' || github.event_name == 'push')
+        name: zensical
+        run: zensical build
 
       - if: always() && !cancelled() && (steps.changed.outputs.prettier == 'true' || github.event_name == 'push')
         name: prettier
@@ -278,4 +278,4 @@ jobs:
           fi
     outputs:
       version: ${{ steps.semantic.outputs.version || steps.parse.outputs.version }}
-      documentation_changed: ${{ steps.changed.outputs.mkdocs }}
+      documentation_changed: ${{ steps.changed.outputs.zensical }}

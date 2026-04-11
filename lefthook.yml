@@ -25,10 +25,8 @@ pre-commit:
       run: cargo clippy --fix --allow-staged
       stage_fixed: true
 
-    # action-validator does not play well with nix-direnv (it scans all files instead of ones in version control)
-    # also disabled because it uses glob instead of this library
-    # - name: action-validator
-    #   run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null action-validator --verbose
+    - name: action-validator
+      run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null action-validator --verbose
 
     - name: actionlint
       glob: ".github/workflows/*.yml"
@@ -44,9 +42,6 @@ pre-commit:
     - name: Keep .yml
       glob: "*.yaml"
       run: echo "You are trying to commit .yaml files. Please use .yml instead for the following files:" && echo {staged_files} && exit 1
-
-    - glob: "{docs/*,mkdocs.yml}"
-      run: mkdocs build --strict
 
     - name: prettier
       glob: "{*.yml,*.md}"
