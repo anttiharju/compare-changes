@@ -118,7 +118,7 @@ jobs:
           min-versions-to-keep: 1
           delete-only-untagged-versions: false
     outputs:
-      image: ${{ steps.container.outputs.image }}
+      image: ${{ steps.container.outputs.image || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
 
   validate:
     name: Validate
@@ -127,7 +127,7 @@ jobs:
     permissions:
       contents: write
     container:
-      image: ${{ needs.container.outputs.image || format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
+      image: ${{ needs.container.outputs.image }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
