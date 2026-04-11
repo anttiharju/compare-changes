@@ -19,4 +19,5 @@ define_exitcodes! {
     path_error => PathError = 1,
     file_error  => FileError  = 2,
     match_error  => MatchError  = 3,
+    find_error => FindError = 4,
 }

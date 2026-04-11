@@ -1,5 +1,6 @@
 mod cli;
 mod exitcode;
+mod find;
 mod parse;
 
 use compare_changes::path_matches;
@@ -7,10 +8,21 @@ use compare_changes::path_matches;
 fn main() {
     let args = cli::parse_args();
 
-    let paths = match parse::get_paths(&args.wildcard) {
+    if args.find {
+        if let Err(err) = find::run(args.debug) {
+            eprintln!("{}", err);
+            std::process::exit(exitcode::find_error());
+        }
+        return;
+    }
+
+    let wildcard = args.wildcard.as_ref().expect("wildcard is required unless --find");
+    let changes = args.changes.as_ref().expect("changes is required unless --find");
+
+    let paths = match parse::get_paths(wildcard) {
         Ok(paths) => {
             if args.debug {
-                println!("{}.on.push.paths:", args.wildcard.display());
+                println!("{}.on.push.paths:", wildcard.display());
                 for path in &paths {
                     println!("- {}", path);
                 }
@@ -23,7 +35,7 @@ fn main() {
         }
     };
 
-    let files = match parse::get_files(&args.changes) {
+    let files = match parse::get_files(changes) {
         Ok(files) => {
             if args.debug {
                 println!("files:");
