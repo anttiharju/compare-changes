@@ -21,7 +21,7 @@ jobs:
     needs: plan
     runs-on: ubuntu-24.04
     container:
-      image: ${{ needs.plan.outputs.container }}
+      image: ${{ needs.plan.outputs.container }} # zizmor: ignore[unpinned-images]
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
