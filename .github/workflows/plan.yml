@@ -130,7 +130,7 @@ jobs:
     permissions:
       contents: write
     container:
-      image: ${{ needs.container.outputs.image }} # zizmor: ignore[unpinned-images]
+      image: ${{ needs.container.outputs.image }} # zizmor: ignore[unpinned-images] it is meant to be dynamic
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -273,8 +273,8 @@ jobs:
         uses: ./.github/actions/commit-release
         with:
           version: ${{ steps.semantic.outputs.version }}
-          ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }}
-          ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+          ANTTIHARJU_BOT_ID: ${{ secrets.ANTTIHARJU_BOT_ID }} # zizmor: ignore[secrets-outside-env] TODO: https://github.com/anttiharju/compare-changes/issues/173
+          ANTTIHARJU_BOT_PRIVATE_KEY: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env] TODO: https://github.com/anttiharju/compare-changes/issues/173
 
       - if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch && endsWith(github.event.head_commit.author.name, '[bot]')
         id: parse

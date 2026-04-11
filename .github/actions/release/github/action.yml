@@ -39,8 +39,9 @@ runs:
         GH_TOKEN: ${{ github.token }}
         title: ${{ inputs.version }}
         tag: "v${{ inputs.version }}"
+        repository: ${{ github.event.repository.name }}
       run: |
         git reset --hard && git clean -df
         git push origin "$tag"
         gh release create "$tag" --title="$title" --generate-notes --draft
-        find . -maxdepth 1 -name '${{ github.event.repository.name }}-*.tar.gz' -exec gh release upload "$tag" {} \;
+        find . -maxdepth 1 -name "$repository-*.tar.gz" -exec gh release upload "$tag" {} \;

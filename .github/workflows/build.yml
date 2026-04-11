@@ -14,14 +14,15 @@ jobs:
     permissions:
       contents: write
       packages: write
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit] secrets: inherit makes sense here because plan.yml is effectively a top-level workflow
 
   release:
     name: Release
     needs: plan
     runs-on: ubuntu-24.04
+    environment: release
     container:
-      image: ${{ needs.plan.outputs.container }} # zizmor: ignore[unpinned-images]
+      image: ${{ needs.plan.outputs.container }} # zizmor: ignore[unpinned-images] it is meant to be dynamic
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
@@ -40,14 +41,14 @@ jobs:
         uses: ./.github/actions/release/github
         with:
           version: ${{ needs.plan.outputs.version }}
-          anttiharju-bot-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: Nix User Repository
         uses: ./.github/actions/release/nur-packages
         with:
           version: ${{ needs.plan.outputs.version }}
-          anttiharju-bot-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: crates.io
@@ -59,14 +60,14 @@ jobs:
         uses: ./.github/actions/release/homebrew-tap
         with:
           version: ${{ needs.plan.outputs.version }}
-          anttiharju-bot-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: Action
         uses: ./.github/actions/release/action
         with:
           version: ${{ needs.plan.outputs.version }}
-          anttiharju-bot-id: ${{ secrets.ANTTIHARJU_BOT_ID }}
+          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: Documentation
