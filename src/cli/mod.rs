@@ -7,17 +7,21 @@ use style::get_style;
 #[derive(Parser)]
 #[command(
     version,
-    about = "Outputs changed=true on first match of the wildcard's on.push.paths. Otherwise outputs changed=false.",
+    about = "Compare wildcard paths to changed files, or detect changed files from GitHub event context with --find.",
     styles = get_style()
 )]
 pub struct Args {
+    /// Find changed files from the git diff base inferred from GitHub Actions event context
+    #[arg(short, long, default_value_t = false, conflicts_with_all = ["wildcard", "changes"])]
+    pub find: bool,
+
     /// Wildcard name, * in .github/workflows/wildcard-*
-    #[arg(short, long, value_name = "FILE")]
-    pub wildcard: PathBuf,
+    #[arg(short, long, value_name = "FILE", required_unless_present = "find")]
+    pub wildcard: Option<PathBuf>,
 
     /// JSON array string, for example '["foo/bar", "baz"]'
-    #[arg(short, long, value_name = "JSON")]
-    pub changes: String,
+    #[arg(short, long, value_name = "JSON", required_unless_present = "find")]
+    pub changes: Option<String>,
 
     /// Enable debug output
     #[arg(short, long)]
@@ -27,9 +31,11 @@ pub struct Args {
 pub fn parse_args() -> Args {
     let mut args = Args::parse();
 
-    // Apply the prefix transformation to wildcard
-    let prefixed = PathBuf::from(".github/workflows").join(format!("wildcard-{}", args.wildcard.display()));
-    args.wildcard = prefixed;
+    if let Some(wildcard) = args.wildcard.take() {
+        // Apply the prefix transformation to wildcard
+        let prefixed = PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
+        args.wildcard = Some(prefixed);
+    }
 
     args
 }
