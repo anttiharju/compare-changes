@@ -1,6 +1,8 @@
 rules:
+  # This repository is not going to use any other CI containers than the flake-based one, which is fine and meant to be dynamic.
   unpinned-images:
     disable: true
+  # Action providers listed here are either trusted or me, and I don't want the maintenance burden of pinning them.
   unpinned-uses:
     config:
       policies:
