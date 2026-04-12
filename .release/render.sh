@@ -37,10 +37,10 @@ mock_github_actions_env() {
 
   repo_root="$(git rev-parse --show-toplevel)"
   tag="v$(toml get "$repo_root/Cargo.toml" package.version --raw)"
-  if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
-    rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha')"
+  if gh api "repos/{owner}/{repo}/git/ref/tags/$tag" &>/dev/null; then
+    rev="$(gh api "repos/{owner}/{repo}/git/ref/tags/$tag" --jq '.object.sha')"
   else
-    rev="$(gh api "repos/$GITHUB_REPOSITORY/commits/HEAD" --jq '.sha')"
+    rev="$(gh api "repos/{owner}/{repo}/commits/HEAD" --jq '.sha')"
   fi
   export GITHUB_SHA="$rev"
 }

@@ -14,7 +14,7 @@ class="$(echo "$repo" | gawk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(s
 capture PKG_CLASS "$class"
 desc="$(gh repo view --json description --jq .description)"
 capture PKG_DESC "$desc"
-homepage="$(gh api "repos/$GITHUB_REPOSITORY" --jq .homepage)"
+homepage="$(gh api "repos/{owner}/{repo}" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
 repo_root="$(git rev-parse --show-toplevel)"
 version="$(toml get "$repo_root/Cargo.toml" package.version --raw)"
@@ -22,7 +22,7 @@ capture PKG_VERSION "$version"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
 tag="v$version"
-if [[ "$version" = "0.0.0" ]] || ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" &>/dev/null; then
+if [[ "$version" = "0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$tag" &>/dev/null; then
   capture PKG_MAC_INTEL_SHA TBD
   capture PKG_MAC_ARM_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
