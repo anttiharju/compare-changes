@@ -20,30 +20,33 @@ on: [pull_request]
 jobs:
   test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v1 # handles checkout
-      - id: actionlint
+        uses: anttiharju/find-changes-action@v2 # handles checkout
+      - id: shellcheck
         uses: anttiharju/compare-changes-action@v0
         with:
-          github-workflows-wildcard: actionlint.yml # see .github/workflows/wildcard-actionlint.yml below
+          github-workflows-wildcard: shellcheck.yml # see .github/workflows/wildcard-shellcheck.yml below
           changes: ${{ steps.changes.outputs.array }}
-      - if: steps.actionlint.outputs.changed == 'true'
-        name: actionlint
-        uses: anttiharju/actions/actionlint@v0
+      - if: steps.shellcheck.outputs.changed == 'true'
+        name: shellcheck
+        run: git ls-files -z '*.sh' | xargs --null shellcheck --color=always
 ```
 
 ```yml
-# .github/workflows/wildcard-actionlint.yml
+# .github/workflows/wildcard-shellcheck.yml
 permissions: {}
 on:
   push:
     branches:
       - wildcard
     paths:
-      - ".github/workflows/*.yml"
-      - ".github/workflows/*.yaml"
+      - "**.sh"
+      - ".shellcheckrc"
+      - ".github/workflows/wildcard-shellcheck.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
