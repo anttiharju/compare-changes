@@ -7,18 +7,24 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: action
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard action.yml
     - id: actionlint
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard actionlint.yml
+    - id: prettier
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard prettier.yml
+    - id: action
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard action.yml
     - id: brew
       shell: sh
       env:
@@ -38,12 +44,6 @@ runs:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard nix.yml
-    - id: prettier
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard prettier.yml
     - id: rs
       shell: sh
       env:
@@ -81,12 +81,16 @@ runs:
       run: |
         compare-changes --changes "$array" --wildcard zizmor.yml
 outputs:
-  action:
-    description: "Whether action has changed"
-    value: ${{ steps.action.outputs.changed }}
   actionlint:
     description: "Whether actionlint has changed"
     value: ${{ steps.actionlint.outputs.changed }}
+  # flake.yml is only used in the plan.yml container job
+  prettier:
+    description: "Whether Prettier has changed"
+    value: ${{ steps.prettier.outputs.changed }}
+  action:
+    description: "Whether action has changed"
+    value: ${{ steps.action.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
     value: ${{ steps.brew.outputs.changed }}
@@ -96,9 +100,6 @@ outputs:
   nix:
     description: "Whether Nix has changed"
     value: ${{ steps.nix.outputs.changed }}
-  prettier:
-    description: "Whether Prettier has changed"
-    value: ${{ steps.prettier.outputs.changed }}
   rs:
     description: "Whether *.rs has changed"
     value: ${{ steps.rs.outputs.changed }}
@@ -120,4 +121,4 @@ outputs:
 
   release:
     description: "Whether any release has changed"
-    value: ${{ steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed || steps.action.outputs.changed }}
+    value: ${{ steps.action.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}

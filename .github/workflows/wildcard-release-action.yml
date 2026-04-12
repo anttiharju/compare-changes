@@ -7,7 +7,7 @@ on:
       - ".release/action/**"
       - "flake.nix"
       - "flake.lock"
-      - ".github/workflows/wildcard-action.yml"
+      - ".github/workflows/wildcard-release-action.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
