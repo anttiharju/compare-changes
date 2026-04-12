@@ -155,6 +155,7 @@ jobs:
             exit 1
           fi
           echo "cargo=$cargo_version" >> "$GITHUB_OUTPUT"
+
           cargo_major="${cargo_version%%.*}"
           latest_major="${latest_tag%%.*}"
           if [[ "$cargo_major" != "$latest_major" ]]; then
