@@ -148,7 +148,7 @@ jobs:
           latest_tag=$(gh api "repos/{owner}/{repo}/releases/latest" --jq '.tag_name' || echo "")
           echo "latest_tag=$latest_tag"
           if [[ "$cargo_version" == "$latest_tag" ]]; then
-            echo "::error::Cargo.toml version ($cargo_version) was not bumped."
+            echo "::error::Cargo.toml version ($cargo_version) was not bumped even though files determined by rust and release wildcards have changed."
             exit 1
           fi
           echo "cargo=$cargo_version" >> "$GITHUB_OUTPUT"
