@@ -135,21 +135,27 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
-      - if: steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true'
+      - if: steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push'
         id: version
         name: Detect version from Cargo.toml
         env:
           GH_TOKEN: ${{ github.token }}
+          event_name: ${{ github.event_name }}
         run: |
           cargo_version="v$(toml get Cargo.toml package.version --raw)"
           echo "cargo_version=$cargo_version"
           latest_tag=$(gh api "repos/{owner}/{repo}/releases/latest" --jq '.tag_name' || echo "")
           echo "latest_tag=$latest_tag"
           if [[ "$cargo_version" == "$latest_tag" ]]; then
+            if [[ "$event_name" == "push" ]]; then
+              echo "Cargo.toml version ($cargo_version) matches latest release. No release needed."
+              exit 0
+            fi
             echo "::error::Cargo.toml version ($cargo_version) was not bumped even though files determined by rust and release wildcards have changed."
             exit 1
           fi
           echo "cargo=$cargo_version" >> "$GITHUB_OUTPUT"
+
           cargo_major="${cargo_version%%.*}"
           latest_major="${latest_tag%%.*}"
           if [[ "$cargo_major" != "$latest_major" ]]; then
