@@ -24,26 +24,26 @@ runs:
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard action.yml
+        compare-changes --changes "$array" --wildcard release-action.yml
     - id: brew
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard brew.yml
+        compare-changes --changes "$array" --wildcard release-brew.yml
     # flake.yml is only used in the plan.yml container job
     - id: github
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard github.yml
+        compare-changes --changes "$array" --wildcard release-github.yml
     - id: nix
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard nix.yml
+        compare-changes --changes "$array" --wildcard release-nix.yml
     - id: rs
       shell: sh
       env:
