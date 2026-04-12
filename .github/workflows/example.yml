@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/example.yml"
       - ".github/workflows/wildcard-shellcheck.yml"
+      - "**.sh"
+      - ".shellcheckrc"
 jobs:
   test-example:
     runs-on: ubuntu-24.04

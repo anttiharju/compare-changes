@@ -44,9 +44,9 @@ on:
     branches:
       - wildcard
     paths:
+      - ".github/workflows/wildcard-shellcheck.yml"
       - "**.sh"
       - ".shellcheckrc"
-      - ".github/workflows/wildcard-shellcheck.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest
