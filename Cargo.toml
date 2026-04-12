@@ -1,11 +1,12 @@
 [package]
+version = "0.8.7"
+
 license = "MIT"
 description = "Reimplementation of GitHub file paths pattern matcher" # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#patterns-to-match-file-paths
 homepage = "https://anttiharju.dev/compare-changes/"
 repository = "https://github.com/anttiharju/compare-changes"
 readme = "docs/README.md"
 name = "compare-changes"
-version = "0.8.6"
 edition = "2024"
 keywords = ["glob", "github-actions", "path", "pattern-matching", "filter"]
 categories = ["command-line-utilities", "parser-implementations"]
@@ -16,13 +17,13 @@ anstyle = { version = "1.0", optional = true }
 chumsky = "0.12"
 clap = { version = "4.6", features = ["cargo", "derive"], optional = true }
 regex = "1.12"
+serde-saphyr = { version = "0.0", optional = true }
 serde_json = { version = "1.0", optional = true }
-serde_yaml = { version = "0.9", optional = true }
 tempfile = { version = "3.27", optional = true }
 
 [features]
 default = []
-cli = ["anstyle", "clap", "serde_json", "serde_yaml", "tempfile"]
+cli = ["anstyle", "clap", "serde_json", "serde-saphyr", "tempfile"]
 clap = ["dep:clap"]
 
 [[bin]]

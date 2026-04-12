@@ -36,9 +36,7 @@ jobs:
 
 ```yml
 # .github/workflows/wildcard-actionlint.yml
-permissions:
-  contents: none
-  pull-requests: none
+permissions: {}
 on:
   push:
     branches:

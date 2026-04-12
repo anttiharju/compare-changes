@@ -8,7 +8,7 @@ echo "$0 $target"
 
 remote_url="$(git remote get-url origin)"
 repo="$(basename --suffix .git "$remote_url")"
-cargo build --all-features --target "$target" --release
+cargo build --locked --all-features --target "$target" --release
 
 cd "target/$target/release"
 tar -czf "$repo_root/$repo-$target.tar.gz" "$repo"

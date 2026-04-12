@@ -1,4 +1,5 @@
 name: GitHub Action documentation
+permissions: {}
 on:
   pull_request:
     paths:

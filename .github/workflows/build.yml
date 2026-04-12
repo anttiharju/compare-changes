@@ -1,7 +1,5 @@
 name: Build
-permissions:
-  contents: none
-  pull-requests: none
+permissions: {}
 on:
   push:
     branches:
@@ -12,9 +10,8 @@ jobs:
     name: Plan
     uses: ./.github/workflows/plan.yml
     permissions:
-      contents: write
+      contents: read
       packages: write
-    secrets: inherit # zizmor: ignore[secrets-inherit] secrets: inherit makes sense here because plan.yml is effectively a top-level workflow
 
   release:
     name: Release
@@ -22,15 +19,15 @@ jobs:
     runs-on: ubuntu-24.04
     environment: release
     container:
-      image: ${{ needs.plan.outputs.container }} # zizmor: ignore[unpinned-images] it is meant to be dynamic
+      image: ${{ needs.plan.outputs.container }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
-    if: endsWith(github.event.head_commit.author.name, '[bot]') && needs.plan.outputs.version != ''
+    if: needs.plan.outputs.version != ''
     permissions:
-      contents: write
-      pages: write
+      contents: read
       id-token: write
+      pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6

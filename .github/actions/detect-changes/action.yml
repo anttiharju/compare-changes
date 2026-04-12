@@ -13,48 +13,49 @@ runs:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard actionlint.yml
-    - id: rust
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard rust.yml
-    - id: rs
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard rs.yml
-    - id: brew
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard brew.yml
-    - id: github
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard github.yml
-    - id: nix
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard nix.yml
-    - id: zensical
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --wildcard zensical.yml
     - id: prettier
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard prettier.yml
+    - id: action
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard release-action.yml
+    - id: brew
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard release-brew.yml
+    # flake.yml is only used in the plan.yml container job
+    - id: github
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard release-github.yml
+    - id: nix
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard release-nix.yml
+    - id: rs
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard rs.yml
+    - id: rust
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --wildcard rust.yml
     - id: shellcheck
       shell: sh
       env:
@@ -67,12 +68,12 @@ runs:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --wildcard src.yml
-    - id: action
+    - id: zensical
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard action.yml
+        compare-changes --changes "$array" --wildcard zensical.yml
     - id: zizmor
       shell: sh
       env:
@@ -83,12 +84,13 @@ outputs:
   actionlint:
     description: "Whether actionlint has changed"
     value: ${{ steps.actionlint.outputs.changed }}
-  rust:
-    description: "Whether Rust has changed"
-    value: ${{ steps.rust.outputs.changed }}
-  rs:
-    description: "Whether *.rs has changed"
-    value: ${{ steps.rs.outputs.changed }}
+  # flake.yml is only used in the plan.yml container job
+  prettier:
+    description: "Whether Prettier has changed"
+    value: ${{ steps.prettier.outputs.changed }}
+  action:
+    description: "Whether action has changed"
+    value: ${{ steps.action.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
     value: ${{ steps.brew.outputs.changed }}
@@ -98,24 +100,25 @@ outputs:
   nix:
     description: "Whether Nix has changed"
     value: ${{ steps.nix.outputs.changed }}
-  release:
-    description: "Whether any release has changed"
-    value: ${{ steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed || steps.action.outputs.changed }}
-  zensical:
-    description: "Whether Zensical has changed"
-    value: ${{ steps.zensical.outputs.changed }}
-  prettier:
-    description: "Whether Prettier has changed"
-    value: ${{ steps.prettier.outputs.changed }}
+  rs:
+    description: "Whether *.rs has changed"
+    value: ${{ steps.rs.outputs.changed }}
+  rust:
+    description: "Whether Rust has changed"
+    value: ${{ steps.rust.outputs.changed }}
   shellcheck:
     description: "Whether ShellCheck has changed"
     value: ${{ steps.shellcheck.outputs.changed }}
   src:
     description: "Whether src has changed"
     value: ${{ steps.src.outputs.changed }}
-  action:
-    description: "Whether action has changed"
-    value: ${{ steps.action.outputs.changed }}
+  zensical:
+    description: "Whether Zensical has changed"
+    value: ${{ steps.zensical.outputs.changed }}
   zizmor:
     description: "Whether Zizmor has changed"
     value: ${{ steps.zizmor.outputs.changed }}
+
+  release:
+    description: "Whether any release has changed"
+    value: ${{ steps.action.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
