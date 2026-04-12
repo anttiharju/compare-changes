@@ -192,13 +192,13 @@ jobs:
         name: Test action (release binary)
         uses: ./.release/action
         with:
-          github-workflows-wildcard: action.yml
+          github-workflows-wildcard: release-action.yml
           changes: ${{ steps.changes.outputs.array }}
       - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.version.outputs.major != 'true'
         name: Test chained use (release binary)
         uses: ./.release/action
         with:
-          github-workflows-wildcard: action.yml
+          github-workflows-wildcard: release-action.yml
           changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
@@ -212,7 +212,7 @@ jobs:
         id: action
         uses: ./.release/action
         with:
-          github-workflows-wildcard: action.yml
+          github-workflows-wildcard: release-action.yml
           changes: '[".release/action/action.yml"]'
           debug: true
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
