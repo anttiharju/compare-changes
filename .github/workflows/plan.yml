@@ -1,6 +1,6 @@
 name: Plan
 permissions:
-  contents: write
+  contents: read
   pull-requests: none
 on:
   pull_request:
@@ -120,7 +120,7 @@ jobs:
     needs: container
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      contents: read
     container:
       image: ${{ needs.container.outputs.image }}
       credentials:
