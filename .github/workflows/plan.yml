@@ -163,11 +163,11 @@ jobs:
         uses: ./.github/actions/cache
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
-        run: cargo build --all-features --target aarch64-apple-darwin
+        run: cargo build --locked --all-features --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
-        run: cargo build --all-features --target aarch64-unknown-linux-musl
+        run: cargo build --locked --all-features --target aarch64-unknown-linux-musl
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action == 'true' )
-        run: cargo build --all-features --target x86_64-unknown-linux-musl
+        run: cargo build --locked --all-features --target x86_64-unknown-linux-musl
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo test --all-features
