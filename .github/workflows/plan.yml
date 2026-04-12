@@ -122,7 +122,7 @@ jobs:
     permissions:
       contents: write
     container:
-      image: ${{ needs.container.outputs.image }} # zizmor: ignore[unpinned-images] it is meant to be dynamic
+      image: ${{ needs.container.outputs.image }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}

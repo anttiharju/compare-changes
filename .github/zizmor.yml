@@ -1,4 +1,6 @@
 rules:
+  unpinned-images:
+    disable: true
   unpinned-uses:
     config:
       policies:

@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: release
     container:
-      image: ${{ needs.plan.outputs.container }} # zizmor: ignore[unpinned-images] it is meant to be dynamic
+      image: ${{ needs.plan.outputs.container }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ github.token }}
