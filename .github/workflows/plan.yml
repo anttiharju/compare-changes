@@ -154,7 +154,7 @@ jobs:
             echo "::error::Cargo.toml version ($cargo_version) was not bumped even though files determined by rust and release wildcards have changed."
             exit 1
           fi
-          echo "cargo=$cargo_version" >> "$GITHUB_OUTPUT"
+          echo "cargo=${cargo_version#v}" >> "$GITHUB_OUTPUT"
 
           cargo_major="${cargo_version%%.*}"
           latest_major="${latest_tag%%.*}"
