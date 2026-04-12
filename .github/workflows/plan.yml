@@ -1,7 +1,5 @@
 name: Plan
-permissions:
-  contents: read
-  pull-requests: none
+permissions: {}
 on:
   pull_request:
   workflow_call:
