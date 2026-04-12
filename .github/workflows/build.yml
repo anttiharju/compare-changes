@@ -25,9 +25,9 @@ jobs:
         password: ${{ github.token }}
     if: needs.plan.outputs.version != ''
     permissions:
-      contents: read
-      id-token: write
       pages: write
+      contents: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
