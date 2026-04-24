@@ -1,5 +1,5 @@
 [package]
-version = "0.8.9"
+version = "0.8.10"
 
 license = "MIT"
 description = "Reimplementation of GitHub file paths pattern matcher" # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#patterns-to-match-file-paths
