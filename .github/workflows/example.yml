@@ -17,7 +17,7 @@ jobs:
         id: changes
         uses: anttiharju/find-changes-action@v2 # handles checkout
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.8.9
         with:
           github-workflows-wildcard: shellcheck.yml
           changes: ${{ steps.changes.outputs.array }}

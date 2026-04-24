@@ -27,7 +27,7 @@ jobs:
         uses: anttiharju/find-changes-action@v2
       - name: Compare changes
         id: flake
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.8.9
         with:
           github-workflows-wildcard: flake.yml
           changes: ${{ steps.changes.outputs.array }}
