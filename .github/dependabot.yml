@@ -13,6 +13,16 @@ updates:
       cargo:
         patterns:
           - "*"
+  - package-ecosystem: "nix"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      nix:
+        patterns:
+          - "*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -23,3 +33,8 @@ updates:
       github-actions:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "anttiharju/*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
