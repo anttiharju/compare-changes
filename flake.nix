@@ -1,5 +1,5 @@
 {
-  description = "Rust development environment";
+  description = "Rust development environment for compare-changes";
 
   nixConfig.extra-substituters = [
     "https://nix-community.cachix.org"
