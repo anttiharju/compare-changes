@@ -17,9 +17,6 @@ pre-commit:
     - glob: "{.cargo/*,src/*,tests/*,Cargo.lock,Cargo.toml}"
       run: cargo build --all-features
 
-    - glob: Cargo.toml
-      run: cargo update --package compare-changes && git add Cargo.lock
-
     - glob: "*.rs"
       run: cargo fmt
       stage_fixed: true
