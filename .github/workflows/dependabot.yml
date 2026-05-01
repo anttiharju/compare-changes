@@ -1,14 +1,15 @@
-name: Dependabot bump
+name: Dependabot
 permissions: {}
 on:
   push:
     branches:
-      - "dependabot/**"
+      - "dependabot/**/*"
 
 jobs:
   bump:
     name: Bump patch version
     runs-on: ubuntu-latest
+    environment: dependabot
     permissions:
       contents: write
     container:
@@ -17,11 +18,19 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
+      - name: Create GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.ANTTIHARJU_BOT_ID }}
+          private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+
       - name: Checkout dependabot branch
         uses: actions/checkout@v6
         with:
           path: dependabot
           persist-credentials: true
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Checkout default branch
         uses: actions/checkout@v6
