@@ -3,39 +3,27 @@
 
 version: 2
 multi-ecosystem-groups:
-  deps:
+  all:
     schedule:
       interval: "weekly"
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
+    patterns: "*"
+    multi-ecosystem-group: "all"
     cooldown:
       default-days: 7
-    multi-ecosystem-group: "deps"
-    groups:
-      cargo:
-        patterns:
-          - "*"
   - package-ecosystem: "nix"
     directory: "/"
+    patterns: "*"
+    multi-ecosystem-group: "all"
     cooldown:
       default-days: 7
-    multi-ecosystem-group: "deps"
-    groups:
-      nix:
-        patterns:
-          - "*"
   - package-ecosystem: "github-actions"
     directories:
       - "/"
       - "/.github/actions/*"
-    cooldown:
-      default-days: 7
-    multi-ecosystem-group: "deps"
-    groups:
-      github-actions:
-        patterns:
-          - "*"
+    patterns: "*"
     ignore:
       - dependency-name: "anttiharju/*"
         update-types:
@@ -45,3 +33,6 @@ updates:
         update-types:
           - "version-update:semver-minor"
           - "version-update:semver-patch"
+    multi-ecosystem-group: "all"
+    cooldown:
+      default-days: 7
