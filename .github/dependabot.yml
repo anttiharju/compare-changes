@@ -9,13 +9,15 @@ multi-ecosystem-groups:
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
-    patterns: "*"
+    patterns:
+      - "*"
     multi-ecosystem-group: "all"
     cooldown:
       default-days: 7
   - package-ecosystem: "nix"
     directory: "/"
-    patterns: "*"
+    patterns:
+      - "*"
     multi-ecosystem-group: "all"
     cooldown:
       default-days: 7
@@ -23,7 +25,8 @@ updates:
     directories:
       - "/"
       - "/.github/actions/*"
-    patterns: "*"
+    patterns:
+      - "*"
     ignore:
       - dependency-name: "anttiharju/*"
         update-types:
