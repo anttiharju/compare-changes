@@ -59,7 +59,7 @@ jobs:
           expected_version: ${{ steps.compare.outputs.expected_version }}
         run: |
           toml set Cargo.toml package.version "$expected_version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
-          cargo update --offline --package "${GITHUB_REPOSITORY#*/}"
+          cargo update --package "${GITHUB_REPOSITORY#*/}"
 
       - if: steps.compare.outputs.bump == 'true'
         name: Commit bump
