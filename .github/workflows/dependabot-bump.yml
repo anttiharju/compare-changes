@@ -1,0 +1,71 @@
+name: Dependabot bump
+permissions: {}
+on:
+  push:
+    branches:
+      - "dependabot/**"
+
+jobs:
+  bump:
+    name: Bump patch version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container:
+      image: ${{ format('ghcr.io/{0}/{1}-ci:latest', github.repository_owner, github.event.repository.name) }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    steps:
+      - name: Checkout dependabot branch
+        uses: actions/checkout@v6
+        with:
+          path: dependabot
+          persist-credentials: true
+
+      - name: Checkout default branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: default
+          persist-credentials: false
+
+      - name: Compare versions
+        id: compare
+        run: |
+          default_version="$(toml get "default/Cargo.toml" package.version --raw)"
+          dependabot_version="$(toml get "dependabot/Cargo.toml" package.version --raw)"
+          echo "default_version=$default_version"
+          echo "dependabot_version=$dependabot_version"
+
+          IFS='.' read -r d_major d_minor d_patch <<EOF
+          $default_version
+          EOF
+
+          expected_version="$d_major.$d_minor.$((d_patch + 1))"
+          echo "expected_version=$expected_version"
+          echo "expected_version=$expected_version" >> "$GITHUB_OUTPUT"
+
+          if [ "$dependabot_version" = "$expected_version" ]; then
+            echo "bump=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "bump=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.compare.outputs.bump == 'true'
+        name: Bump Cargo.toml version
+        working-directory: dependabot
+        env:
+          expected_version: ${{ steps.compare.outputs.expected_version }}
+        run: |
+          toml set Cargo.toml package.version "$expected_version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
+          cargo update --offline --package "${GITHUB_REPOSITORY#*/}"
+
+      - if: steps.compare.outputs.bump == 'true'
+        name: Commit bump
+        uses: ./dependabot/.github/actions/commit-changes
+        with:
+          working-directory: dependabot
+          committer: ${{ github.actor }}
+          message: |
+            ${{ github.event.repository.name }} ${{ steps.compare.outputs.expected_version }}
