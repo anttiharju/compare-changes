@@ -66,7 +66,7 @@
           envsubst
           gh
           gitMinimal
-          jq
+          jq.bin
           prettier
           rubocop
           rustToolchain
