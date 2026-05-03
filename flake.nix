@@ -201,7 +201,7 @@
               mkdir -p /etc/nix
               echo "experimental-features = nix-command flakes" > /etc/nix/nix.conf
 
-              # Fix 'mv: No such file or directory (os error 2)'
+              # Some actions assume /usr/local/bin already exists
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
 
