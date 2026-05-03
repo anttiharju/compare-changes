@@ -4,11 +4,11 @@ on:
     branches:
       - wildcard
     paths:
-      - "**.md"
-      - "**.yml"
+      - "docs/**"
+      - "zensical.toml"
       - "flake.nix"
       - "flake.lock"
-      - ".github/workflows/wildcard-prettier.yml"
+      - ".github/workflows/wildcard/zensical.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

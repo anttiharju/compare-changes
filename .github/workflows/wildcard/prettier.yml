@@ -4,10 +4,11 @@ on:
     branches:
       - wildcard
     paths:
-      - ".release/brew/**"
+      - "**.md"
+      - "**.yml"
       - "flake.nix"
       - "flake.lock"
-      - ".github/workflows/wildcard-release-brew.yml"
+      - ".github/workflows/wildcard/prettier.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

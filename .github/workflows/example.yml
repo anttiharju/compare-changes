@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/example.yml"
-      - ".github/workflows/wildcard-shellcheck.yml"
+      - ".github/workflows/wildcard/shellcheck.yml"
       - "**.sh"
       - ".shellcheckrc"
 jobs:
