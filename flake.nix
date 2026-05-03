@@ -161,7 +161,7 @@
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Labels = {
                 "org.opencontainers.image.description" =
-                  "This CI container image (apart from the flake.nix definition) is not covered by the license(s) of the source GitHub repository.";
+                  "This CI container image (apart from the Nix flake definition) is not covered by the license(s) of the source GitHub repository.";
                 "org.opencontainers.image.licenses" = "NOASSERTION";
               };
               Env = (envToList (zigEnv system)) ++ [
