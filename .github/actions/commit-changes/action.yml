@@ -22,7 +22,7 @@ runs:
     - name: Commit changes
       id: commit
       working-directory: ${{ inputs.working-directory }}
-      shell: sh
+      shell: bash
       env:
         message: ${{ inputs.message }}
         GIT_AUTHOR_NAME: ${{ inputs.author }}
@@ -30,7 +30,7 @@ runs:
         GIT_COMMITTER_NAME: ${{ inputs.committer }}
         GIT_COMMITTER_EMAIL: "${{ inputs.committer }}@users.noreply.github.com"
       run: |
-        if [ -z "$(git status --porcelain)" ]; then
+        if [[ -z "$(git status --porcelain)" ]]; then
           echo "No changes to commit"
           echo "changed=false" >> "$GITHUB_OUTPUT"
         else
