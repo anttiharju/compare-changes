@@ -54,7 +54,7 @@ runs:
         "$$GITHUB_ACTION_PATH/bin/install.sh"
     - name: Run
       id: wildcard
-      shell: sh
+      shell: bash
       env:
         WILDCARD: ${{ inputs.github-workflows-wildcard }}
         CHANGES: ${{ inputs.changes }}

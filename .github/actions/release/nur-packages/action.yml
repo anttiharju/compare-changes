@@ -44,8 +44,9 @@ runs:
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
+        author: anttiharju[bot]
+        committer: anttiharju[bot]
         working-directory: release-nur-packages
-        committer: ${{ github.actor }}
         message: |
           ${{ github.event.repository.name }} ${{ inputs.version }}
     - if: always()

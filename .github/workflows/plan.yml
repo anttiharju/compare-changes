@@ -225,7 +225,7 @@ jobs:
           changed: ${{ steps.action.outputs.changed }}
         run: |
           echo "steps.action.outputs.changed: \"$changed\"=\"true\""
-          if [ "$changed" != "true" ]; then
+          if [[ "$changed" != "true" ]]; then
             exit 1
           fi
 
@@ -248,7 +248,7 @@ jobs:
         name: Keep .yml
         run: |
           YAML_FILES=$(git ls-files -z '*.yaml')
-          if [ -n "$YAML_FILES" ]; then
+          if [[ -n "$YAML_FILES" ]]; then
             echo "Found the following .yaml files. Please use .yml extension instead."
             echo "$YAML_FILES" | tr '\0' '\n'
             exit 1
