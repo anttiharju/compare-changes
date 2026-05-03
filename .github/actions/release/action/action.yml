@@ -65,6 +65,15 @@ runs:
         major_version: ${{ steps.version.outputs.major }}
       run: |
         git push origin "HEAD:$major_version"
+    - name: Release action
+      working-directory: release-action
+      shell: sh
+      env:
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        title: ${{ inputs.version }}
+        tag: "v${{ inputs.version }}"
+      run: |
+        gh release create "$tag" --title="$title" --generate-notes
     - if: always()
       name: Cleanup
       shell: sh
