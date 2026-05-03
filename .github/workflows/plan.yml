@@ -216,7 +216,7 @@ jobs:
         id: action
         uses: ./.release/action
         with:
-          workflow: wildcard-release-action.yml
+          workflow: release-action.yml
           changes: '[".release/action/action.yml"]'
           debug: true
       - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
