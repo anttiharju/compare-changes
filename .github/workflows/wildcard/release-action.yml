@@ -4,11 +4,10 @@ on:
     branches:
       - wildcard
     paths:
-      - "**/action.yml"
-      - ".github/workflows/*.yml"
-      - ".github/workflows/wildcard-zizmor.yml"
-      - "flake.lock"
+      - ".release/action/**"
       - "flake.nix"
+      - "flake.lock"
+      - ".github/workflows/wildcard/release-action.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

@@ -4,10 +4,11 @@ on:
     branches:
       - wildcard
     paths:
-      - ".release/nix/**"
+      - "**.sh"
+      - ".shellcheckrc"
       - "flake.nix"
       - "flake.lock"
-      - ".github/workflows/wildcard-release-nix.yml"
+      - ".github/workflows/wildcard/shellcheck.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

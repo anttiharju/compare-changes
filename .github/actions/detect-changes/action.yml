@@ -12,74 +12,74 @@ runs:
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard actionlint.yml
+        compare-changes --changes "$array" --workflow wildcard/actionlint.yml
     - id: prettier
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard prettier.yml
+        compare-changes --changes "$array" --workflow wildcard/prettier.yml
     - id: action
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard release-action.yml
+        compare-changes --changes "$array" --workflow wildcard/release-action.yml
     - id: brew
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard release-brew.yml
+        compare-changes --changes "$array" --workflow wildcard/release-brew.yml
     # flake.yml is only used in the plan.yml container job
     - id: github
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard release-github.yml
+        compare-changes --changes "$array" --workflow wildcard/release-github.yml
     - id: nix
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard release-nix.yml
+        compare-changes --changes "$array" --workflow wildcard/release-nix.yml
     - id: rs
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard rs.yml
+        compare-changes --changes "$array" --workflow wildcard/rs.yml
     - id: rust
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard rust.yml
+        compare-changes --changes "$array" --workflow wildcard/rust.yml
     - id: shellcheck
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard shellcheck.yml
+        compare-changes --changes "$array" --workflow wildcard/shellcheck.yml
     - id: src
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard src.yml
+        compare-changes --changes "$array" --workflow wildcard/src.yml
     - id: zensical
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard zensical.yml
+        compare-changes --changes "$array" --workflow wildcard/zensical.yml
     - id: zizmor
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --wildcard zizmor.yml
+        compare-changes --changes "$array" --workflow wildcard/zizmor.yml
 outputs:
   actionlint:
     description: "Whether actionlint has changed"

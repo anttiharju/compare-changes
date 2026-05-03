@@ -29,7 +29,7 @@ jobs:
       - id: shellcheck
         uses: anttiharju/compare-changes-action@v0
         with:
-          workflow: wildcard/shellcheck.yml # see .github/workflows/shellcheck.yml below
+          workflow: wildcard/shellcheck.yml # see .github/workflows/wildcard/shellcheck.yml below
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.shellcheck.outputs.changed == 'true'
         name: shellcheck
@@ -44,9 +44,9 @@ on:
     branches:
       - wildcard # Prevents skipped runs from showing up
     paths:
-      - ".github/workflows/wildcard/shellcheck.yml"
       - "**.sh"
       - ".shellcheckrc"
+      - ".github/workflows/wildcard/shellcheck.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

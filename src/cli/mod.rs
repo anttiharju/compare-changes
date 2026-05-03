@@ -16,7 +16,7 @@ pub struct Args {
     pub find: bool,
 
     /// Workflow file under .github/workflows/
-    #[arg(short, long, visible_alias = "wildcard", value_name = "FILE", required_unless_present = "find")]
+    #[arg(short, long, value_name = "FILE", required_unless_present = "find")]
     pub workflow: Option<PathBuf>,
 
     /// JSON array string, for example '["foo/bar", "baz"]'
