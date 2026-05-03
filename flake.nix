@@ -72,6 +72,37 @@
           envsubst
         ];
 
+      # Shared environment variables for both devShell and CI
+      zigEnv =
+        system:
+        {
+          SDKROOT = "/dev/null";
+          RANLIB = "zig ranlib";
+          AR = "zig ar";
+          CC = "zig cc";
+          CC_aarch64_apple_darwin = "aarch64-apple-darwin.sh";
+          CC_x86_64_unknown_linux_musl = "x86_64-unknown-linux-musl.sh";
+          CC_aarch64_unknown_linux_musl = "aarch64-unknown-linux-musl.sh";
+        }
+        // (
+          if system == "x86_64-linux" then # default target would be gnu, hence we need to explicitly set it to musl
+            { CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl"; }
+          else if system == "aarch64-linux" then
+            { CARGO_BUILD_TARGET = "aarch64-unknown-linux-musl"; }
+          else
+            { }
+        );
+
+      # Convert to "KEY=value" statements for the CI container
+      envToList = env: builtins.map (k: "${k}=${env.${k}}") (builtins.attrNames env);
+
+      # Convert to bash export statements (setting them in the env section is not robust, because stdenv's clang overrides CC/AR/RANLIB/SDKROOT)
+      envToExports =
+        env:
+        builtins.concatStringsSep "\n" (
+          builtins.map (k: "export ${k}=\"${env.${k}}\"") (builtins.attrNames env)
+        );
+
       # Package the in-repo zig wrappers
       mkZcc =
         pkgs:
@@ -91,32 +122,19 @@
         in
         {
           default = pkgs.mkShell {
-            env = {
-              CC_aarch64_apple_darwin = "aarch64-apple-darwin.sh";
-              CC_aarch64_unknown_linux_musl = "aarch64-unknown-linux-musl.sh";
-              CC_x86_64_unknown_linux_musl = "x86_64-unknown-linux-musl.sh";
-            }
-            // (
-              if system == "x86_64-linux" then # glibc is the default, hence the need to set the musl target explicitly
-                { CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl"; }
-              else if system == "aarch64-linux" then
-                { CARGO_BUILD_TARGET = "aarch64-unknown-linux-musl"; }
-              else
-                { }
-            );
             packages = (devPackages pkgs anttiharju system) ++ [
               fenix.packages.${system}.stable.rust-analyzer
               zcc
             ];
 
-            # The env vars here can not be set in the 'env' section because they would get overridden by stdenv's clang
-            shellHook = ''
-              export SDKROOT=/dev/null
-              export CC="zig cc"
-              export AR="zig ar"
-              export RANLIB="zig ranlib"
-              lefthook install
-            '';
+            shellHook =
+              let
+                env = zigEnv system;
+              in
+              ''
+                ${envToExports env}
+                lefthook install
+              '';
           };
         }
       );
@@ -157,24 +175,14 @@
                   "This CI container image (apart from the flake.nix definition) is not covered by the license(s) of the source GitHub repository.";
                 "org.opencontainers.image.licenses" = "NOASSERTION";
               };
-              Env = [
-                "SDKROOT=/dev/null"
-                "CC=zig cc"
-                "AR=zig ar"
-                "RANLIB=zig ranlib"
-                "CC_aarch64_apple_darwin=/usr/local/bin/aarch64-apple-darwin.sh"
-                "CC_aarch64_unknown_linux_musl=/usr/local/bin/aarch64-unknown-linux-musl.sh"
-                "CC_x86_64_unknown_linux_musl=/usr/local/bin/x86_64-unknown-linux-musl.sh"
-                "CARGO_BUILD_TARGET=${
-                  if system == "x86_64-linux" then "x86_64-unknown-linux-musl" else "aarch64-unknown-linux-musl"
-                }"
+              Env = (envToList (zigEnv system)) ++ [
+                "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
                     pkgs.glibc
                   ]
                 }"
-                "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
                 # PATH has to be defined so that actions that manipulate it (e.g. setup-go) don't break the environment
                 "PATH=/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
               ];
