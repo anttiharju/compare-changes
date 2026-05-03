@@ -34,8 +34,17 @@
       ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
+      mkZigCc =
+        pkgs:
+        pkgs.runCommand "zig_cc_wrappers" { } ''
+          mkdir -p $out/bin
+          for f in ${./.cargo/zig}/*.sh; do
+            install -m755 "$f" "$out/bin/$(basename "$f" .sh)"
+          done
+        '';
+
       devPackages =
-        pkgs: anttiharju: system:
+        pkgs: anttiharju: system: zig_cc_wrappers:
         with pkgs;
         let
           rustToolchain = fenix.packages.${system}.combine [
@@ -50,11 +59,6 @@
             fenix.packages.${system}.targets.aarch64-unknown-linux-musl.stable.rust-std
             fenix.packages.${system}.targets.x86_64-unknown-linux-musl.stable.rust-std
           ];
-          zcc = pkgs.runCommand "zcc" { } ''
-            mkdir -p $out/bin
-            cp -a ${./.cargo/zcc}/* $out/bin/
-            chmod +x $out/bin/*
-          '';
         in
         [
           action-validator
@@ -72,23 +76,23 @@
           rustToolchain
           shellcheck
           toml-cli
-          zcc
           zensical
           zig
+          zig_cc_wrappers
           zizmor
         ];
 
       # Shared environment variables for both devShell and CI
       zigEnv =
-        system:
+        system: zig_cc_wrappers:
         {
           SDKROOT = "/dev/null";
           RANLIB = "zig ranlib";
           AR = "zig ar";
-          CC = "zig cc";
-          CC_aarch64_apple_darwin = "aarch64-apple-darwin.sh";
-          CC_x86_64_unknown_linux_musl = "x86_64-unknown-linux-musl.sh";
-          CC_aarch64_unknown_linux_musl = "aarch64-unknown-linux-musl.sh";
+          CC = "${zig_cc_wrappers}/bin/cc";
+          CC_aarch64_apple_darwin = "${zig_cc_wrappers}/bin/cc-aarch64-apple-darwin";
+          CC_x86_64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-x86_64-unknown-linux-musl";
+          CC_aarch64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-aarch64-unknown-linux-musl";
         }
         // (
           # default linux target would be gnu, hence we need to explicitly set it to musl
@@ -116,15 +120,16 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
+          zig_cc_wrappers = mkZigCc pkgs;
         in
         {
           default = pkgs.mkShell {
-            packages = (devPackages pkgs anttiharju system) ++ [
+            packages = (devPackages pkgs anttiharju system zig_cc_wrappers) ++ [
               fenix.packages.${system}.stable.rust-analyzer
             ];
 
             shellHook = ''
-              ${envToExports (zigEnv system)}
+              ${envToExports (zigEnv system zig_cc_wrappers)}
               lefthook install
             '';
           };
@@ -136,6 +141,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
+          zig_cc_wrappers = mkZigCc pkgs;
 
           # Fix not being able to run the unpatched node binaries that GitHub Actions mounts into the container
           ld = pkgs.runCommand "ld" { } ''
@@ -149,7 +155,7 @@
             name = "ci";
             tag = "flake";
             contents =
-              (devPackages pkgs anttiharju system)
+              (devPackages pkgs anttiharju system zig_cc_wrappers)
               ++ pkgs.stdenv.initialPath
               ++ [
                 ld
@@ -165,7 +171,7 @@
                   "This CI container image (apart from the Nix flake definition) is not covered by the license(s) of the source GitHub repository.";
                 "org.opencontainers.image.licenses" = "NOASSERTION";
               };
-              Env = (envToList (zigEnv system)) ++ [
+              Env = (envToList (zigEnv system zig_cc_wrappers)) ++ [
                 "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
