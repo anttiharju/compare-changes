@@ -52,6 +52,11 @@
           ];
         in
         [
+          (pkgs.runCommand "zcc" { } ''
+            mkdir -p $out/bin
+            cp -a ${./.cargo/zcc}/* $out/bin/
+            chmod +x $out/bin/*
+          '')
           rustToolchain
           toml-cli
           zig
@@ -102,15 +107,6 @@
         builtins.concatStringsSep "\n" (
           builtins.map (k: "export ${k}=\"${env.${k}}\"") (builtins.attrNames env)
         );
-
-      # Package the in-repo zig wrappers
-      mkZcc =
-        pkgs:
-        pkgs.runCommand "zcc" { } ''
-          mkdir -p $out/bin
-          cp -a ${./.cargo/zcc}/* $out/bin/
-          chmod +x $out/bin/*
-        '';
     in
     {
       devShells = forAllSystems (
@@ -118,13 +114,11 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
-          zcc = mkZcc pkgs;
         in
         {
           default = pkgs.mkShell {
             packages = (devPackages pkgs anttiharju system) ++ [
               fenix.packages.${system}.stable.rust-analyzer
-              zcc
             ];
 
             shellHook =
@@ -151,7 +145,6 @@
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
 
-          zcc = mkZcc pkgs;
         in
         pkgs.lib.optionalAttrs (system == "x86_64-linux" || system == "aarch64-linux") {
           ci = pkgs.dockerTools.streamLayeredImage {
@@ -162,7 +155,6 @@
               ++ pkgs.stdenv.initialPath
               ++ [
                 ld
-                zcc
                 pkgs.dockerTools.caCertificates
                 pkgs.sudo
                 pkgs.nix.out
@@ -215,12 +207,6 @@
               # Fix 'mv: No such file or directory (os error 2)'
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
-
-              # Install zig cc wrappers to /usr/local/bin
-              mkdir -p /usr/local/bin
-              install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /usr/local/bin/aarch64-apple-darwin.sh
-              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-musl.sh /usr/local/bin/aarch64-unknown-linux-musl.sh
-              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-musl.sh /usr/local/bin/x86_64-unknown-linux-musl.sh
 
               # Just avoid extra diffs when using a Dockerfile to inspect changes
               mkdir -p /proc /dev /sys
