@@ -86,13 +86,13 @@
       zigEnv =
         system: zig_cc_wrappers:
         {
-          SDKROOT = "/dev/null";
-          RANLIB = "zig ranlib";
           AR = "zig ar";
-          CC = "${zig_cc_wrappers}/bin/cc";
           CC_aarch64_apple_darwin = "${zig_cc_wrappers}/bin/cc-aarch64-apple-darwin";
           CC_x86_64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-x86_64-unknown-linux-musl";
           CC_aarch64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-aarch64-unknown-linux-musl";
+          CC = "${zig_cc_wrappers}/bin/cc";
+          RANLIB = "zig ranlib";
+          SDKROOT = "/dev/null";
         }
         // (
           # default linux target would be gnu, hence we need to explicitly set it to musl
