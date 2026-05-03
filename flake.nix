@@ -204,9 +204,6 @@
               # Some actions assume /usr/local/bin already exists
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
-
-              # Just avoid extra diffs when using a Dockerfile to inspect changes
-              mkdir -p /proc /dev /sys
             '';
           };
         }
