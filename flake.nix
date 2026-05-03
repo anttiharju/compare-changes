@@ -71,6 +71,15 @@
           jq
           envsubst
         ];
+
+      # Package the in-repo zig wrappers
+      mkZcc =
+        pkgs:
+        pkgs.runCommand "zcc" { } ''
+          mkdir -p $out/bin
+          cp -a ${./.cargo/zcc}/* $out/bin/
+          chmod +x $out/bin/*
+        '';
     in
     {
       devShells = forAllSystems (
@@ -78,13 +87,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
-
-          # Package the in-repo zig wrappers
-          zcc = pkgs.runCommand "zcc" { } ''
-            mkdir -p $out/bin
-            cp -a ${./.cargo/zcc}/* $out/bin/
-            chmod +x $out/bin/*
-          '';
+          zcc = mkZcc pkgs;
         in
         {
           default = pkgs.mkShell {
@@ -127,12 +130,7 @@
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
 
-          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./.cargo/zcc)
-          zcc = pkgs.runCommand "zcc" { } ''
-            mkdir -p $out/bin
-            cp -a ${./.cargo/zcc}/* $out/bin/
-            chmod +x $out/bin/*
-          '';
+          zcc = mkZcc pkgs;
         in
         pkgs.lib.optionalAttrs (system == "x86_64-linux" || system == "aarch64-linux") {
           ci = pkgs.dockerTools.streamLayeredImage {
