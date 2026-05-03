@@ -64,19 +64,10 @@
           shellcheck
           gh
           zizmor
-          # Everything below is required by GitHub Actions
-          coreutils
-          bash
           gitMinimal
-          findutils
-          gnutar
           curl
           jq
-          gzip
           envsubst
-          gawk
-          xz
-          gnugrep
         ];
     in
     {
@@ -145,14 +136,17 @@
           ci = pkgs.dockerTools.streamLayeredImage {
             name = "ci";
             tag = "flake";
-            contents = (devPackages pkgs anttiharju system) ++ [
-              ld
-              zcc
-              pkgs.dockerTools.caCertificates
-              pkgs.sudo
-              pkgs.nix.out
-              pkgs.dockerTools.usrBinEnv
-            ];
+            contents =
+              (devPackages pkgs anttiharju system)
+              ++ pkgs.stdenv.initialPath
+              ++ [
+                ld
+                zcc
+                pkgs.dockerTools.caCertificates
+                pkgs.sudo
+                pkgs.nix.out
+                pkgs.dockerTools.usrBinEnv
+              ];
             config = {
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Labels = {
