@@ -29,10 +29,13 @@ runs:
         persist-credentials: true
     - working-directory: release-nur-packages
       shell: sh
+      env:
+        NIX_CONFIG: "access-tokens = github.com=${{ github.token }}"
       run: nix flake update
     - name: Render Nix expression
       shell: sh
       env:
+        NIX_CONFIG: "access-tokens = github.com=${{ github.token }}"
         GH_TOKEN: ${{ github.token }}
         output: "release-nur-packages/pkgs/${{ github.event.repository.name }}"
       run: |
