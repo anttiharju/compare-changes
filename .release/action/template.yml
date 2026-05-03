@@ -4,8 +4,8 @@ branding:
   icon: minimize-2
   color: orange
 inputs:
-  github-workflows-wildcard:
-    description: "Name of the GitHub Workflow wildcard .github/workflows/wildcard-*"
+  github-workflow:
+    description: "Input is * in .github/workflows/*. Uses the on.push.paths as input."
     required: true
   changes:
     description: "JSON array of changed files (from anttiharju/find-changes-action)"
@@ -22,11 +22,11 @@ runs:
   using: "composite"
   steps:
     - name: Check if compare-changes is in PATH
-      id: compare-changes
+      id: binary
       shell: sh
       run: |
-        "$$GITHUB_ACTION_PATH/bin/compare-changes.sh"
-    - if: steps.compare-changes.outputs.installed != 'true'
+        "$$GITHUB_ACTION_PATH/bin/binary.sh"
+    - if: steps.binary.outputs.installed != 'true'
       name: Convert target
       id: convert
       shell: sh
@@ -35,14 +35,14 @@ runs:
         ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
       run: |
         "$$GITHUB_ACTION_PATH/bin/convert.sh"
-    - if: steps.compare-changes.outputs.installed != 'true'
+    - if: steps.binary.outputs.installed != 'true'
       name: Cache
       id: cache
       uses: actions/cache@v5
       with:
         path: /usr/local/bin/compare-changes
         key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
-    - if: steps.compare-changes.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
+    - if: steps.binary.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
       name: Install
       working-directory: ${{ runner.temp }}
       shell: sh
@@ -53,15 +53,15 @@ runs:
       run: |
         "$$GITHUB_ACTION_PATH/bin/install.sh"
     - name: Run
-      id: wildcard
+      id: run
       shell: bash
       env:
-        WILDCARD: ${{ inputs.github-workflows-wildcard }}
+        WORKFLOW: ${{ inputs.github-workflow }}
         CHANGES: ${{ inputs.changes }}
         DEBUG: ${{ inputs.debug }}
       run: |
         "$$GITHUB_ACTION_PATH/bin/run.sh"
 outputs:
   changed:
-    description: "Boolean indicating if any changed files match paths in the wildcard file"
-    value: ${{ steps.wildcard.outputs.changed }}
+    description: "Boolean indicating if any changed files match on.push.paths of the input workflow file."
+    value: ${{ steps.run.outputs.changed }}
