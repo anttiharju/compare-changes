@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
 
-Takes the name of a wildcard workflow (`*` in `.github/workflows/wildcard-*` incl. file extension) and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs, to output true/false based on whether any of the `on.push.paths` of the wildcard workflow match a file in the JSON array.
+Takes a workflow file under `.github/workflows/` and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs, to output true/false based on whether any of the `on.push.paths` of the workflow match a file in the JSON array.
 
 This is useful to introduce job and step granularity to your workflows. One can save a lot of time (and money by reducing runner usage) by executing long-running jobs conditionally.
 
@@ -29,7 +29,7 @@ jobs:
       - id: shellcheck
         uses: anttiharju/compare-changes-action@v0
         with:
-          github-workflows-wildcard: shellcheck.yml # see .github/workflows/wildcard-shellcheck.yml below
+          workflow: wildcard/shellcheck.yml # see .github/workflows/shellcheck.yml below
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.shellcheck.outputs.changed == 'true'
         name: shellcheck
@@ -37,14 +37,14 @@ jobs:
 ```
 
 ```yml
-# .github/workflows/wildcard-shellcheck.yml
+# .github/workflows/wildcard/shellcheck.yml
 permissions: {}
 on:
   push:
     branches:
-      - wildcard
+      - wildcard # Prevents skipped runs from showing up
     paths:
-      - ".github/workflows/wildcard-shellcheck.yml"
+      - ".github/workflows/wildcard/shellcheck.yml"
       - "**.sh"
       - ".shellcheckrc"
 jobs:

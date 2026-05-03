@@ -11,7 +11,7 @@ fn prepare_workflow_with_patterns(patterns: &[&str]) -> TempDir {
     fs::create_dir_all(&workflows).unwrap();
 
     let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/wildcard-template.yml");
-    let dst = workflows.join("wildcard-template.yml");
+    let dst = workflows.join("template.yml");
     fs::copy(&src, &dst).unwrap();
 
     // Read template and replace the "paths:" section robustly while preserving indentation.
@@ -42,7 +42,7 @@ fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (Strin
     let mut binding = cargo_bin_cmd!("compare-changes");
     let mut cmd = binding
         .current_dir(temp.path())
-        .arg("--wildcard")
+        .arg("--workflow")
         .arg("template.yml")
         .arg("--changes")
         .arg(&changes);

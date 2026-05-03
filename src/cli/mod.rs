@@ -12,12 +12,12 @@ use style::get_style;
 )]
 pub struct Args {
     /// Find changed files from the git diff base inferred from GitHub Actions event context
-    #[arg(short, long, default_value_t = false, conflicts_with_all = ["wildcard", "changes"])]
+    #[arg(short, long, default_value_t = false, conflicts_with_all = ["workflow", "changes"])]
     pub find: bool,
 
-    /// Wildcard name, * in .github/workflows/wildcard-*
+    /// Workflow file under .github/workflows/
     #[arg(short, long, value_name = "FILE", required_unless_present = "find")]
-    pub wildcard: Option<PathBuf>,
+    pub workflow: Option<PathBuf>,
 
     /// JSON array string, for example '["foo/bar", "baz"]'
     #[arg(short, long, value_name = "JSON", required_unless_present = "find")]
@@ -31,10 +31,10 @@ pub struct Args {
 pub fn parse_args() -> Args {
     let mut args = Args::parse();
 
-    if let Some(wildcard) = args.wildcard.take() {
-        // Apply the prefix transformation to wildcard
-        let prefixed = PathBuf::from(".github/workflows").join(format!("wildcard-{}", wildcard.display()));
-        args.wildcard = Some(prefixed);
+    if let Some(workflow) = args.workflow.take() {
+        // Apply the prefix transformation to workflow
+        let prefixed = PathBuf::from(".github/workflows").join(workflow);
+        args.workflow = Some(prefixed);
     }
 
     args
