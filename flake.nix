@@ -91,27 +91,30 @@
         in
         {
           default = pkgs.mkShell {
+            env = {
+              CC_aarch64_apple_darwin = "aarch64-apple-darwin.sh";
+              CC_aarch64_unknown_linux_musl = "aarch64-unknown-linux-musl.sh";
+              CC_x86_64_unknown_linux_musl = "x86_64-unknown-linux-musl.sh";
+            }
+            // (
+              if system == "x86_64-linux" then # glibc is the default, hence the need to set the musl target explicitly
+                { CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl"; }
+              else if system == "aarch64-linux" then
+                { CARGO_BUILD_TARGET = "aarch64-unknown-linux-musl"; }
+              else
+                { }
+            );
             packages = (devPackages pkgs anttiharju system) ++ [
               fenix.packages.${system}.stable.rust-analyzer
               zcc
             ];
 
+            # The env vars here can not be set in the 'env' section because they would get overridden by stdenv's clang
             shellHook = ''
               export SDKROOT=/dev/null
               export CC="zig cc"
               export AR="zig ar"
               export RANLIB="zig ranlib"
-              export CC_aarch64_apple_darwin="${zcc}/bin/aarch64-apple-darwin.sh"
-              export CC_aarch64_unknown_linux_musl="${zcc}/bin/aarch64-unknown-linux-musl.sh"
-              export CC_x86_64_unknown_linux_musl="${zcc}/bin/x86_64-unknown-linux-musl.sh"
-              ${
-                if system == "x86_64-linux" then
-                  ''export CARGO_BUILD_TARGET="x86_64-unknown-linux-musl"''
-                else if system == "aarch64-linux" then
-                  ''export CARGO_BUILD_TARGET="aarch64-unknown-linux-musl"''
-                else
-                  ""
-              }
               lefthook install
             '';
           };
@@ -209,7 +212,6 @@
               mkdir -p /usr/local/bin
               install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /usr/local/bin/aarch64-apple-darwin.sh
               install -D -m755 ${zcc}/bin/aarch64-unknown-linux-musl.sh /usr/local/bin/aarch64-unknown-linux-musl.sh
-              install -D -m755 ${zcc}/bin/cc.sh /usr/local/bin/cc
               install -D -m755 ${zcc}/bin/x86_64-unknown-linux-musl.sh /usr/local/bin/x86_64-unknown-linux-musl.sh
 
               # Just avoid extra diffs when using a Dockerfile to inspect changes
