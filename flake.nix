@@ -121,14 +121,10 @@
               fenix.packages.${system}.stable.rust-analyzer
             ];
 
-            shellHook =
-              let
-                env = zigEnv system;
-              in
-              ''
-                ${envToExports env}
-                lefthook install
-              '';
+            shellHook = ''
+              ${envToExports (zigEnv system)}
+              lefthook install
+            '';
           };
         }
       );
