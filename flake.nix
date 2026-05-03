@@ -61,7 +61,7 @@
           actionlint
           anttiharju.compare-changes
           anttiharju.relcheck
-          curl
+          curl.bin
           editorconfig-checker
           envsubst
           gh
