@@ -19,7 +19,7 @@ jobs:
       - id: shellcheck
         uses: anttiharju/compare-changes-action@v0
         with:
-          github-workflows-wildcard: shellcheck.yml
+          workflow: wildcard/shellcheck.yml
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.shellcheck.outputs.changed == 'true'
         name: shellcheck
