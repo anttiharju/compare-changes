@@ -16,13 +16,13 @@ fn main() {
         return;
     }
 
-    let wildcard = args.wildcard.as_ref().expect("wildcard is required unless --find");
+    let workflow = args.workflow.as_ref().expect("workflow is required unless --find");
     let changes = args.changes.as_ref().expect("changes is required unless --find");
 
-    let paths = match parse::get_paths(wildcard) {
+    let paths = match parse::get_paths(workflow) {
         Ok(paths) => {
             if args.debug {
-                println!("{}.on.push.paths:", wildcard.display());
+                println!("{}.on.push.paths:", workflow.display());
                 for path in &paths {
                     println!("- {}", path);
                 }
