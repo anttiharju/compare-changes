@@ -7,8 +7,10 @@
   ];
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
-    nur-anttiharju.url = "github:anttiharju/nur-packages";
-    nur-anttiharju.inputs.nixpkgs.follows = "nixpkgs";
+    nur-anttiharju = {
+      url = "github:anttiharju/nur-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
