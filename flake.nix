@@ -50,6 +50,11 @@
             fenix.packages.${system}.targets.aarch64-unknown-linux-musl.stable.rust-std
             fenix.packages.${system}.targets.x86_64-unknown-linux-musl.stable.rust-std
           ];
+          zcc = pkgs.runCommand "zcc" { } ''
+            mkdir -p $out/bin
+            cp -a ${./.cargo/zcc}/* $out/bin/
+            chmod +x $out/bin/*
+          '';
         in
         [
           action-validator
@@ -67,13 +72,9 @@
           rustToolchain
           shellcheck
           toml-cli
+          zcc
           zensical
           zig
-          (pkgs.runCommand "zcc" { } ''
-            mkdir -p $out/bin
-            cp -a ${./.cargo/zcc}/* $out/bin/
-            chmod +x $out/bin/*
-          '')
           zizmor
         ];
 
