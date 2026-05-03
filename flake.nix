@@ -91,7 +91,8 @@
           CC_aarch64_unknown_linux_musl = "aarch64-unknown-linux-musl.sh";
         }
         // (
-          if system == "x86_64-linux" then # default target would be gnu, hence we need to explicitly set it to musl
+          # default linux target would be gnu, hence we need to explicitly set it to musl
+          if system == "x86_64-linux" then
             { CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl"; }
           else if system == "aarch64-linux" then
             { CARGO_BUILD_TARGET = "aarch64-unknown-linux-musl"; }
