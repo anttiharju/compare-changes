@@ -4,12 +4,6 @@ inputs:
   version:
     description: "Version to release"
     required: true
-  anttiharju-bot-id:
-    description: "GitHub App ID for anttiharju[bot]"
-    required: true
-  anttiharju-bot-private-key:
-    description: "GitHub App private key for anttiharju[bot]"
-    required: true
 runs:
   using: "composite"
   steps:

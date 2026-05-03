@@ -38,8 +38,6 @@ jobs:
         uses: ./.github/actions/release/github
         with:
           version: ${{ needs.plan.outputs.version }}
-          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
-          anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: Nix User Repository
         uses: ./.github/actions/release/nur-packages
