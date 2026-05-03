@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec zig cc "$@" -target aarch64-linux-musl

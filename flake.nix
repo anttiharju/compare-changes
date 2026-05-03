@@ -7,8 +7,10 @@
   ];
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
-    nur-anttiharju.url = "github:anttiharju/nur-packages";
-    nur-anttiharju.inputs.nixpkgs.follows = "nixpkgs";
+    nur-anttiharju = {
+      url = "github:anttiharju/nur-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,8 +34,17 @@
       ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
+      mkZigCc =
+        pkgs:
+        pkgs.runCommand "zig_cc_wrappers" { } ''
+          mkdir -p $out/bin
+          for f in ${./.cargo/zig}/*.sh; do
+            install -m755 "$f" "$out/bin/$(basename "$f" .sh)"
+          done
+        '';
+
       devPackages =
-        pkgs: anttiharju: system:
+        pkgs: anttiharju: system: zig_cc_wrappers:
         with pkgs;
         let
           rustToolchain = fenix.packages.${system}.combine [
@@ -50,34 +61,58 @@
           ];
         in
         [
-          rustToolchain
-          toml-cli
-          zig
           action-validator
           actionlint
-          anttiharju.relcheck
           anttiharju.compare-changes
+          anttiharju.relcheck
+          curl.bin
           editorconfig-checker
-          zensical
+          envsubst
+          gh
+          gitMinimal
+          jq.bin
           prettier
           rubocop
+          rustToolchain
           shellcheck
-          gh
+          toml-cli
+          zensical
+          zig
+          zig_cc_wrappers
           zizmor
-          # Everything below is required by GitHub Actions
-          coreutils
-          bash
-          gitMinimal
-          findutils
-          gnutar
-          curl
-          jq
-          gzip
-          envsubst
-          gawk
-          xz
-          gnugrep
         ];
+
+      # Shared environment variables for both devShell and CI
+      zigEnv =
+        system: zig_cc_wrappers:
+        {
+          AR = "zig ar";
+          CC_aarch64_apple_darwin = "${zig_cc_wrappers}/bin/cc-aarch64-apple-darwin";
+          CC_x86_64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-x86_64-unknown-linux-musl";
+          CC_aarch64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-aarch64-unknown-linux-musl";
+          CC = "${zig_cc_wrappers}/bin/cc";
+          RANLIB = "zig ranlib";
+          SDKROOT = "/dev/null";
+        }
+        // (
+          # default linux target would be gnu, hence we need to explicitly set it to musl
+          if system == "x86_64-linux" then
+            { CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl"; }
+          else if system == "aarch64-linux" then
+            { CARGO_BUILD_TARGET = "aarch64-unknown-linux-musl"; }
+          else
+            { }
+        );
+
+      # Convert to "KEY=value" statements for the CI container
+      envToList = env: builtins.map (k: "${k}=${env.${k}}") (builtins.attrNames env);
+
+      # Convert to bash export statements (setting them in the env section is not robust, because stdenv's clang overrides CC/AR/RANLIB/SDKROOT)
+      envToExports =
+        env:
+        builtins.concatStringsSep "\n" (
+          builtins.map (k: "export ${k}=\"${env.${k}}\"") (builtins.attrNames env)
+        );
     in
     {
       devShells = forAllSystems (
@@ -85,37 +120,16 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
-
-          # Package the in-repo zig wrappers
-          zcc = pkgs.runCommand "zcc" { } ''
-            mkdir -p $out/bin
-            cp -a ${./.cargo/zcc}/* $out/bin/
-            chmod +x $out/bin/*
-          '';
+          zig_cc_wrappers = mkZigCc pkgs;
         in
         {
           default = pkgs.mkShell {
-            packages = (devPackages pkgs anttiharju system) ++ [
+            packages = (devPackages pkgs anttiharju system zig_cc_wrappers) ++ [
               fenix.packages.${system}.stable.rust-analyzer
-              zcc
             ];
 
             shellHook = ''
-              export SDKROOT=/dev/null
-              export CC="zig cc"
-              export AR="zig ar"
-              export RANLIB="zig ranlib"
-              export CC_aarch64_apple_darwin="${zcc}/bin/aarch64-apple-darwin.sh"
-              export CC_aarch64_unknown_linux_musl="${zcc}/bin/aarch64-unknown-linux-musl.sh"
-              export CC_x86_64_unknown_linux_musl="${zcc}/bin/x86_64-unknown-linux-musl.sh"
-              ${
-                if system == "x86_64-linux" then
-                  ''export CARGO_BUILD_TARGET="x86_64-unknown-linux-musl"''
-                else if system == "aarch64-linux" then
-                  ''export CARGO_BUILD_TARGET="aarch64-unknown-linux-musl"''
-                else
-                  ""
-              }
+              ${envToExports (zigEnv system zig_cc_wrappers)}
               lefthook install
             '';
           };
@@ -127,6 +141,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
           anttiharju = nur-anttiharju.packages.${system};
+          zig_cc_wrappers = mkZigCc pkgs;
 
           # Fix not being able to run the unpatched node binaries that GitHub Actions mounts into the container
           ld = pkgs.runCommand "ld" { } ''
@@ -134,50 +149,36 @@
             install -D -m755 ${pkgs.nix-ld}/libexec/nix-ld "$out/lib64/$(basename ${pkgs.stdenv.cc.bintools.dynamicLinker})"
           '';
 
-          # Package the in-repo zig wrappers so we can bake them into the image (relative path ./.cargo/zcc)
-          zcc = pkgs.runCommand "zcc" { } ''
-            mkdir -p $out/bin
-            cp -a ${./.cargo/zcc}/* $out/bin/
-            chmod +x $out/bin/*
-          '';
         in
         pkgs.lib.optionalAttrs (system == "x86_64-linux" || system == "aarch64-linux") {
           ci = pkgs.dockerTools.streamLayeredImage {
             name = "ci";
             tag = "flake";
-            contents = (devPackages pkgs anttiharju system) ++ [
-              ld
-              zcc
-              pkgs.dockerTools.caCertificates
-              pkgs.sudo
-              pkgs.nix.out
-              pkgs.dockerTools.usrBinEnv
-            ];
+            contents =
+              (devPackages pkgs anttiharju system zig_cc_wrappers)
+              ++ pkgs.stdenv.initialPath
+              ++ [
+                ld
+                pkgs.sudo
+                pkgs.nix.out
+                pkgs.dockerTools.usrBinEnv
+                pkgs.dockerTools.caCertificates
+              ];
             config = {
               User = "1001"; # https://github.com/actions/runner/issues/2033#issuecomment-1598547465
               Labels = {
                 "org.opencontainers.image.description" =
-                  "This CI container image (apart from the flake.nix definition) is not covered by the license(s) of the source GitHub repository.";
+                  "This CI container image (apart from the Nix flake definition) is not covered by the license(s) of the source GitHub repository.";
                 "org.opencontainers.image.licenses" = "NOASSERTION";
               };
-              Env = [
-                "SDKROOT=/dev/null"
-                "CC=zig cc"
-                "AR=zig ar"
-                "RANLIB=zig ranlib"
-                "CC_aarch64_apple_darwin=/usr/local/bin/aarch64-apple-darwin.sh"
-                "CC_aarch64_unknown_linux_musl=/usr/local/bin/aarch64-unknown-linux-musl.sh"
-                "CC_x86_64_unknown_linux_musl=/usr/local/bin/x86_64-unknown-linux-musl.sh"
-                "CARGO_BUILD_TARGET=${
-                  if system == "x86_64-linux" then "x86_64-unknown-linux-musl" else "aarch64-unknown-linux-musl"
-                }"
+              Env = (envToList (zigEnv system zig_cc_wrappers)) ++ [
+                "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
                 "NIX_LD_LIBRARY_PATH=${
                   pkgs.lib.makeLibraryPath [
                     pkgs.stdenv.cc.cc.lib
                     pkgs.glibc
                   ]
                 }"
-                "NIX_LD=${pkgs.stdenv.cc.bintools.dynamicLinker}"
                 # PATH has to be defined so that actions that manipulate it (e.g. setup-go) don't break the environment
                 "PATH=/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
               ];
@@ -207,19 +208,9 @@
               mkdir -p /etc/nix
               echo "experimental-features = nix-command flakes" > /etc/nix/nix.conf
 
-              # Fix 'mv: No such file or directory (os error 2)'
+              # Some actions assume /usr/local/bin already exists
               mkdir -p /usr/local/bin
               chmod 0777 /usr/local/bin
-
-              # Install zig cc wrappers to /usr/local/bin
-              mkdir -p /usr/local/bin
-              install -D -m755 ${zcc}/bin/aarch64-apple-darwin.sh /usr/local/bin/aarch64-apple-darwin.sh
-              install -D -m755 ${zcc}/bin/aarch64-unknown-linux-musl.sh /usr/local/bin/aarch64-unknown-linux-musl.sh
-              install -D -m755 ${zcc}/bin/cc.sh /usr/local/bin/cc
-              install -D -m755 ${zcc}/bin/x86_64-unknown-linux-musl.sh /usr/local/bin/x86_64-unknown-linux-musl.sh
-
-              # Just avoid extra diffs when using a Dockerfile to inspect changes
-              mkdir -p /proc /dev /sys
             '';
           };
         }
