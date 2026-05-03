@@ -52,29 +52,29 @@
           ];
         in
         [
+          action-validator
+          actionlint
+          anttiharju.compare-changes
+          anttiharju.relcheck
+          curl
+          editorconfig-checker
+          envsubst
+          gh
+          gitMinimal
+          jq
+          prettier
+          rubocop
+          rustToolchain
+          shellcheck
+          toml-cli
+          zensical
+          zig
           (pkgs.runCommand "zcc" { } ''
             mkdir -p $out/bin
             cp -a ${./.cargo/zcc}/* $out/bin/
             chmod +x $out/bin/*
           '')
-          rustToolchain
-          toml-cli
-          zig
-          action-validator
-          actionlint
-          anttiharju.relcheck
-          anttiharju.compare-changes
-          editorconfig-checker
-          zensical
-          prettier
-          rubocop
-          shellcheck
-          gh
           zizmor
-          gitMinimal
-          curl
-          jq
-          envsubst
         ];
 
       # Shared environment variables for both devShell and CI
