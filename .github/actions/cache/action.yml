@@ -16,17 +16,17 @@ runs:
         echo "hash=$HASH"
         echo "hash=$HASH" >> $GITHUB_OUTPUT
     - name: Cargo cache
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: ~/.cargo
         key: Cargo-${{ runner.os }}-${{ runner.arch }}-${{ steps.stable_deps.outputs.hash }}
     - name: Zig cache
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: ~/.cache/zig
         key: Zig-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.cargo/**', 'Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}
     - name: Build cache
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: target
         key: Build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.cargo/**', 'Cargo.toml', 'Cargo.lock', 'flake.nix', 'flake.lock') }}

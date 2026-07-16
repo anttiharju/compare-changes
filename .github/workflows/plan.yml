@@ -232,7 +232,7 @@ jobs:
       - if: always() && !cancelled()
         name: action-validator
         run: |
-          git ls-files -z ".github/workflows/*.yml" "*/action.yml" | xargs --null action-validator --verbose
+          git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null action-validator --verbose
 
       - if: always() && !cancelled() && (steps.changed.outputs.actionlint == 'true' || github.event_name == 'push')
         name: actionlint

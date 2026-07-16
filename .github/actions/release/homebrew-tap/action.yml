@@ -5,7 +5,7 @@ inputs:
     description: "Version to release"
     required: true
   anttiharju-bot-id:
-    description: "GitHub App ID for anttiharju[bot]"
+    description: "GitHub App client ID for anttiharju[bot]"
     required: true
   anttiharju-bot-private-key:
     description: "GitHub App private key for anttiharju[bot]"
@@ -15,13 +15,14 @@ runs:
   steps:
     - name: Generate commit token
       id: generate-token
-      uses: actions/create-github-app-token@v2
+      uses: actions/create-github-app-token@v3
       with:
-        app-id: ${{ inputs.anttiharju-bot-id }}
+        client-id: ${{ inputs.anttiharju-bot-id }}
         private-key: ${{ inputs.anttiharju-bot-private-key }}
         repositories: homebrew-tap
+        permission-contents: write
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: anttiharju/homebrew-tap
         token: ${{ steps.generate-token.outputs.token }}

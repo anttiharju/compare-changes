@@ -26,7 +26,7 @@ pre-commit:
       stage_fixed: true
 
     - name: action-validator
-      run: git ls-files -z ".github/workflows/*.yml" "*/action.yml" | xargs --null action-validator --verbose
+      run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null action-validator --verbose
 
     - name: actionlint
       glob: ".github/workflows/*.yml"
@@ -63,5 +63,5 @@ pre-commit:
       stage_fixed: true
 
     - name: zizmor
-      glob: "{.github/workflows/*.yml,*/action.yml}"
-      run: zizmor {staged_files}
+      glob: "{.github/workflows/*.yml,*/action.yml,flake.nix,flake.lock}"
+      run: zizmor .

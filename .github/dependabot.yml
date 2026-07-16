@@ -12,15 +12,11 @@ updates:
     patterns:
       - "*"
     multi-ecosystem-group: "dependency"
-    cooldown:
-      default-days: 7
   - package-ecosystem: "nix"
     directory: "/"
     patterns:
       - "*"
     multi-ecosystem-group: "dependency"
-    cooldown:
-      default-days: 7
   - package-ecosystem: "github-actions"
     directories:
       - "/"
@@ -37,5 +33,3 @@ updates:
           - "version-update:semver-minor"
           - "version-update:semver-patch"
     multi-ecosystem-group: "dependency"
-    cooldown:
-      default-days: 7
