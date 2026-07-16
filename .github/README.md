@@ -39,12 +39,6 @@ brew install anttiharju/tap/compare-changes
 
 Via [anttiharju's nur-packages](https://github.com/anttiharju/nur-packages). Please note that as of writing it is not connected to the upstream NUR.
 
-## Stargazers over time
-
-Starring the repository is helpful for releasing the project on upstream package managers.
-
-[![Stargazers over time](https://starchart.cc/anttiharju/compare-changes.svg?variant=adaptive)](https://starchart.cc/anttiharju/compare-changes)
-
 ## License
 
 The following licenses apply to this project:
