@@ -6,7 +6,7 @@
     "https://anttiharju.cachix.org"
   ];
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-26.05";
     nur-anttiharju = {
       url = "github:anttiharju/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
