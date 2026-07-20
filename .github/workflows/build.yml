@@ -48,6 +48,8 @@ jobs:
 
       - name: crates.io
         uses: ./.github/actions/release/crate
+        with:
+          version: ${{ needs.plan.outputs.version }}
 
       - name: Homebrew tap
         uses: ./.github/actions/release/homebrew-tap
