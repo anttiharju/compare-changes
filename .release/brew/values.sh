@@ -16,13 +16,10 @@ desc="$(gh repo view --json description --jq .description)"
 capture PKG_DESC "$desc"
 homepage="$(gh api "repos/{owner}/{repo}" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
-repo_root="$(git rev-parse --show-toplevel)"
-version="$(toml get "$repo_root/Cargo.toml" package.version --raw)"
-capture PKG_VERSION "$version"
+capture PKG_VERSION "${TAG#v}"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
-tag="v$version"
-if [[ "$version" = "0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$tag" &>/dev/null; then
+if [[ "$TAG" = "0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$TAG" &>/dev/null; then
   capture PKG_MAC_INTEL_SHA TBD
   capture PKG_MAC_ARM_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
@@ -30,9 +27,10 @@ if [[ "$version" = "0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$ta
   exit 0
 fi
 
+repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root/.release/brew"
 pattern="$repo-*.tar.gz"
-gh release download "$tag" --pattern "$pattern" --clobber
+gh release download "$TAG" --pattern "$pattern" --clobber
 for archive in $pattern; do
   echo "# $archive"
 done

@@ -8,6 +8,4 @@ capture() {
 
 capture PKG_FILENAME action
 capture PKG_EXTENSION yml
-repo_root="$(git rev-parse --show-toplevel)"
-version="$(toml get "$repo_root/Cargo.toml" package.version --raw)"
-capture PKG_VERSION "$version"
+capture PKG_VERSION "${TAG#v}"
