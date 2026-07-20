@@ -13,6 +13,14 @@ runs:
         tag: "v${{ inputs.version }}"
       run: |
         git tag "$tag"
+    - name: Patch Cargo.toml version
+      shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
+      run: |
+        version="${tag#v}"
+        toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
+        cargo update --package "${GITHUB_REPOSITORY#*/}"
     - name: Create aarch64-apple-darwin archive
       shell: sh
       run: |
