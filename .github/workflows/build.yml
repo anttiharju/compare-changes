@@ -68,9 +68,9 @@ jobs:
       - name: Documentation
         uses: ./.github/actions/release/documentation
 
-      - name: Lock release immutability
-        env:
-          GH_TOKEN: ${{ github.token }}
-          tag: "v${{ needs.plan.outputs.version }}"
-        run: |
-          gh release edit "$tag" --draft=false
+#      - name: Lock release immutability
+#        env:
+#          GH_TOKEN: ${{ github.token }}
+#          tag: "v${{ needs.plan.outputs.version }}"
+#        run: |
+#          gh release edit "$tag" --draft=false
