@@ -23,6 +23,13 @@ rustPlatform.buildRustPackage rec {
 
   cargoBuildFlags = [ "--all-features" ];
 
+  postPatch = ''
+    substituteInPlace Cargo.lock \
+      --replace-fail \
+        $'name = "${PKG_REPO}"\nversion = "0.0.0"' \
+        $'name = "${PKG_REPO}"\nversion = "$${version}"'
+  '';
+
   meta = {
     homepage = "${PKG_HOMEPAGE}";
     description = "${PKG_DESC}";
