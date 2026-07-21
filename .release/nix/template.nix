@@ -2,7 +2,6 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
-  nix-update-script,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -24,10 +23,12 @@ rustPlatform.buildRustPackage rec {
   cargoBuildFlags = [ "--all-features" ];
 
   postPatch = ''
-    substituteInPlace Cargo.lock \
-      --replace-fail \
-        $'name = "${PKG_REPO}"\nversion = "0.0.0"' \
-        $'name = "${PKG_REPO}"\nversion = "$${version}"'
+    substituteInPlace Cargo.toml --replace-fail \
+      $'[package]\n' \
+      $'[package]\nversion = "$${version}"\n'
+    substituteInPlace Cargo.lock "$$cargoDepsCopy/Cargo.lock" --replace-fail \
+      $'name = "${PKG_REPO}"\nversion = "0.0.0"' \
+      $'name = "${PKG_REPO}"\nversion = "$${version}"'
   '';
 
   meta = {
