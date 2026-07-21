@@ -29,8 +29,8 @@ pre-commit:
       run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null action-validator --verbose
 
     - name: actionlint
-      glob: ".github/workflows/*.yml"
-      run: actionlint -color
+      glob: ".github/*/*.yml"
+      run: git ls-files -z '.github/workflows/*.yml' | xargs --null actionlint -color
 
     # https://github.com/anttiharju/relcheck
     - name: relcheck
@@ -58,7 +58,7 @@ pre-commit:
 
     - name: nixfmt
       glob: "*.nix"
-      exclude: "template.nix"
+      exclude: "*/template.nix"
       run: nixfmt {staged_files}
       stage_fixed: true
 

@@ -2,6 +2,9 @@ name: Plan
 permissions: {}
 on:
   pull_request:
+    # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
+    # defaults: opened, synchronize, reopened
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_call:
     outputs:
       version:
@@ -135,32 +138,12 @@ jobs:
         with:
           changes: ${{ steps.changes.outputs.array }}
 
-      - if: steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push'
-        id: version
-        name: Detect version from Cargo.toml
-        env:
-          GH_TOKEN: ${{ github.token }}
-          event_name: ${{ github.event_name }}
-        run: |
-          cargo_version="v$(toml get Cargo.toml package.version --raw)"
-          echo "cargo_version=$cargo_version"
-          latest_tag=$(gh api "repos/{owner}/{repo}/releases/latest" --jq '.tag_name' || echo "")
-          echo "latest_tag=$latest_tag"
-          if [[ "$cargo_version" == "$latest_tag" ]]; then
-            if [[ "$event_name" == "push" ]]; then
-              echo "Cargo.toml version ($cargo_version) matches latest release. No release needed."
-              exit 0
-            fi
-            echo "::error::Cargo.toml version ($cargo_version) was not bumped even though files determined by rust and release wildcards have changed."
-            exit 1
-          fi
-          echo "cargo=${cargo_version#v}" >> "$GITHUB_OUTPUT"
-
-          cargo_major="${cargo_version%%.*}"
-          latest_major="${latest_tag%%.*}"
-          if [[ "$cargo_major" != "$latest_major" ]]; then
-            echo "major=true" >> "$GITHUB_OUTPUT"
-          fi
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' || github.event_name == 'push')
+        id: semantic
+        name: Require semantic version label
+        uses: ./.github/actions/semver-label
+        with:
+          require: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         name: Cache
@@ -187,18 +170,18 @@ jobs:
         run: |
           relcheck all --verbose --color=always
 
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.version.outputs.major != 'true') || (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && ((steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
         name: Render action.yml
         run: |
           .release/render.sh action
 
-      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.version.outputs.major != 'true'
+      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test action (release binary)
         uses: ./.release/action
         with:
           workflow: wildcard/release-action.yml
           changes: ${{ steps.changes.outputs.array }}
-      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.version.outputs.major != 'true'
+      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test chained use (release binary)
         uses: ./.release/action
         with:
@@ -278,5 +261,5 @@ jobs:
         run: |
           zizmor .
     outputs:
-      version: ${{ steps.version.outputs.cargo }}
+      version: ${{ steps.semantic.outputs.version }}
       documentation_changed: ${{ steps.changed.outputs.zensical }}

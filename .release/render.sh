@@ -35,17 +35,19 @@ mock_github_actions_env() {
   repo="$(basename --suffix .git "$remote_url")"
   export GITHUB_REPOSITORY="$owner/$repo"
 
-  repo_root="$(git rev-parse --show-toplevel)"
-  tag="v$(toml get "$repo_root/Cargo.toml" package.version --raw)"
-  if gh api "repos/{owner}/{repo}/git/ref/tags/$tag" &>/dev/null; then
-    rev="$(gh api "repos/{owner}/{repo}/git/ref/tags/$tag" --jq '.object.sha')"
+  if [[ "$TAG" = "v0.0.0" ]]; then
+    rev="$(gh api "repos/$GITHUB_REPOSITORY/commits/HEAD" --jq '.sha')"
   else
-    rev="$(gh api "repos/{owner}/{repo}/commits/HEAD" --jq '.sha')"
+    rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" --jq '.object.sha')"
   fi
   export GITHUB_SHA="$rev"
 }
 
 # Setup env
+tag="$(git tag --sort=-creatordate | head -n1)"
+tag="${tag:-v0.0.0}"
+export TAG="$tag"
+
 [[ -z "${GITHUB_REPOSITORY:-}" ]] && mock_github_actions_env
 
 # Paths
