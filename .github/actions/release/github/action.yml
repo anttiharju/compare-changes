@@ -20,7 +20,7 @@ runs:
       run: |
         version="${tag#v}"
         toml set Cargo.toml package.version "$version" > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
-        cargo update --offline --package "${GITHUB_REPOSITORY#*/}"
+        cargo update --package "${GITHUB_REPOSITORY#*/}"
     - name: Create aarch64-apple-darwin archive
       shell: sh
       run: |
