@@ -1,6 +1,6 @@
 # Workflow syntax
 
-From [github/docs/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341) which is covered by the **Creative Commons Attribution 4.0** license from [github/docs/LICENSE@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/LICENSE) (also included in-repo in the adjacent [LICENSE](./LICENSE) file). Only automated formatting changes (e.g., prettier) have been applied to the content below.
+From [github/docs/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/content/actions/reference/workflows-and-actions/workflow-syntax.md?plain=1#L1276-L1341) which is covered by the **Creative Commons Attribution 4.0** license from [github/docs/LICENSE@c1ca049](https://github.com/github/docs/blob/c1ca049106639bc87381aa16e40e35f743928246/LICENSE) (also included in-repo in the adjacent [LICENSE](./LICENSE) file). Only automated formatting changes (e.g., prettier) and issues caught by `zensical build --strict` have been applied to the content below.
 
 ## Filter pattern cheat sheet
 
@@ -32,7 +32,7 @@ branches: [ main, 'release/v[0-9].[0-9]' ]
 branches: [ main, release/v[0-9].[0-9] ]
 ```
 
-For more information about branch, tag, and path filter syntax, see [`on.<push>.<branches|tags>`](#onpushbranchestagsbranches-ignoretags-ignore), [`on.<pull_request>.<branches|tags>`](#onpull_requestpull_request_targetbranchesbranches-ignore), and [`on.<push|pull_request>.paths`](#onpushpull_requestpull_request_targetpathspaths-ignore).
+For more information about branch, tag, and path filter syntax, see [`on.<push>.<branches|tags>`](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushbranchestagsbranches-ignoretags-ignore), [`on.<pull_request>.<branches|tags>`](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpull_requestpull_request_targetbranchesbranches-ignore), and [`on.<push|pull_request>.paths`](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore).
 
 ### Patterns to match branches and tags
 
