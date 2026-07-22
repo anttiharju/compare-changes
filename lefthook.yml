@@ -62,6 +62,9 @@ pre-commit:
       run: nixfmt {staged_files}
       stage_fixed: true
 
+    - glob: "{docs/*,zensical.toml,flake.nix,flake.lock}"
+      run: zensical build --strict
+
     - name: zizmor
       glob: "{.github/workflows/*.yml,*/action.yml,flake.nix,flake.lock}"
       run: zizmor .
