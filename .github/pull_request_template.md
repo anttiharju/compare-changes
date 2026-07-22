@@ -2,4 +2,3 @@
 <!--major-release-->
 <!--minor-release-->
 <!--patch-release ('dependencies' label is treated the same)-->
-<!--no-release-->
