@@ -240,7 +240,7 @@ jobs:
 
       - if: always() && !cancelled() && (steps.changed.outputs.zensical == 'true' || github.event_name == 'push')
         name: zensical
-        run: zensical build
+        run: zensical build --strict
 
       - if: always() && !cancelled() && (steps.changed.outputs.prettier == 'true' || github.event_name == 'push')
         name: prettier
