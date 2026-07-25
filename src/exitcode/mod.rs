@@ -20,4 +20,5 @@ define_exitcodes! {
     file_error  => FileError  = 2,
     match_error  => MatchError  = 3,
     find_error => FindError = 4,
+    validate_error => ValidateError = 5,
 }
