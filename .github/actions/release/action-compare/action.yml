@@ -34,25 +34,25 @@ runs:
       with:
         repository: anttiharju/${{ github.event.repository.name }}-action
         token: ${{ steps.generate-token.outputs.token }}
-        path: release-action
+        path: release-action-compare
         persist-credentials: true
     - name: Update standalone repository
       shell: sh
       run: |
-        .release/render.sh action-compare --output release-action
-        cp -r .release/action-compare/bin release-action/
-        cp README.md release-action/README.md
-        cp LICENSE release-action/LICENSE
+        .release/render.sh action-compare --output release-action-compare
+        cp -r .release/action-compare/bin release-action-compare/
+        cp README.md release-action-compare/README.md
+        cp LICENSE release-action-compare/LICENSE
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
         author: anttiharju[bot]
         committer: anttiharju[bot]
-        working-directory: release-action
+        working-directory: release-action-compare
         message: |
           ${{ github.event.repository.name }} ${{ inputs.version }}
     - name: Tag current commit
-      working-directory: release-action
+      working-directory: release-action-compare
       shell: sh
       env:
         tag: "v${{ inputs.version }}"
@@ -60,14 +60,14 @@ runs:
         git tag "$tag"
         git push --tags
     - name: Setup major version branch
-      working-directory: release-action
+      working-directory: release-action-compare
       shell: sh
       env:
         major_version: ${{ steps.version.outputs.major }}
       run: |
         git push origin "HEAD:$major_version"
     - name: Release action
-      working-directory: release-action
+      working-directory: release-action-compare
       shell: sh
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -79,4 +79,4 @@ runs:
       name: Cleanup
       shell: sh
       run: |
-        rm -rf release-action
+        rm -rf release-action-compare

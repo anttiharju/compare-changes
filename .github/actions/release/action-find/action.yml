@@ -34,24 +34,24 @@ runs:
       with:
         repository: anttiharju/find-changes-action
         token: ${{ steps.generate-token.outputs.token }}
-        path: release-find-changes-action
+        path: release-action-find
         persist-credentials: true
     - name: Update standalone repository
       shell: sh
       run: |
-        .release/render.sh action-find --output release-find-changes-action
-        cp -r .release/action-find/bin release-find-changes-action/
-        cp LICENSE release-find-changes-action/LICENSE
+        .release/render.sh action-find --output release-action-find
+        cp -r .release/action-find/bin release-action-find/
+        cp LICENSE release-action-find/LICENSE
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
         author: anttiharju[bot]
         committer: anttiharju[bot]
-        working-directory: release-find-changes-action
+        working-directory: release-action-find
         message: |
           find-changes ${{ inputs.version }}
     - name: Tag current commit
-      working-directory: release-find-changes-action
+      working-directory: release-action-find
       shell: sh
       env:
         tag: "v${{ inputs.version }}"
@@ -59,14 +59,14 @@ runs:
         git tag "$tag"
         git push --tags
     - name: Setup major version branch
-      working-directory: release-find-changes-action
+      working-directory: release-action-find
       shell: sh
       env:
         major_version: ${{ steps.version.outputs.major }}
       run: |
         git push origin "HEAD:$major_version"
     - name: Release action
-      working-directory: release-find-changes-action
+      working-directory: release-action-find
       shell: sh
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -78,4 +78,4 @@ runs:
       name: Cleanup
       shell: sh
       run: |
-        rm -rf release-find-changes-action
+        rm -rf release-action-find
