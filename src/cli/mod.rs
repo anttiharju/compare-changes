@@ -12,12 +12,28 @@ use style::get_style;
 )]
 pub struct Args {
     /// Find changed files from the git diff base inferred from GitHub Actions event context
-    #[arg(short, long, default_value_t = false, conflicts_with_all = ["workflow", "changes"])]
+    #[arg(short, long, default_value_t = false, conflicts_with_all = ["workflow", "paths", "changes"])]
     pub find: bool,
 
     /// Workflow file under .github/workflows/
-    #[arg(short, long, value_name = "FILE", required_unless_present = "find")]
+    #[arg(
+        short,
+        long,
+        value_name = "FILE",
+        required_unless_present_any = ["find", "paths"],
+        conflicts_with = "paths",
+    )]
     pub workflow: Option<PathBuf>,
+
+    /// Newline-separated inline path patterns (alternative to --workflow)
+    #[arg(
+        short,
+        long,
+        value_name = "PATHS",
+        required_unless_present_any = ["find", "workflow"],
+        conflicts_with = "workflow",
+    )]
+    pub paths: Option<String>,
 
     /// JSON array string, for example '["foo/bar", "baz"]'
     #[arg(short, long, value_name = "JSON", required_unless_present = "find")]
