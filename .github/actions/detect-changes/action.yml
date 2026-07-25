@@ -48,6 +48,7 @@ runs:
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
+    # flake.yml is only used in the plan.yml container job
     - id: github
       uses: anttiharju/compare-changes-action@v0
       with:
@@ -121,6 +122,7 @@ outputs:
   actionlint:
     description: "Whether actionlint has changed"
     value: ${{ steps.actionlint.outputs.changed }}
+  # flake.yml is only used in the plan.yml container job
   prettier:
     description: "Whether Prettier has changed"
     value: ${{ steps.prettier.outputs.changed }}
