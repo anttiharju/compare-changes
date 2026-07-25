@@ -38,7 +38,7 @@ runs:
     - if: steps.binary.outputs.installed != 'true'
       name: Cache
       id: cache
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: /usr/local/bin/compare-changes
         key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
