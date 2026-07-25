@@ -39,8 +39,8 @@ runs:
     - name: Update standalone repository
       shell: sh
       run: |
-        .release/render.sh action --output release-action
-        cp -r .release/action/bin release-action/
+        .release/render.sh action-compare --output release-action
+        cp -r .release/action-compare/bin release-action/
         cp README.md release-action/README.md
         cp LICENSE release-action/LICENSE
     - name: Commit changes

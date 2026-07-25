@@ -4,10 +4,10 @@ on:
     branches:
       - wildcard
     paths:
-      - ".release/action/**"
+      - ".release/action-compare/**"
       - "flake.nix"
       - "flake.lock"
-      - ".github/workflows/wildcard/release-action.yml"
+      - ".github/workflows/wildcard/release-action-compare.yml"
 jobs:
   wildcard:
     runs-on: ubuntu-latest

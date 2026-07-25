@@ -19,12 +19,12 @@ runs:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --workflow wildcard/prettier.yml
-    - id: action
+    - id: action-compare
       shell: sh
       env:
         array: ${{ inputs.changes }}
       run: |
-        compare-changes --changes "$array" --workflow wildcard/release-action.yml
+        compare-changes --changes "$array" --workflow wildcard/release-action-compare.yml
     - id: brew
       shell: sh
       env:
@@ -88,9 +88,9 @@ outputs:
   prettier:
     description: "Whether Prettier has changed"
     value: ${{ steps.prettier.outputs.changed }}
-  action:
-    description: "Whether action has changed"
-    value: ${{ steps.action.outputs.changed }}
+  action-compare:
+    description: "Whether action-compare has changed"
+    value: ${{ steps.action-compare.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
     value: ${{ steps.brew.outputs.changed }}
@@ -121,4 +121,4 @@ outputs:
 
   release:
     description: "Whether any release has changed"
-    value: ${{ steps.action.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
+    value: ${{ steps.action-compare.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
