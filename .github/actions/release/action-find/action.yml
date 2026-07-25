@@ -1,5 +1,5 @@
-name: "Release standalone action"
-description: "Update standalone action repository for a new release"
+name: "Release find-changes-action"
+description: "Update find-changes-action repository for a new release"
 inputs:
   version:
     description: "Version to release"
@@ -27,32 +27,31 @@ runs:
       with:
         client-id: ${{ inputs.anttiharju-bot-id }}
         private-key: ${{ inputs.anttiharju-bot-private-key }}
-        repositories: ${{ github.event.repository.name }}-action
+        repositories: find-changes-action
         permission-contents: write
     - name: Checkout
       uses: actions/checkout@v7
       with:
-        repository: anttiharju/${{ github.event.repository.name }}-action
+        repository: anttiharju/find-changes-action
         token: ${{ steps.generate-token.outputs.token }}
-        path: release-action-compare
+        path: release-action-find
         persist-credentials: true
     - name: Update standalone repository
       shell: sh
       run: |
-        .release/render.sh action-compare --output release-action-compare
-        cp -r .release/action-compare/bin release-action-compare/
-        cp README.md release-action-compare/README.md
-        cp LICENSE release-action-compare/LICENSE
+        .release/render.sh action-find --output release-action-find
+        cp -r .release/action-find/bin release-action-find/
+        cp LICENSE release-action-find/LICENSE
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
         author: anttiharju[bot]
         committer: anttiharju[bot]
-        working-directory: release-action-compare
+        working-directory: release-action-find
         message: |
-          ${{ github.event.repository.name }} ${{ inputs.version }}
+          find-changes ${{ inputs.version }}
     - name: Tag current commit
-      working-directory: release-action-compare
+      working-directory: release-action-find
       shell: sh
       env:
         tag: "v${{ inputs.version }}"
@@ -60,14 +59,14 @@ runs:
         git tag "$tag"
         git push --tags
     - name: Setup major version branch
-      working-directory: release-action-compare
+      working-directory: release-action-find
       shell: sh
       env:
         major_version: ${{ steps.version.outputs.major }}
       run: |
         git push origin "HEAD:$major_version"
     - name: Release action
-      working-directory: release-action-compare
+      working-directory: release-action-find
       shell: sh
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -79,4 +78,4 @@ runs:
       name: Cleanup
       shell: sh
       run: |
-        rm -rf release-action-compare
+        rm -rf release-action-find

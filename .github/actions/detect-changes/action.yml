@@ -25,6 +25,12 @@ runs:
         array: ${{ inputs.changes }}
       run: |
         compare-changes --changes "$array" --workflow wildcard/release-action-compare.yml
+    - id: action-find
+      shell: sh
+      env:
+        array: ${{ inputs.changes }}
+      run: |
+        compare-changes --changes "$array" --workflow wildcard/release-action-find.yml
     - id: brew
       shell: sh
       env:
@@ -91,6 +97,9 @@ outputs:
   action-compare:
     description: "Whether action-compare has changed"
     value: ${{ steps.action-compare.outputs.changed }}
+  action-find:
+    description: "Whether action-find has changed"
+    value: ${{ steps.action-find.outputs.changed }}
   brew:
     description: "Whether Brew has changed"
     value: ${{ steps.brew.outputs.changed }}
@@ -121,4 +130,4 @@ outputs:
 
   release:
     description: "Whether any release has changed"
-    value: ${{ steps.action-compare.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
+    value: ${{ steps.action-compare.outputs.changed || steps.action-find.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
