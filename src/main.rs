@@ -3,7 +3,7 @@ mod exitcode;
 mod find;
 mod parse;
 
-use compare_changes::path_matches;
+use compare_changes::paths_match;
 
 fn main() {
     let args = cli::parse_args();
@@ -52,22 +52,19 @@ fn main() {
     };
 
     let file_refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
+    let path_refs: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
 
-    let mut changed = false;
-    for (pi, path) in paths.iter().enumerate() {
-        match path_matches(path, &file_refs) {
-            Ok(Some(fi)) => {
-                println!("path '{}' matched file '{}'", paths[pi], files[fi]);
-                changed = true;
-                break;
-            }
-            Ok(None) => continue,
-            Err(e) => {
-                eprintln!("Failed to compare path '{}': {}", path, e);
-                std::process::exit(exitcode::match_error());
-            }
+    let changed = match paths_match(&path_refs, &file_refs) {
+        Ok(Some((pi, fi))) => {
+            println!("path '{}' matched file '{}'", paths[pi], files[fi]);
+            true
         }
-    }
+        Ok(None) => false,
+        Err(e) => {
+            eprintln!("Failed to compare paths: {}", e);
+            std::process::exit(exitcode::match_error());
+        }
+    };
 
     println!("changed={}", changed);
 
