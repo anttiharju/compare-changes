@@ -23,6 +23,10 @@ inputs:
     description: "Enable compare-changes --debug output (true/false)"
     required: false
     default: "false"
+  validate:
+    description: "Run 'compare-changes --validate' before comparing (true/false)"
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
@@ -57,6 +61,11 @@ runs:
         TARGET: ${{ steps.convert.outputs.target }}
       run: |
         "$$GITHUB_ACTION_PATH/bin/install.sh"
+    - if: inputs.validate == 'true'
+      name: Validate
+      shell: sh
+      run: |
+        compare-changes --validate
     - name: Run
       id: run
       shell: bash

@@ -27,12 +27,15 @@ jobs:
     steps:
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0.10.5 # handles checkout
+        uses: anttiharju/find-changes-action@v0 # handles checkout
       - name: Compare changes
         id: flake
         uses: anttiharju/compare-changes-action@v0
         with:
-          workflow: wildcard/flake.yml
+          paths: |
+            .cargo/zig/**
+            flake.lock
+            flake.nix
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.flake.outputs.changed == 'true'
         name: Install Nix
@@ -130,7 +133,7 @@ jobs:
     steps:
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0.10.5 # handles checkout
+        uses: anttiharju/find-changes-action@v0 # handles checkout
 
       - name: Detect changes
         id: changed
@@ -179,13 +182,19 @@ jobs:
         name: Test action (release binary)
         uses: ./.release/action-compare
         with:
-          workflow: wildcard/release-action-compare.yml
+          paths: |
+            .release/action-compare/**
+            flake.lock
+            flake.nix
           changes: ${{ steps.changes.outputs.array }}
       - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test chained use (release binary)
         uses: ./.release/action-compare
         with:
-          workflow: wildcard/release-action-compare.yml
+          paths: |
+            .release/action-compare/**
+            flake.lock
+            flake.nix
           changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
