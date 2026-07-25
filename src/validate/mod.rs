@@ -1,5 +1,7 @@
+use anstyle::{AnsiColor, Color, Style};
 use compare_changes::path_matches;
 use std::fs;
+use std::io::IsTerminal;
 use std::process::Command;
 
 pub fn run(debug: bool) -> Result<(), String> {
@@ -9,7 +11,13 @@ pub fn run(debug: bool) -> Result<(), String> {
     }
     let file_refs: Vec<&str> = files.iter().map(String::as_str).collect();
 
+    let stdout_tty = std::io::stdout().is_terminal();
+    let stderr_tty = std::io::stderr().is_terminal();
+    let check = styled("✓", green(), stdout_tty);
     let mut failures = 0usize;
+    let mut checked_files = 0usize;
+    let mut checked_patterns = 0usize;
+    let mut header_printed = false;
 
     // 1. Validate `on.push.paths` in every YAML workflow under .github/workflows/
     for file in &files {
@@ -19,8 +27,16 @@ pub fn run(debug: bool) -> Result<(), String> {
         let Ok(content) = fs::read_to_string(file) else {
             continue;
         };
-        for (path, line) in extract_on_push_paths(&content) {
-            failures += report_if_no_match(file, line, &path, &file_refs)?;
+        let paths = extract_on_push_paths(&content);
+        if paths.is_empty() {
+            continue;
+        }
+        print_header(&mut header_printed);
+        println!("{} {} in {}", check, paths.len(), styled(file, gray(), stdout_tty),);
+        checked_files += 1;
+        checked_patterns += paths.len();
+        for (path, line) in paths {
+            failures += report_if_no_match(file, line, &path, &file_refs, stderr_tty)?;
         }
     }
 
@@ -35,28 +51,90 @@ pub fn run(debug: bool) -> Result<(), String> {
         if !content.contains("compare-changes-action@") {
             continue;
         }
-        for (path, line) in extract_action_paths(&content) {
-            failures += report_if_no_match(file, line, &path, &file_refs)?;
+        let invocations = extract_action_paths(&content);
+        if invocations.is_empty() {
+            continue;
+        }
+        for (invocation_line, paths) in invocations {
+            if paths.is_empty() {
+                continue;
+            }
+            print_header(&mut header_printed);
+            println!(
+                "{} {} in {}",
+                check,
+                paths.len(),
+                styled(&format!("{}:{}", file, invocation_line), gray(), stdout_tty),
+            );
+            checked_files += 1;
+            checked_patterns += paths.len();
+            for (path, line) in paths {
+                failures += report_if_no_match(file, line, &path, &file_refs, stderr_tty)?;
+            }
         }
     }
 
     if failures > 0 {
-        Err(format!(
-            "{} path pattern{} did not match any file",
-            failures,
-            if failures == 1 { "" } else { "s" }
-        ))
+        Err(format!("{} path pattern{} did not match any file", failures, plural(failures)))
+    } else if checked_patterns == 0 {
+        println!("{} no path patterns found", check);
+        Ok(())
     } else {
-        println!("validate: all path patterns match at least one file");
+        let body = format!(
+            "{} pattern{} across {} file{} match at least one file!",
+            checked_patterns,
+            plural(checked_patterns),
+            checked_files,
+            plural(checked_files),
+        );
+        // The pre-styled ✓ contains its own reset, so we can't wrap the whole
+        // line in bold. Style the ✓ and the body separately.
+        println!("{} {}", styled("✓", green(), stdout_tty), styled(&body, bold(), stdout_tty),);
         Ok(())
     }
 }
 
-fn report_if_no_match(file: &str, line: usize, path: &str, files: &[&str]) -> Result<usize, String> {
+fn print_header(printed: &mut bool) {
+    if !*printed {
+        println!("Validating patterns:");
+        *printed = true;
+    }
+}
+
+fn bold() -> Style {
+    Style::new().bold()
+}
+
+fn green() -> Style {
+    Style::new().bold().fg_color(Some(Color::Ansi(AnsiColor::Green)))
+}
+
+fn red() -> Style {
+    Style::new().bold().fg_color(Some(Color::Ansi(AnsiColor::Red)))
+}
+
+fn gray() -> Style {
+    Style::new().fg_color(Some(Color::Ansi(AnsiColor::BrightBlack)))
+}
+
+fn styled(text: &str, style: Style, colorize: bool) -> String {
+    if colorize {
+        format!("{}{}{}", style.render(), text, style.render_reset())
+    } else {
+        text.to_string()
+    }
+}
+
+fn plural(n: usize) -> &'static str {
+    if n == 1 { "" } else { "s" }
+}
+
+fn report_if_no_match(file: &str, line: usize, path: &str, files: &[&str], stderr_tty: bool) -> Result<usize, String> {
     match path_matches(path, files) {
         Ok(Some(_)) => Ok(0),
         Ok(None) => {
-            eprintln!("{}:{}: no match for {}", file, line, path);
+            let cross = styled("✗", red(), stderr_tty);
+            eprintln!("{} {}:{}: no match for {}", cross, file, line, path);
             Ok(1)
         }
         Err(e) => Err(format!("{}:{}: failed to compile pattern '{}': {}", file, line, path, e)),
@@ -187,9 +265,12 @@ fn extract_on_push_paths(content: &str) -> Vec<(String, usize)> {
 /// Extract path entries from every `with.paths: |` block that belongs to a step
 /// invoking `compare-changes-action@`. The block is only harvested when a sibling
 /// `changes:` input is present, matching the safeguard described in the CLI docs.
-fn extract_action_paths(content: &str) -> Vec<(String, usize)> {
+///
+/// Returns one entry per invocation: (1-based line of the `compare-changes-action@`
+/// marker, list of `(path, 1-based line)` pairs from that invocation's `paths` block).
+fn extract_action_paths(content: &str) -> Vec<(usize, Vec<(String, usize)>)> {
     let lines: Vec<&str> = content.lines().collect();
-    let mut out = Vec::new();
+    let mut out: Vec<(usize, Vec<(String, usize)>)> = Vec::new();
     let mut i = 0;
 
     while i < lines.len() {
@@ -198,6 +279,7 @@ fn extract_action_paths(content: &str) -> Vec<(String, usize)> {
             continue;
         }
 
+        let marker_line = i + 1;
         let marker_indent = split_indent(lines[i]).0;
         let mut paths_indent: Option<usize> = None;
         let mut current: Vec<(String, usize)> = Vec::new();
@@ -239,7 +321,7 @@ fn extract_action_paths(content: &str) -> Vec<(String, usize)> {
         }
 
         if has_paths && has_changes {
-            out.extend(current);
+            out.push((marker_line, current));
         }
 
         i = j;
