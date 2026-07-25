@@ -69,7 +69,7 @@ jobs:
       - if: steps.flake.outputs.changed == 'true'
         name: Log in to registry
         env:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
           actor: ${{ github.actor }}
         run: |
           echo "$github_token" | docker login ghcr.io -u "$actor" --password-stdin
