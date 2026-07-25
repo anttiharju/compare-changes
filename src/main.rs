@@ -25,8 +25,8 @@ fn main() {
         return;
     }
 
-    let workflow = args.source.workflow.as_ref();
-    let inline_paths = args.source.paths.as_deref();
+    let workflow = args.workflow.as_ref();
+    let inline_paths = args.paths.as_deref();
     let changes = args.changes.as_ref().expect("changes is required unless --find");
 
     let paths_result = if let Some(inline) = inline_paths {
