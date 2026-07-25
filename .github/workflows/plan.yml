@@ -37,6 +37,7 @@ jobs:
             flake.lock
             flake.nix
           changes: ${{ steps.changes.outputs.array }}
+          validate: true
       - if: steps.flake.outputs.changed == 'true'
         name: Install Nix
         uses: cachix/install-nix-action@v31
