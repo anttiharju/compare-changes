@@ -111,19 +111,15 @@ fn test_invalid_stray_opening_bracket() {
     let temp = prepare_workflow_with_patterns(&[pat]);
     let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
 
-    let msg = format!("Failed to compare path '{}': found end of input expected any, or ']'", pat);
+    let msg = "Failed to compare paths: found end of input expected any, or ']'";
 
     assert!(
-        stderr.contains(&msg),
+        stderr.contains(msg),
         "expected exact error message in stderr\n\nEXPECTED:\n{}\n\nSTDERR:\n{}",
         msg,
         stderr
     );
-    assert!(
-        !stdout.contains(&msg),
-        "did not expect the error message in stdout\n\nSTDOUT:\n{}",
-        stdout
-    );
+    assert!(!stdout.contains(msg), "did not expect the error message in stdout\n\nSTDOUT:\n{}", stdout);
 }
 
 #[test]
@@ -133,7 +129,7 @@ fn test_invalid_bracket_range() {
     let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
 
     let expected = "invalid bracket range z-a";
-    let msg = format!("Failed to compare path '{}': {}", pat, expected);
+    let msg = format!("Failed to compare paths: {}", expected);
 
     assert!(
         stderr.contains(&msg),
@@ -155,7 +151,7 @@ fn test_empty_bracket() {
     let (stdout, stderr) = run_bin_with_changes(&temp, &["foo/bar"], false);
 
     let expected = "empty bracket";
-    let msg = format!("Failed to compare path '{}': {}", pat, expected);
+    let msg = format!("Failed to compare paths: {}", expected);
 
     assert!(
         stderr.contains(&msg),
@@ -168,6 +164,42 @@ fn test_empty_bracket() {
         "did not expect the error message in stdout\n\nSTDOUT:\n{}",
         stdout
     );
+}
+
+#[test]
+fn test_negation_excludes_file() {
+    let temp = prepare_workflow_with_patterns(&["*.md", "!README.md"]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["README.md"], false);
+
+    assert!(stdout.contains("changed=false"), "expected 'changed=false' in stdout, got:\n{}", stdout);
+    assert!(
+        !stdout.contains("matched file"),
+        "did not expect a match line in stdout, got:\n{}",
+        stdout
+    );
+    assert!(stderr.is_empty(), "did not expect any stderr, got:\n{}", stderr);
+}
+
+#[test]
+fn test_negation_allows_other_matches() {
+    let temp = prepare_workflow_with_patterns(&["*.md", "!README.md"]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["README.md", "hello.md"], false);
+
+    for expected in ["path '*.md' matched file 'hello.md'", "changed=true"] {
+        assert!(stdout.contains(expected), "expected '{}' in stdout, got:\n{}", expected, stdout);
+    }
+    assert!(stderr.is_empty(), "did not expect any stderr, got:\n{}", stderr);
+}
+
+#[test]
+fn test_negation_re_included_by_later_pattern() {
+    let temp = prepare_workflow_with_patterns(&["*.md", "!README.md", "README*"]);
+    let (stdout, stderr) = run_bin_with_changes(&temp, &["README.md"], false);
+
+    for expected in ["path 'README*' matched file 'README.md'", "changed=true"] {
+        assert!(stdout.contains(expected), "expected '{}' in stdout, got:\n{}", expected, stdout);
+    }
+    assert!(stderr.is_empty(), "did not expect any stderr, got:\n{}", stderr);
 }
 
 #[test]
