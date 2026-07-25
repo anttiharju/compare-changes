@@ -32,7 +32,10 @@ jobs:
         id: flake
         uses: anttiharju/compare-changes-action@v0
         with:
-          workflow: wildcard/flake.yml
+          paths: |
+            .cargo/zig/**
+            flake.lock
+            flake.nix
           changes: ${{ steps.changes.outputs.array }}
       - if: steps.flake.outputs.changed == 'true'
         name: Install Nix
