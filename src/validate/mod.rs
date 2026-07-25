@@ -1,5 +1,6 @@
 use anstyle::{AnsiColor, Color, Style};
 use compare_changes::path_matches;
+use std::collections::BTreeMap;
 use std::fs;
 use std::io::IsTerminal;
 use std::process::Command;
@@ -18,6 +19,34 @@ pub fn run(debug: bool) -> Result<(), String> {
     let mut checked_files = 0usize;
     let mut checked_patterns = 0usize;
     let mut header_printed = false;
+
+    // Pre-scan every YAML file for compare-changes-action invocations so we can
+    // both (a) validate their inline `paths:` blocks below and (b) count how
+    // many times each shared workflow is referenced via `workflow: <name>`.
+    // Value: list of (referencing file, 1-based line of the `workflow:` key).
+    let mut workflow_refs: BTreeMap<String, Vec<(String, usize)>> = BTreeMap::new();
+    let mut action_invocations: Vec<(String, Vec<Invocation>)> = Vec::new();
+    for file in &files {
+        if !is_yaml(file) {
+            continue;
+        }
+        let Ok(content) = fs::read_to_string(file) else {
+            continue;
+        };
+        if !content.contains("compare-changes-action@") {
+            continue;
+        }
+        let invocations = extract_action_invocations(&content);
+        for inv in &invocations {
+            if let Some((workflow_ref, line)) = &inv.workflow_ref {
+                let resolved = resolve_workflow_ref(workflow_ref);
+                workflow_refs.entry(resolved).or_default().push((file.clone(), *line));
+            }
+        }
+        if !invocations.is_empty() {
+            action_invocations.push((file.clone(), invocations));
+        }
+    }
 
     // 1. Validate `on.push.paths` in every YAML workflow under .github/workflows/
     for file in &files {
@@ -41,36 +70,56 @@ pub fn run(debug: bool) -> Result<(), String> {
     }
 
     // 2. Validate `with.paths` in every YAML file that invokes compare-changes-action
-    for file in &files {
-        if !is_yaml(file) {
-            continue;
-        }
-        let Ok(content) = fs::read_to_string(file) else {
-            continue;
-        };
-        if !content.contains("compare-changes-action@") {
-            continue;
-        }
-        let invocations = extract_action_paths(&content);
-        if invocations.is_empty() {
-            continue;
-        }
-        for (invocation_line, paths) in invocations {
-            if paths.is_empty() {
+    for (file, invocations) in &action_invocations {
+        for inv in invocations {
+            if inv.paths.is_empty() {
                 continue;
             }
             print_header(&mut header_printed);
             println!(
                 "{} {} in {}",
                 check,
-                paths.len(),
-                styled(&format!("{}:{}", file, invocation_line), gray(), stdout_tty),
+                inv.paths.len(),
+                styled(&format!("{}:{}", file, inv.marker_line), gray(), stdout_tty),
             );
             checked_files += 1;
-            checked_patterns += paths.len();
-            for (path, line) in paths {
-                failures += report_if_no_match(file, line, &path, &file_refs, stderr_tty)?;
+            checked_patterns += inv.paths.len();
+            for (path, line) in &inv.paths {
+                failures += report_if_no_match(file, *line, path, &file_refs, stderr_tty)?;
             }
+        }
+    }
+
+    // 3. Flag reusable workflows that would be better inlined.
+    for file in &files {
+        if !is_workflow_yaml(file) {
+            continue;
+        }
+        // Only workflows with `on.push.paths` are candidates: they are the
+        // pattern-spec files that `compare-changes-action` can reference.
+        let Ok(content) = fs::read_to_string(file) else {
+            continue;
+        };
+        if extract_on_push_paths(&content).is_empty() {
+            continue;
+        }
+        let refs = workflow_refs.get(file).map(Vec::as_slice).unwrap_or(&[]);
+        match refs.len() {
+            0 => {
+                let warn = styled("⚠", yellow(), stderr_tty);
+                eprintln!("{} remove {}", warn, styled(file, gray(), stderr_tty));
+            }
+            1 => {
+                let (ref_file, ref_line) = &refs[0];
+                let warn = styled("⚠", yellow(), stderr_tty);
+                eprintln!(
+                    "{} inline {} at {}",
+                    warn,
+                    styled(file, gray(), stderr_tty),
+                    styled(&format!("{}:{}", ref_file, ref_line), gray(), stderr_tty),
+                );
+            }
+            _ => {}
         }
     }
 
@@ -115,6 +164,10 @@ fn red() -> Style {
 
 fn gray() -> Style {
     Style::new().fg_color(Some(Color::Ansi(AnsiColor::BrightBlack)))
+}
+
+fn yellow() -> Style {
+    Style::new().bold().fg_color(Some(Color::Ansi(AnsiColor::Yellow)))
 }
 
 fn styled(text: &str, style: Style, colorize: bool) -> String {
@@ -262,15 +315,31 @@ fn extract_on_push_paths(content: &str) -> Vec<(String, usize)> {
     out
 }
 
-/// Extract path entries from every `with.paths: |` block that belongs to a step
-/// invoking `compare-changes-action@`. The block is only harvested when a sibling
-/// `changes:` input is present, matching the safeguard described in the CLI docs.
-///
-/// Returns one entry per invocation: (1-based line of the `compare-changes-action@`
-/// marker, list of `(path, 1-based line)` pairs from that invocation's `paths` block).
-fn extract_action_paths(content: &str) -> Vec<(usize, Vec<(String, usize)>)> {
+/// A single `compare-changes-action@` step, capturing whatever inputs are
+/// relevant for validation.
+struct Invocation {
+    /// 1-based line of the `uses: ...compare-changes-action@...` marker.
+    marker_line: usize,
+    /// Path patterns from an inline `with.paths: |` block, with their 1-based lines.
+    paths: Vec<(String, usize)>,
+    /// A literal `workflow: <name>` value if present, with its 1-based line.
+    workflow_ref: Option<(String, usize)>,
+}
+
+/// Resolve a `workflow:` value (as written on a compare-changes-action step)
+/// to a repo-root-relative path, matching how the CLI applies the
+/// `.github/workflows/` prefix.
+fn resolve_workflow_ref(value: &str) -> String {
+    let trimmed = value.trim().trim_matches(|c: char| c == '"' || c == '\'');
+    format!(".github/workflows/{}", trimmed)
+}
+
+/// Extract every `compare-changes-action@` invocation from a YAML file. The
+/// invocation is only harvested when a sibling `changes:` input is present,
+/// matching the safeguard described in the CLI docs.
+fn extract_action_invocations(content: &str) -> Vec<Invocation> {
     let lines: Vec<&str> = content.lines().collect();
-    let mut out: Vec<(usize, Vec<(String, usize)>)> = Vec::new();
+    let mut out: Vec<Invocation> = Vec::new();
     let mut i = 0;
 
     while i < lines.len() {
@@ -282,7 +351,8 @@ fn extract_action_paths(content: &str) -> Vec<(usize, Vec<(String, usize)>)> {
         let marker_line = i + 1;
         let marker_indent = split_indent(lines[i]).0;
         let mut paths_indent: Option<usize> = None;
-        let mut current: Vec<(String, usize)> = Vec::new();
+        let mut paths: Vec<(String, usize)> = Vec::new();
+        let mut workflow_ref: Option<(String, usize)> = None;
         let mut has_changes = false;
         let mut has_paths = false;
 
@@ -300,7 +370,7 @@ fn extract_action_paths(content: &str) -> Vec<(usize, Vec<(String, usize)>)> {
 
             if let Some(pi) = paths_indent {
                 if indent > pi {
-                    out_push_if_content(&mut current, trimmed, j + 1);
+                    out_push_if_content(&mut paths, trimmed, j + 1);
                     j += 1;
                     continue;
                 }
@@ -313,6 +383,11 @@ fn extract_action_paths(content: &str) -> Vec<(usize, Vec<(String, usize)>)> {
                     paths_indent = Some(indent);
                     has_paths = true;
                 }
+            } else if trimmed.starts_with("workflow:") {
+                let rest = trimmed[9..].trim();
+                if !rest.is_empty() && !rest.contains("${{") {
+                    workflow_ref = Some((rest.to_string(), j + 1));
+                }
             } else if trimmed.starts_with("changes:") {
                 has_changes = true;
             }
@@ -320,8 +395,12 @@ fn extract_action_paths(content: &str) -> Vec<(usize, Vec<(String, usize)>)> {
             j += 1;
         }
 
-        if has_paths && has_changes {
-            out.push((marker_line, current));
+        if has_changes && (has_paths || workflow_ref.is_some()) {
+            out.push(Invocation {
+                marker_line,
+                paths: if has_paths { paths } else { Vec::new() },
+                workflow_ref,
+            });
         }
 
         i = j;
