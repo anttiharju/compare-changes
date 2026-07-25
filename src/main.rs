@@ -2,6 +2,7 @@ mod cli;
 mod exitcode;
 mod find;
 mod parse;
+mod validate;
 
 use compare_changes::paths_match;
 
@@ -12,6 +13,14 @@ fn main() {
         if let Err(err) = find::run(args.debug) {
             eprintln!("{}", err);
             std::process::exit(exitcode::find_error());
+        }
+        return;
+    }
+
+    if args.validate {
+        if let Err(err) = validate::run(args.debug) {
+            eprintln!("{}", err);
+            std::process::exit(exitcode::validate_error());
         }
         return;
     }

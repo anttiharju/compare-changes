@@ -8,84 +8,71 @@ runs:
   using: "composite"
   steps:
     - id: actionlint
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/actionlint.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/actionlint.yml
+        changes: ${{ inputs.changes }}
     - id: prettier
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/prettier.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/prettier.yml
+        changes: ${{ inputs.changes }}
     - id: action-compare
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/release-action-compare.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/release-action-compare.yml
+        changes: ${{ inputs.changes }}
     - id: action-find
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/release-action-find.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/release-action-find.yml
+        changes: ${{ inputs.changes }}
     - id: brew
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/release-brew.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/release-brew.yml
+        changes: ${{ inputs.changes }}
     # flake.yml is only used in the plan.yml container job
     - id: github
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/release-github.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/release-github.yml
+        changes: ${{ inputs.changes }}
     - id: nix
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/release-nix.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/release-nix.yml
+        changes: ${{ inputs.changes }}
     - id: rs
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/rs.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/rs.yml
+        changes: ${{ inputs.changes }}
     - id: rust
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/rust.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/rust.yml
+        changes: ${{ inputs.changes }}
     - id: shellcheck
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/shellcheck.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/shellcheck.yml
+        changes: ${{ inputs.changes }}
     - id: src
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/src.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/src.yml
+        changes: ${{ inputs.changes }}
     - id: zensical
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/zensical.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/zensical.yml
+        changes: ${{ inputs.changes }}
     - id: zizmor
-      shell: sh
-      env:
-        array: ${{ inputs.changes }}
-      run: |
-        compare-changes --changes "$array" --workflow wildcard/zizmor.yml
+      uses: anttiharju/compare-changes-action@v0
+      with:
+        workflow: wildcard/zizmor.yml
+        changes: ${{ inputs.changes }}
 outputs:
   actionlint:
     description: "Whether actionlint has changed"

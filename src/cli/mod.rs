@@ -12,14 +12,18 @@ use style::get_style;
 )]
 pub struct Args {
     /// Find changed files from the git diff base inferred from GitHub Actions event context
-    #[arg(short, long, default_value_t = false, conflicts_with_all = ["source", "changes"])]
+    #[arg(short, long, default_value_t = false, conflicts_with_all = ["source", "changes", "validate"])]
     pub find: bool,
+
+    /// Validate that path patterns in workflows and compare-changes-action invocations match at least one file in the repository
+    #[arg(long, default_value_t = false, conflicts_with_all = ["source", "changes", "find"])]
+    pub validate: bool,
 
     #[command(flatten)]
     pub source: Source,
 
     /// JSON array string, for example '["foo/bar", "baz"]'
-    #[arg(short, long, value_name = "JSON", required_unless_present = "find")]
+    #[arg(short, long, value_name = "JSON", required_unless_present_any = ["find", "validate"])]
     pub changes: Option<String>,
 
     /// Enable debug output
