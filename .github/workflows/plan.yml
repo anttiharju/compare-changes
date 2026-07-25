@@ -199,7 +199,11 @@ jobs:
         id: action
         uses: ./.release/action-compare
         with:
-          workflow: wildcard/release-action-compare.yml
+          paths: |
+            .release/action-compare/**
+            flake.nix
+            flake.lock
+            .github/workflows/wildcard/release-action-compare.yml
           changes: '[".release/action-compare/action.yml"]'
           debug: true
       - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')

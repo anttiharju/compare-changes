@@ -24,3 +24,29 @@ pub fn get_paths(wildcard: &Path) -> Result<Vec<String>, String> {
 pub fn get_files(changes: &str) -> Result<Vec<String>, String> {
     serde_json::from_str::<Vec<String>>(changes).map_err(|e| format!("Failed to parse changes JSON array: {}", e))
 }
+
+pub fn parse_inline_paths(input: &str) -> Result<Vec<String>, String> {
+    let paths: Vec<String> = input
+        .lines()
+        .map(|l| {
+            let trimmed = l.trim();
+            // Strip a single pair of surrounding matching quotes if present.
+            if trimmed.len() >= 2 {
+                let bytes = trimmed.as_bytes();
+                let first = bytes[0];
+                let last = bytes[bytes.len() - 1];
+                if (first == b'"' || first == b'\'') && first == last {
+                    return trimmed[1..trimmed.len() - 1].to_string();
+                }
+            }
+            trimmed.to_string()
+        })
+        .filter(|l| !l.is_empty())
+        .collect();
+
+    if paths.is_empty() {
+        Err("No paths provided in --paths input".to_string())
+    } else {
+        Ok(paths)
+    }
+}

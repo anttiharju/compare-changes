@@ -4,9 +4,14 @@ branding:
   icon: minimize-2
   color: orange
 inputs:
+  paths:
+    description: "Newline-separated inline path patterns. Mutually exclusive with 'workflow'; exactly one of the two must be set."
+    required: false
+    default: ""
   workflow:
-    description: "Workflow file under .github/workflows/. Uses the on.push.paths as input."
-    required: true
+    description: "Workflow file under .github/workflows/. Uses the on.push.paths as input. Mutually exclusive with 'paths'; exactly one of the two must be set."
+    required: false
+    default: ""
   changes:
     description: "JSON array of changed files (from anttiharju/find-changes-action)"
     required: true
@@ -57,11 +62,12 @@ runs:
       shell: bash
       env:
         WORKFLOW: ${{ inputs.workflow }}
+        PATHS: ${{ inputs.paths }}
         CHANGES: ${{ inputs.changes }}
         DEBUG: ${{ inputs.debug }}
       run: |
         "$$GITHUB_ACTION_PATH/bin/run.sh"
 outputs:
   changed:
-    description: "Boolean indicating if any changed files match on.push.paths of the input workflow file."
+    description: "Boolean indicating if any changed files match the configured paths (from 'paths' input or the workflow's on.push.paths)."
     value: ${{ steps.run.outputs.changed }}

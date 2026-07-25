@@ -16,11 +16,23 @@ fn main() {
         return;
     }
 
-    let workflow = args.workflow.as_ref().expect("workflow is required unless --find");
+    let workflow = args.source.workflow.as_ref();
+    let inline_paths = args.source.paths.as_deref();
     let changes = args.changes.as_ref().expect("changes is required unless --find");
 
-    let paths = match parse::get_paths(workflow) {
-        Ok(paths) => {
+    let paths_result = if let Some(inline) = inline_paths {
+        parse::parse_inline_paths(inline).map(|paths| {
+            if args.debug {
+                println!("inline paths:");
+                for path in &paths {
+                    println!("- {}", path);
+                }
+            }
+            paths
+        })
+    } else {
+        let workflow = workflow.expect("workflow is required unless --find or --paths");
+        parse::get_paths(workflow).map(|paths| {
             if args.debug {
                 println!("{}.on.push.paths:", workflow.display());
                 for path in &paths {
@@ -28,7 +40,11 @@ fn main() {
                 }
             }
             paths
-        }
+        })
+    };
+
+    let paths = match paths_result {
+        Ok(paths) => paths,
         Err(err) => {
             eprintln!("{}", err);
             std::process::exit(exitcode::path_error());
