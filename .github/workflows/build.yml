@@ -59,7 +59,7 @@ jobs:
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
       - name: Action
-        uses: ./.github/actions/release/action
+        uses: ./.github/actions/release/action-compare
         with:
           version: ${{ needs.plan.outputs.version }}
           anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}

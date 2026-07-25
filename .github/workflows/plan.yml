@@ -153,7 +153,7 @@ jobs:
         run: cargo build --locked --all-features --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --locked --all-features --target aarch64-unknown-linux-musl
-      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action == 'true' )
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action-compare == 'true' )
         run: cargo build --locked --all-features --target x86_64-unknown-linux-musl
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
@@ -170,39 +170,39 @@ jobs:
         run: |
           relcheck all --verbose --color=always
 
-      - if: always() && !cancelled() && ((steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
+      - if: always() && !cancelled() && ((steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
         name: Render action.yml
         run: |
-          .release/render.sh action
+          .release/render.sh action-compare
 
-      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test action (release binary)
-        uses: ./.release/action
+        uses: ./.release/action-compare
         with:
-          workflow: wildcard/release-action.yml
+          workflow: wildcard/release-action-compare.yml
           changes: ${{ steps.changes.outputs.array }}
-      - if: always() && !cancelled() && steps.changed.outputs.action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test chained use (release binary)
-        uses: ./.release/action
+        uses: ./.release/action-compare
         with:
-          workflow: wildcard/release-action.yml
+          workflow: wildcard/release-action-compare.yml
           changes: ${{ steps.changes.outputs.array }}
 
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Move compiled version to /usr/local/bin
         env:
           binary: ${{ github.event.repository.name }}
         run: |
           mv "target/x86_64-unknown-linux-musl/debug/$binary" /usr/local/bin/
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
         id: action
-        uses: ./.release/action
+        uses: ./.release/action-compare
         with:
-          workflow: wildcard/release-action.yml
-          changes: '[".release/action/action.yml"]'
+          workflow: wildcard/release-action-compare.yml
+          changes: '[".release/action-compare/action.yml"]'
           debug: true
-      - if: always() && !cancelled() && (steps.changed.outputs.action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action output (compiled binary)
         env:
           changed: ${{ steps.action.outputs.changed }}
