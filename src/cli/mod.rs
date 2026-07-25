@@ -32,14 +32,14 @@ pub struct Args {
 }
 
 #[derive(clap::Args)]
-#[group(id = "source", required = false, multiple = false)]
+#[group(id = "source", required = true, multiple = false)]
 pub struct Source {
     /// Workflow file under .github/workflows/
-    #[arg(short, long, value_name = "FILE", required_unless_present_any = ["find", "validate", "paths"])]
+    #[arg(short, long, value_name = "FILE")]
     pub workflow: Option<PathBuf>,
 
     /// Newline-separated inline path patterns (alternative to --workflow)
-    #[arg(short, long, value_name = "PATHS", required_unless_present_any = ["find", "validate", "workflow"])]
+    #[arg(short, long, value_name = "PATHS")]
     pub paths: Option<String>,
 }
 
