@@ -1,0 +1,17 @@
+permissions: {}
+on:
+  push:
+    branches:
+      - wildcard
+    paths:
+      - "**/action.yml"
+      - ".github/workflows/*.yml"
+      - ".github/workflows/wildcard/zizmor.yml"
+      - "flake.lock"
+      - "flake.nix"
+jobs:
+  wildcard:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          true

@@ -10,82 +10,48 @@ runs:
     - id: actionlint
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .github/*/**.yml
-          flake.lock
-          flake.nix
+        workflow: wildcard/actionlint.yml
         changes: ${{ inputs.changes }}
     - id: prettier
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          **.md
-          **.yml
-          flake.lock
-          flake.nix
+        workflow: wildcard/prettier.yml
         changes: ${{ inputs.changes }}
     - id: action-compare
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .release/action-compare/**
-          flake.lock
-          flake.nix
+        workflow: wildcard/release-action-compare.yml
         changes: ${{ inputs.changes }}
     - id: action-find
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .release/action-find/**
-          flake.lock
-          flake.nix
+        workflow: wildcard/release-action-find.yml
         changes: ${{ inputs.changes }}
     - id: brew
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .release/brew/**
-          flake.lock
-          flake.nix
+        workflow: wildcard/release-brew.yml
         changes: ${{ inputs.changes }}
     # flake.yml is only used in the plan.yml container job
     - id: github
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .release/archive.sh
-          flake.lock
-          flake.nix
+        workflow: wildcard/release-github.yml
         changes: ${{ inputs.changes }}
     - id: nix
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .release/nix/**
-          flake.lock
-          flake.nix
+        workflow: wildcard/release-nix.yml
         changes: ${{ inputs.changes }}
     - id: rs
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          **.rs
-          Cargo.lock
-          Cargo.toml
-          flake.lock
-          flake.nix
+        workflow: wildcard/rs.yml
         changes: ${{ inputs.changes }}
     - id: rust
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          .cargo/**
-          src/**
-          tests/**
-          Cargo.lock
-          Cargo.toml
-          flake.lock
-          flake.nix
+        workflow: wildcard/rust.yml
         changes: ${{ inputs.changes }}
     - id: shellcheck
       uses: anttiharju/compare-changes-action@v0
@@ -95,28 +61,17 @@ runs:
     - id: src
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          src/**
-          flake.lock
-          flake.nix
+        workflow: wildcard/src.yml
         changes: ${{ inputs.changes }}
     - id: zensical
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          docs/**
-          zensical.toml
-          flake.lock
-          flake.nix
+        workflow: wildcard/zensical.yml
         changes: ${{ inputs.changes }}
     - id: zizmor
       uses: anttiharju/compare-changes-action@v0
       with:
-        paths: |
-          **/action.yml
-          .github/workflows/*.yml
-          flake.lock
-          flake.nix
+        workflow: wildcard/zizmor.yml
         changes: ${{ inputs.changes }}
 outputs:
   actionlint:

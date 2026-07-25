@@ -1,0 +1,17 @@
+permissions: {}
+on:
+  push:
+    branches:
+      - wildcard
+    paths:
+      - "docs/**"
+      - "zensical.toml"
+      - "flake.nix"
+      - "flake.lock"
+      - ".github/workflows/wildcard/zensical.yml"
+jobs:
+  wildcard:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          true

@@ -1,0 +1,17 @@
+permissions: {}
+on:
+  push:
+    branches:
+      - wildcard
+    paths:
+      - "**.md"
+      - "**.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - ".github/workflows/wildcard/prettier.yml"
+jobs:
+  wildcard:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          true

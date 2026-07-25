@@ -1,0 +1,16 @@
+permissions: {}
+on:
+  push:
+    branches:
+      - wildcard
+    paths:
+      - ".release/nix/**"
+      - "flake.nix"
+      - "flake.lock"
+      - ".github/workflows/wildcard/release-nix.yml"
+jobs:
+  wildcard:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          true
