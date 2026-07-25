@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0.10.5 # handles checkout
+        uses: anttiharju/find-changes-action@v0 # handles checkout
       - id: shellcheck
         uses: anttiharju/compare-changes-action@v0
         with:
