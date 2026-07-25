@@ -1,0 +1,16 @@
+permissions: {}
+on:
+  push:
+    branches:
+      - wildcard
+    paths:
+      - ".release/action-find/**"
+      - "flake.nix"
+      - "flake.lock"
+      - ".github/workflows/wildcard/release-action-find.yml"
+jobs:
+  wildcard:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          true

@@ -1,0 +1,81 @@
+name: "Release find-changes-action"
+description: "Update find-changes-action repository for a new release"
+inputs:
+  version:
+    description: "Version to release"
+    required: true
+  anttiharju-bot-id:
+    description: "GitHub App client ID for anttiharju[bot]"
+    required: true
+  anttiharju-bot-private-key:
+    description: "GitHub App private key for anttiharju[bot]"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Calculate major version
+      id: version
+      shell: sh
+      env:
+        version: ${{ inputs.version }}
+      run: |
+        major="$(echo "$version" | cut -d. -f1)"
+        echo "major=v$major" >> "$GITHUB_OUTPUT"
+    - name: Generate commit token
+      id: generate-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ inputs.anttiharju-bot-id }}
+        private-key: ${{ inputs.anttiharju-bot-private-key }}
+        repositories: find-changes-action
+        permission-contents: write
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        repository: anttiharju/find-changes-action
+        token: ${{ steps.generate-token.outputs.token }}
+        path: release-find-changes-action
+        persist-credentials: true
+    - name: Update standalone repository
+      shell: sh
+      run: |
+        .release/render.sh action-find --output release-find-changes-action
+        cp -r .release/action-find/bin release-find-changes-action/
+        cp LICENSE release-find-changes-action/LICENSE
+    - name: Commit changes
+      uses: ./.github/actions/commit-changes
+      with:
+        author: anttiharju[bot]
+        committer: anttiharju[bot]
+        working-directory: release-find-changes-action
+        message: |
+          find-changes ${{ inputs.version }}
+    - name: Tag current commit
+      working-directory: release-find-changes-action
+      shell: sh
+      env:
+        tag: "v${{ inputs.version }}"
+      run: |
+        git tag "$tag"
+        git push --tags
+    - name: Setup major version branch
+      working-directory: release-find-changes-action
+      shell: sh
+      env:
+        major_version: ${{ steps.version.outputs.major }}
+      run: |
+        git push origin "HEAD:$major_version"
+    - name: Release action
+      working-directory: release-find-changes-action
+      shell: sh
+      env:
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        title: ${{ inputs.version }}
+        tag: "v${{ inputs.version }}"
+      run: |
+        gh release create "$tag" --title="$title" --generate-notes
+    - if: always()
+      name: Cleanup
+      shell: sh
+      run: |
+        rm -rf release-find-changes-action

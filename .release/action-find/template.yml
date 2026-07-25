@@ -1,0 +1,61 @@
+name: "Find changes"
+description: "Outputs a JSON array of changed files for downstream actions."
+branding:
+  icon: check-circle
+  color: blue
+inputs:
+  version:
+    description: "compare-changes version to use, semver format without v prefix"
+    required: false
+    default: "$PKG_VERSION"
+runs:
+  using: "composite"
+  steps:
+    - name: Check if compare-changes is in PATH
+      id: binary
+      shell: sh
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/binary.sh"
+    - if: steps.binary.outputs.installed != 'true'
+      name: Convert target
+      id: convert
+      shell: sh
+      env:
+        OS: ${{ runner.os }} # Possible values are Linux, Windows, or macOS.
+        ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/convert.sh"
+    - if: steps.binary.outputs.installed != 'true'
+      name: Cache
+      id: cache
+      uses: actions/cache@v5
+      with:
+        path: /usr/local/bin/compare-changes
+        key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
+    - if: steps.binary.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
+      name: Install
+      working-directory: ${{ runner.temp }}
+      shell: sh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VERSION: ${{ inputs.version }}
+        TARGET: ${{ steps.convert.outputs.target }}
+      run: |
+        "$$GITHUB_ACTION_PATH/bin/install.sh"
+    - if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+      name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 2
+    - if: github.event_name == 'push'
+      name: Checkout
+      uses: actions/checkout@v7
+    - name: Run
+      id: run
+      shell: sh
+      run: |
+        compare-changes --find
+outputs:
+  array:
+    description: "JSON array of changed files."
+    value: ${{ steps.run.outputs.array }}
