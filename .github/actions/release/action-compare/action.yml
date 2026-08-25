@@ -39,6 +39,7 @@ runs:
     - name: Update standalone repository
       shell: sh
       run: |
+        git -C release-action-compare rm -rf .
         .release/render.sh action-compare --output release-action-compare
         cp -r .release/action-compare/bin release-action-compare/
         cp README.md release-action-compare/README.md

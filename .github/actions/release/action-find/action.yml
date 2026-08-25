@@ -39,6 +39,7 @@ runs:
     - name: Update standalone repository
       shell: sh
       run: |
+        git -C release-action-find rm -rf .
         .release/render.sh action-find --output release-action-find
         cp -r .release/action-find/bin release-action-find/
         cp LICENSE release-action-find/LICENSE
