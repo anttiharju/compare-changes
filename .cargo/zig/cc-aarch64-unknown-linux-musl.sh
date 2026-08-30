@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# TODO: Dig into this
+# https://codeberg.org/ziglang/zig/issues/36624
 ARGS=()
 for arg in "$@"; do
   if [[ "$arg" != "-Wl,--fix-cortex-a53-843419" ]]; then
