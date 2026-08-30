@@ -3,8 +3,6 @@ use std::env;
 use std::fs;
 use std::process::Command;
 
-// Rewrite of https://github.com/anttiharju/find-changes-action/blob/v1/action.py
-
 const INITIAL_PUSH_BEFORE: &str = "0000000000000000000000000000000000000000";
 
 fn fetch_diff_base(event_name: &str, event_data: &Value) -> Result<Option<String>, String> {
@@ -43,7 +41,7 @@ fn run_git_diff(comparison_point: Option<&str>) -> Result<Vec<String>, String> {
     };
 
     let output = Command::new("git")
-        .args(["diff", "--name-only", comparison_point])
+        .args(["-c", "core.quotePath=false", "diff", "--name-only", "-z", comparison_point])
         .output()
         .map_err(|e| format!("Error running git diff against {}: {}", comparison_point, e))?;
 
@@ -51,13 +49,9 @@ fn run_git_diff(comparison_point: Option<&str>) -> Result<Vec<String>, String> {
         return Err(format!("Error running git diff against {}", comparison_point));
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    Ok(stdout
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty())
-        .map(ToString::to_string)
-        .collect())
+    let stdout =
+        String::from_utf8(output.stdout).map_err(|e| format!("Git diff against {} returned non-UTF-8 path data: {}", comparison_point, e))?;
+    Ok(stdout.split('\0').filter(|path| !path.is_empty()).map(ToString::to_string).collect())
 }
 
 fn get_event_data(debug: bool) -> Result<Value, String> {
