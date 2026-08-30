@@ -3,6 +3,8 @@ use assert_cmd::cargo::cargo_bin_cmd;
 use serde_json;
 use std::fs;
 use std::path::Path;
+#[cfg(unix)]
+use std::process::Command;
 use tempfile::{TempDir, tempdir};
 
 fn prepare_workflow_with_patterns(patterns: &[&str]) -> TempDir {
@@ -55,6 +57,69 @@ fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (Strin
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
     (stdout, stderr)
+}
+
+#[cfg(unix)]
+fn run_git(temp: &TempDir, args: &[&str]) {
+    let output = Command::new("git").current_dir(temp.path()).args(args).output().unwrap();
+
+    assert!(
+        output.status.success(),
+        "git {:?} failed:\n{}",
+        args,
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn test_find_preserves_git_pathnames() {
+    let temp = tempdir().unwrap();
+    run_git(&temp, &["init", "--quiet"]);
+    run_git(&temp, &["config", "user.email", "test@example.com"]);
+    run_git(&temp, &["config", "user.name", "Test User"]);
+    run_git(&temp, &["config", "commit.gpgSign", "false"]);
+
+    fs::write(temp.path().join("baseline.txt"), "baseline").unwrap();
+    run_git(&temp, &["add", "--all"]);
+    run_git(&temp, &["commit", "--quiet", "-m", "baseline"]);
+
+    fs::create_dir(temp.path().join("src")).unwrap();
+    let expected = vec![
+        " leading.sh".to_string(),
+        "src/line\nbreak.sh".to_string(),
+        "src/quote\"name.sh".to_string(),
+        "src/\u{e9}vil.sh".to_string(),
+        "trailing.sh ".to_string(),
+    ];
+    for path in &expected {
+        fs::write(temp.path().join(path), "changed").unwrap();
+    }
+    run_git(&temp, &["add", "--all"]);
+    run_git(&temp, &["commit", "--quiet", "-m", "changed paths"]);
+
+    let event_path = temp.path().join("event.json");
+    let output_path = temp.path().join("github-output.txt");
+    fs::write(&event_path, r#"{"pull_request":{}}"#).unwrap();
+
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(temp.path())
+        .arg("--find")
+        .env("GITHUB_EVENT_NAME", "pull_request")
+        .env("GITHUB_EVENT_PATH", event_path)
+        .env("GITHUB_OUTPUT", &output_path)
+        .output()
+        .unwrap();
+
+    assert!(
+        output.status.success(),
+        "compare-changes failed:\n{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let github_output = fs::read_to_string(output_path).unwrap();
+    let files: Vec<String> = serde_json::from_str(github_output.trim().strip_prefix("array=").unwrap()).unwrap();
+    assert_eq!(files, expected);
 }
 
 #[test]
