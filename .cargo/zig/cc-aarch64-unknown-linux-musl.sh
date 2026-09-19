@@ -9,5 +9,5 @@ for arg in "$@"; do
   fi
 done
 
-exec zig cc "${ARGS[@]}" -target aarch64-linux-musl
+zig cc "${ARGS[@]}" -target aarch64-linux-musl
 
