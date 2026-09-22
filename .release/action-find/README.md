@@ -16,7 +16,7 @@ They also have a tendency to couple the change detection logic with the custom n
 **`find-changes-action` gets all of this right:**
 
 1. The pesky corner cases of having an accurate list of changes across the different scenarios have been worked out.
-2. It runs in seconds
+2. It runs in seconds, even on big repositories! (because it doesn't clone all of the git history)
 3. It has a built-in validation mode (see [validation example](#validation-example) below)
    - It supports _re-use_ of conditional workflow patterns across compare-changes-action calls and native GitHub Actions by being able to ingest workflows that set `on.push.paths`!
      - Run either `compare-changes --validate` as part of your CI to ensure your patterns stay up-to-date over time and run https://github.com/mpalmer/action-validator (which uses compare-changes the Rust library!) to validate your workflow stubs (see [workflow stub example](#workflow-stub-example) below).
