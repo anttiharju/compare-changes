@@ -1,4 +1,4 @@
-# compare-changes
+# compare-changes-action
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
 
@@ -7,12 +7,6 @@ Takes a workflow file under `.github/workflows/` and a JSON array generated with
 This is useful to introduce job and step granularity to your workflows. One can save a lot of time (and money by reducing runner usage) by executing long-running jobs conditionally.
 
 ## Trivial example
-
-The same result could be achieved with the use of `on.pull_request.paths`, but the purpose here is to provide a minimal example. The real value comes from advanced use-cases of granularity, i.e. chained use of the compare-changes action for different conditions and still defining all jobs as part of the same workflow.
-
-By having all jobs sourced from the same event (`on.pull_request`) allows one to have their branch protection rules only require a finish-ci job, which has all other jobs in its `needs:`. This makes working on the CI a lot simpler because you're free to add/remove jobs without coordinating changes to branch protection rules via repository admins. It is advisable to write a a `finish-ci` `needs:` validator (for example in Python) to ensure proper coverage.
-
-A good non-trivial example can be found in this repository's validate job in the [plan workflow](https://github.com/anttiharju/compare-changes/blob/main/.github/workflows/plan.yml).
 
 ```yml
 # .github/workflows/example.yml
@@ -31,30 +25,35 @@ jobs:
         with:
           workflow: wildcard/shellcheck.yml # see .github/workflows/wildcard/shellcheck.yml below
           changes: ${{ steps.changes.outputs.array }}
+      - id: shellcheck
+        uses: anttiharju/compare-changes-action@v0
+        with:
+          paths: |
+            **.sh
+            .shellcheckrc
+          changes: ${{ inputs.changes }}
       - if: steps.shellcheck.outputs.changed == 'true'
         name: shellcheck
-        run: git ls-files -z '*.sh' | xargs --null shellcheck --color=always
+        run: |
+          git ls-files -z '*.sh' | xargs --null shellcheck --color=always
 ```
 
-```yml
-# .github/workflows/wildcard/shellcheck.yml
-permissions: {}
-on:
-  push:
-    branches:
-      - wildcard # Prevents skipped runs from showing up
-    paths:
-      - "**.sh"
-      - ".shellcheckrc"
-      - ".github/workflows/wildcard/shellcheck.yml"
-jobs:
-  wildcard:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          true
+Equivalent of the above _can_ be achieved with `on.pull_request.paths`, but the purpose there was to provide a minimal example. `compare-changes-action` is built for advanced use-cases, such as consequtive calls to `compare-changes-action` for extreme step granularity in a CI job. An example can be found in the `compare-changes` repository itself: https://github.com/anttiharju/compare-changes/blob/a11c5fa661f74e12ab476ed8671988e9c64e6892/.github/actions/detect-changes/action.yml
+
+While step-level granularity is a relatively niche use-case, a significantly less niche use-case is to run jobs conditionally in the same workflow. While one could still use `on.pull_request.paths` and setup branch protection rules to require all conditional workflows to pass (pro tip: `skipped` counts as a pass), what one loses there is the ability to have _dependencies_ between long-running jobs.
+
+**With `compare-changes-action` one can define dependencies between jobs using the standard `needs:` GitHub Actions syntax, while still skipping long-running ones based on the files that have changed.**
+
+A very extendable and easy-to-modify monorepo Pull Request workflow can look like this:
+
 ```
+1. Job that runs find-changes-action and all compare-changes-action steps, so that the conditional `if:` logic is available in step 2
+2. (whatever other jobs you actually want to run)
+3. A finish-ci job that fails if any of the previous jobs have failed. It's a bright idea to run a validator that checks that all others jobs are listed in its needs.
+```
+
+The setup described above makes it fairly simple to work on the CI because one is free to add/remove jobs without coordinating changes to branch protection rules with repository admins.
 
 ## More information
 
-Please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/.github/README.md)
+Refer to https://github.com/anttiharju/compare-changes
