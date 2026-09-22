@@ -24,6 +24,14 @@ runs:
       run: |
         major="$(echo "$version" | cut -d. -f1)"
         echo "major=v$major" >> "$GITHUB_OUTPUT"
+    - name: Save compare-changes upstream release notes
+      shell: sh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        repository: ${{ github.repository }}
+        tag: "v${{ inputs.version }}"
+      run: |
+        gh release view "$tag" --repo "$repository" --json body --jq .body > "$RUNNER_TEMP/release-notes.md"
     - name: Generate commit token
       id: generate-token
       uses: actions/create-github-app-token@v3
@@ -80,7 +88,7 @@ runs:
         title: ${{ inputs.version }}
         tag: "v${{ inputs.version }}"
       run: |
-        gh release create "$tag" --title="$title" --generate-notes
+        gh release create "$tag" --title="$title" --notes-file "$RUNNER_TEMP/release-notes.md"
     - if: always()
       name: Cleanup
       shell: sh
