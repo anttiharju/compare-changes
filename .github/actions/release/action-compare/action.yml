@@ -42,7 +42,7 @@ runs:
         git -C release-action-compare rm -rf .
         .release/render.sh action-compare --output release-action-compare
         cp -r .release/action-compare/bin release-action-compare/
-        cp README.md release-action-compare/README.md
+        cp .release/action-compare/README.md release-action-compare/README.md
         cp LICENSE release-action-compare/LICENSE
     - name: Commit changes
       uses: ./.github/actions/commit-changes

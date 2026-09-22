@@ -42,6 +42,7 @@ runs:
         git -C release-action-find rm -rf .
         .release/render.sh action-find --output release-action-find
         cp -r .release/action-find/bin release-action-find/
+        cp .release/action-find/README.md release-action-find/README.md
         cp LICENSE release-action-find/LICENSE
     - name: Commit changes
       uses: ./.github/actions/commit-changes
