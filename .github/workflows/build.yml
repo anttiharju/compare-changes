@@ -17,7 +17,7 @@ jobs:
   release:
     name: Release
     needs: plan
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     environment: release
     container:
       image: ${{ needs.plan.outputs.container }}

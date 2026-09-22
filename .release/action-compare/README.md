@@ -13,7 +13,7 @@ This is useful to introduce job and step granularity to your workflows. One can 
 on: [pull_request]
 jobs:
   test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
