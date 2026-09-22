@@ -1,6 +1,9 @@
-name: "Release find-changes-action"
-description: "Update find-changes-action repository for a new release"
+name: "Release standalone action"
+description: "Update standalone action repository for a new release"
 inputs:
+  action:
+    description: "Action to release"
+    required: true
   version:
     description: "Version to release"
     required: true
@@ -27,33 +30,35 @@ runs:
       with:
         client-id: ${{ inputs.anttiharju-bot-id }}
         private-key: ${{ inputs.anttiharju-bot-private-key }}
-        repositories: find-changes-action
+        repositories: ${{ inputs.action }}-changes-action
         permission-contents: write
     - name: Checkout
       uses: actions/checkout@v7
       with:
-        repository: anttiharju/find-changes-action
+        repository: anttiharju/${{ inputs.action }}-changes-action
         token: ${{ steps.generate-token.outputs.token }}
-        path: release-action-find
+        path: release-${{ inputs.action }}
         persist-credentials: true
     - name: Update standalone repository
       shell: sh
+      env:
+        action: ${{ inputs.action }}
       run: |
-        git -C release-action-find rm -rf .
-        .release/render.sh action-find --output release-action-find
-        cp -r .release/action-find/bin release-action-find/
-        cp .release/action-find/README.md release-action-find/README.md
-        cp LICENSE release-action-find/LICENSE
+        git -C "release-$action" rm -rf .
+        .release/render.sh "action-$action" --output "release-$action"
+        cp -r .release/"action-$action"/bin "release-$action/"
+        cp .release/"action-$action"/README.md "release-$action/README.md"
+        cp LICENSE "release-$action/LICENSE"
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
         author: anttiharju[bot]
         committer: anttiharju[bot]
-        working-directory: release-action-find
+        working-directory: release-${{ inputs.action }}
         message: |
-          find-changes ${{ inputs.version }}
+          ${{ inputs.action }}-changes ${{ inputs.version }}
     - name: Tag current commit
-      working-directory: release-action-find
+      working-directory: release-${{ inputs.action }}
       shell: sh
       env:
         tag: "v${{ inputs.version }}"
@@ -61,14 +66,14 @@ runs:
         git tag "$tag"
         git push --tags
     - name: Setup major version branch
-      working-directory: release-action-find
+      working-directory: release-${{ inputs.action }}
       shell: sh
       env:
         major_version: ${{ steps.version.outputs.major }}
       run: |
         git push origin "HEAD:$major_version"
     - name: Release action
-      working-directory: release-action-find
+      working-directory: release-${{ inputs.action }}
       shell: sh
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -79,5 +84,7 @@ runs:
     - if: always()
       name: Cleanup
       shell: sh
+      env:
+        action: ${{ inputs.action }}
       run: |
-        rm -rf release-action-find
+        rm -rf "release-$action"
