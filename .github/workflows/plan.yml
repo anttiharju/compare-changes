@@ -21,8 +21,9 @@ jobs:
   container:
     if: "!endsWith(github.event.repository.name, '-starter')"
     name: Container
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
+      contents: read
       packages: write
     steps:
       - name: Find changes
@@ -123,9 +124,10 @@ jobs:
   validate:
     name: Validate
     needs: container
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     container:
       image: ${{ needs.container.outputs.image }}
       credentials:
