@@ -1,60 +1,47 @@
-# compare-changes
+# find-changes-action
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
 
-Takes a workflow file under `.github/workflows/` and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs, to output true/false based on whether any of the `on.push.paths` of the workflow match a file in the JSON array.
+People tend to start crafting custom scripts and setups to run logic in GitHub Actions conditionally. What they usually fail at are:
 
-This is useful to introduce job and step granularity to your workflows. One can save a lot of time (and money by reducing runner usage) by executing long-running jobs conditionally.
+1. Accuracy
+2. Performance
+3. Composability
+
+across `push`, `pull_request`, `merge_group` events with the `rebase`, `merge commit`, and `squash` merge strategies. Leading to various sorts of annoyances.
+
+They also have a tendency to couple the change detection logic with the custom need at hand, and when that need changes, it's nontrivial to get things right again if one managed to work them out over time.
+
+**`find-changes-action` gets all of this right:**
+
+1. The pesky corner cases of having an accurate list of changes across the different scenarios have been worked out.
+2. It runs in seconds
+3. It outputs simple JSON, so you're left free to script together the logic **you** need for your use case.
+   - You also only ever need to run `find-changes-action` once per (a chain of) workflow(s), and pass around the already-found changes output as a GitHub Actions input.
 
 ## Trivial example
 
-The same result could be achieved with the use of `on.pull_request.paths`, but the purpose here is to provide a minimal example. The real value comes from advanced use-cases of granularity, i.e. chained use of the compare-changes action for different conditions and still defining all jobs as part of the same workflow.
-
-By having all jobs sourced from the same event (`on.pull_request`) allows one to have their branch protection rules only require a finish-ci job, which has all other jobs in its `needs:`. This makes working on the CI a lot simpler because you're free to add/remove jobs without coordinating changes to branch protection rules via repository admins. It is advisable to write a a `finish-ci` `needs:` validator (for example in Python) to ensure proper coverage.
-
-A good non-trivial example can be found in this repository's validate job in the [plan workflow](https://github.com/anttiharju/compare-changes/blob/main/.github/workflows/plan.yml).
-
 ```yml
-# .github/workflows/example.yml
+name: find-changes
 on: [pull_request]
+
 jobs:
-  test:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
+  example:
+    runs-on: ubuntu-latest
     steps:
       - name: Find changes
         id: changes
         uses: anttiharju/find-changes-action@v0 # handles checkout
-      - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
-        with:
-          workflow: wildcard/shellcheck.yml # see .github/workflows/wildcard/shellcheck.yml below
-          changes: ${{ steps.changes.outputs.array }}
-      - if: steps.shellcheck.outputs.changed == 'true'
-        name: shellcheck
-        run: git ls-files -z '*.sh' | xargs --null shellcheck --color=always
+
+      - name: Echo changed files
+        shell: sh
+        run: |
+          echo ${{ steps.changes.outputs.array }}
+        # ["foo/bar", "baz"]
 ```
 
-```yml
-# .github/workflows/wildcard/shellcheck.yml
-permissions: {}
-on:
-  push:
-    branches:
-      - wildcard # Prevents skipped runs from showing up
-    paths:
-      - "**.sh"
-      - ".shellcheckrc"
-      - ".github/workflows/wildcard/shellcheck.yml"
-jobs:
-  wildcard:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          true
-```
+In case you are looking for pre-made change comparison action, check out the this action's sibling, [`compare-changes-action`](https://github.com/anttiharju/find-changes-action).
 
 ## More information
 
-Please refer to [the GitHub README.md](https://github.com/anttiharju/compare-changes/blob/main/.github/README.md)
+Refer to https://github.com/anttiharju/compare-changes
