@@ -50,7 +50,7 @@ pre-commit:
 
     - name: rubocop
       glob: "{*.rb}"
-      run: .release/render.sh brew && find .release/brew/.output -name "*.rb" -type f -exec rubocop {} \;
+      run: .release/render.sh homebrew-tap && find .release/homebrew-tap/.output -name "*.rb" -type f -exec rubocop {} \;
 
     - name: shellcheck
       glob: "{*.sh,.shellcheckrc}"

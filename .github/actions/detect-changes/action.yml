@@ -40,11 +40,11 @@ runs:
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
-    - id: brew
+    - id: homebrew-tap
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
-          .release/brew/**
+          .release/homebrew-tap/**
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
@@ -130,9 +130,9 @@ outputs:
   action-find:
     description: "Whether action-find has changed"
     value: ${{ steps.action-find.outputs.changed }}
-  brew:
-    description: "Whether Brew has changed"
-    value: ${{ steps.brew.outputs.changed }}
+  homebrew-tap:
+    description: "Whether homebrew-tap has changed"
+    value: ${{ steps.homebrew-tap.outputs.changed }}
   github:
     description: "Whether GitHub has changed"
     value: ${{ steps.github.outputs.changed }}
@@ -160,4 +160,4 @@ outputs:
 
   release:
     description: "Whether any release has changed"
-    value: ${{ steps.action-compare.outputs.changed || steps.action-find.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
+    value: ${{ steps.action-compare.outputs.changed || steps.action-find.outputs.changed || steps.homebrew-tap.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}

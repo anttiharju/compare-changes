@@ -29,7 +29,7 @@ if [[ "$TAG" = "v0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$TAG" 
 fi
 
 repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root/.release/brew"
+cd "$repo_root/.release/homebrew-tap"
 pattern="$repo-*.tar.gz"
 gh release download "$TAG" --pattern "$pattern" --clobber
 for archive in $pattern; do
