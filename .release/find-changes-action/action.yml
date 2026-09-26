@@ -75,16 +75,9 @@ runs:
       run: |
         "$$BINARY" --find
     - if: always()
-      name: Clean up checkout
+      name: Remove temporary checkout
       shell: sh
       run: |
-        directory=".tmp-anttiharju-compare-changes/$$GITHUB_REPOSITORY"
-        if [ -f "$$directory/.git/config" ]; then
-          credentials="$$(git config --file "$$directory/.git/config" --get "includeIf.gitdir:$$PWD/$$directory/.git.path" || true)"
-          case "$$credentials" in
-            "$$RUNNER_TEMP"/git-credentials-*.config) rm -f "$$credentials" ;;
-          esac
-        fi
         rm -rf .tmp-anttiharju-compare-changes
 outputs:
   array:
