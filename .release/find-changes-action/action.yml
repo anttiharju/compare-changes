@@ -6,37 +6,37 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Check binary availability
-      id: binary
+    - name: Check installation
+      id: check
       shell: sh
       env:
         VERSION: "$PKG_VERSION"
       run: |
-        "$$GITHUB_ACTION_PATH/scripts/available.sh"
-    - if: steps.binary.outputs.available != 'true'
-      name: Convert target
-      id: convert
+        "$$GITHUB_ACTION_PATH/scripts/install-check.sh"
+    - if: steps.check.outputs.installed != 'true'
+      name: Generate target triple
+      id: target
       shell: sh
       env:
         OS: ${{ runner.os }} # Possible values are Linux, Windows, or macOS.
         ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
       run: |
-        "$$GITHUB_ACTION_PATH/scripts/convert.sh"
-    - if: steps.binary.outputs.available != 'true'
+        "$$GITHUB_ACTION_PATH/scripts/target.sh"
+    - if: steps.check.outputs.installed != 'true'
       name: Cache
       id: cache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        path: ${{ steps.binary.outputs.directory }}/compare-changes
-        key: compare-changes_${PKG_VERSION}_${{ steps.convert.outputs.target }}
-    - if: steps.binary.outputs.available != 'true' && steps.cache.outputs.cache-hit != 'true'
+        path: ${{ steps.check.outputs.directory }}/compare-changes
+        key: compare-changes_${PKG_VERSION}_${{ steps.target.outputs.triple }}
+    - if: steps.check.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
       name: Install
-      working-directory: ${{ steps.binary.outputs.directory }}
+      working-directory: ${{ steps.check.outputs.directory }}
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
         VERSION: "$PKG_VERSION"
-        TARGET: ${{ steps.convert.outputs.target }}
+        TARGET: ${{ steps.target.outputs.triple }}
       run: |
         "$$GITHUB_ACTION_PATH/scripts/install.sh"
     - if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
@@ -54,7 +54,7 @@ runs:
       id: run
       shell: sh
       env:
-        BINARY: ${{ steps.binary.outputs.directory }}/compare-changes
+        BINARY: ${{ steps.check.outputs.directory }}/compare-changes
       run: |
         "$$BINARY" --find
 outputs:
