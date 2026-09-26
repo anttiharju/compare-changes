@@ -17,16 +17,20 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0 # handles checkout
+        uses: anttiharju/find-changes-action@v0.12.19
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.12.19
         with:
           workflow: wildcard/shellcheck.yml # see .github/workflows/wildcard/shellcheck.yml below
           changes: ${{ steps.changes.outputs.array }}
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.12.19
         with:
           paths: |
             **.sh

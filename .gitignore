@@ -23,7 +23,7 @@ target
 # MkDocs
 site
 
-# archive.sh
+# build.sh
 *.tar.gz
 
 # Nix

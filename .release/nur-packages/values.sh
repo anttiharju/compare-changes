@@ -11,7 +11,7 @@ capture PKG_FILENAME "default"
 capture PKG_EXTENSION nix
 capture PKG_OUTPUT "* ../../Cargo.lock"
 capture PKG_REPO "$repo"
-capture PKG_VERSION "${TAG#v}"
+capture PKG_VERSION "$VERSION"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 capture PKG_REV "$GITHUB_SHA"
 sha256="$(nix-prefetch-url --quiet --unpack "https://github.com/$GITHUB_REPOSITORY/archive/$GITHUB_SHA.tar.gz")"
@@ -19,6 +19,7 @@ hash="$(nix hash convert --hash-algo sha256 --to sri "$sha256")"
 capture PKG_HASH "$hash"
 time=$(TZ=UTC git show --quiet --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd)
 capture PKG_TIME "$time"
+gh auth status >&2
 homepage="$(gh api "repos/{owner}/{repo}" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
 desc="$(gh repo view --json description --jq .description)"

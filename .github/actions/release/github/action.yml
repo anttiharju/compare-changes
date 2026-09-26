@@ -23,20 +23,27 @@ runs:
         cargo update --package "${GITHUB_REPOSITORY#*/}"
     - name: Create aarch64-apple-darwin archive
       shell: sh
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        .release/archive.sh aarch64-apple-darwin
+        .release/build.sh aarch64-apple-darwin
     - name: Create aarch64-unknown-linux-musl archive
       shell: sh
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        .release/archive.sh aarch64-unknown-linux-musl
+        .release/build.sh aarch64-unknown-linux-musl
     - name: Create x86_64-unknown-linux-musl archive
       shell: sh
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        .release/archive.sh x86_64-unknown-linux-musl
+        .release/build.sh x86_64-unknown-linux-musl
     - name: Release
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
+        version: ${{ inputs.version }}
         title: ${{ inputs.version }}
         tag: "v${{ inputs.version }}"
         repository: ${{ github.event.repository.name }}
@@ -44,4 +51,4 @@ runs:
         git reset --hard && git clean -df
         git push origin "$tag"
         gh release create "$tag" --title="$title" --generate-notes --draft
-        find . -maxdepth 1 -name "$repository-*.tar.gz" -exec gh release upload "$tag" {} \;
+        gh release upload "$tag" $repository-*.tar.gz

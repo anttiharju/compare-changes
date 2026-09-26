@@ -6,20 +6,10 @@ capture() {
   echo "export $1=\"$2\""
 }
 
-repo="${GITHUB_REPOSITORY##*/}"
-capture PKG_FILENAME "$repo"
-capture PKG_EXTENSION rb
-capture PKG_OUTPUT "$repo.rb"
-capture PKG_REPO "$repo"
-class="$(echo "$repo" | gawk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
-capture PKG_CLASS "$class"
+capture PKG_FILENAME action
+capture PKG_EXTENSION yml
+capture PKG_OUTPUT "* ../.actions/bash"
 capture PKG_VERSION "$VERSION"
-capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
-gh auth status >&2
-desc="$(gh repo view --json description --jq .description)"
-capture PKG_DESC "$desc"
-homepage="$(gh api "repos/{owner}/{repo}" --jq .homepage)"
-capture PKG_HOMEPAGE "$homepage"
 
 if [[ "$MODE" = bootstrap ]]; then
   capture PKG_MACOS_ARM_SHA TBD
@@ -27,6 +17,8 @@ if [[ "$MODE" = bootstrap ]]; then
   capture PKG_LINUX_X64_SHA TBD
   exit 0
 fi
+
+repo="${GITHUB_REPOSITORY##*/}"
 
 if [[ "$MODE" = release ]]; then
   repo_root="$(git rev-parse --show-toplevel)"
@@ -39,14 +31,16 @@ if [[ "$MODE" = release ]]; then
   exit 0
 fi
 
-tar_checksum() {
+gh auth status >&2
+
+bin_checksum() {
   gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$repo-$1.tar.gz" --output - |
-    sha256sum | cut -d ' ' -f1
+    tar -xzO "$repo" | sha256sum | cut -d ' ' -f1
 }
 
-macos_arm_sha="$(tar_checksum aarch64-apple-darwin)"
-linux_arm_sha="$(tar_checksum aarch64-unknown-linux-musl)"
-linux_x64_sha="$(tar_checksum x86_64-unknown-linux-musl)"
+macos_arm_sha="$(bin_checksum aarch64-apple-darwin)"
+linux_arm_sha="$(bin_checksum aarch64-unknown-linux-musl)"
+linux_x64_sha="$(bin_checksum x86_64-unknown-linux-musl)"
 capture PKG_MACOS_ARM_SHA "$macos_arm_sha"
 capture PKG_LINUX_ARM_SHA "$linux_arm_sha"
 capture PKG_LINUX_X64_SHA "$linux_x64_sha"

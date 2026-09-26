@@ -29,6 +29,8 @@ jobs:
       pages: write
       contents: write
       id-token: write
+    env:
+      MODE: release
     steps:
       - name: Checkout
         uses: actions/checkout@v7
