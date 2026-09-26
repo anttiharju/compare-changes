@@ -73,7 +73,7 @@ fi
 
 # Render
 calculate_key "$pkg" > "$cache_key"
-if [[ -f "$cache" && -z "${NO_CACHE:-}" ]]; then
+if [[ -f "$cache" && -z "${NO_CACHE:-}" && ! "$pkg/values.sh" -nt "$cache" ]]; then
   cat "$cache"
 else
   # shellcheck source=/dev/null
@@ -88,14 +88,43 @@ ext="$PKG_EXTENSION"
 [[ "$output" == /* ]] || output="$repo_root/$output"
 mkdir -p "$output"
 output="$(cd "$output" && pwd -P)"
-find "$output" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
-envsubst -i "template.$ext" -no-unset -no-empty > "$output/$filename.$ext"
-cp "$repo_root/LICENSE" "$output/LICENSE"
+read -r -a output_sources <<< "${PKG_OUTPUT:-*}"
+output_patterns=()
+for path in "${output_sources[@]}"; do
+  [[ "$path" == ../* ]] && path="${path##*/}"
+  output_patterns+=("${path%/}")
+  find "$output" -mindepth 1 -name .git -prune -o -path "$output/${path%/}" -prune -exec rm -rf -- {} +
+done
+
+write_output() {
+  local source="$1" path="$2" pattern
+  for pattern in "${output_patterns[@]}"; do
+    case "$path/" in
+      $pattern/*)
+        mkdir -p "$output/$(dirname "./$path")"
+        if [[ "$source" == "template.$ext" ]]; then
+          envsubst -i "$source" -no-unset -no-empty > "$output/$path"
+        else
+          cp -p "$source" "$output/$path"
+        fi
+        return
+        ;;
+    esac
+  done
+}
+
+write_output "template.$ext" "$filename.$ext"
+write_output "$repo_root/LICENSE" LICENSE
 git ls-files -z --cached --others --exclude-standard -- . |
   while IFS= read -r -d '' path; do
     case "$path" in
       .*|*/.*|values.sh|"template.$ext"|"${output#"$PWD"/}"/*) continue ;;
     esac
-    mkdir -p "$output/$(dirname "./$path")"
-    cp -p "./$path" "$output/$path"
+    [[ -f "$path" ]] || continue
+    write_output "./$path" "$path"
   done
+for path in "${output_sources[@]}"; do
+  if [[ "$path" == ../* ]]; then
+    write_output "$path" "${path##*/}"
+  fi
+done
