@@ -22,9 +22,9 @@ repo="${GITHUB_REPOSITORY##*/}"
 
 if [[ "$MODE" = release ]]; then
   repo_root="$(git rev-parse --show-toplevel)"
-  macos_arm_sha="$(sha256sum "$repo_root/$repo-aarch64-apple-darwin.tar.gz" | cut -d ' ' -f1)"
-  linux_arm_sha="$(sha256sum "$repo_root/$repo-aarch64-unknown-linux-musl.tar.gz" | cut -d ' ' -f1)"
-  linux_x64_sha="$(sha256sum "$repo_root/$repo-x86_64-unknown-linux-musl.tar.gz" | cut -d ' ' -f1)"
+  macos_arm_sha="$(sha256sum "$repo_root/target/aarch64-apple-darwin/release/$repo" | cut -d ' ' -f1)"
+  linux_arm_sha="$(sha256sum "$repo_root/target/aarch64-unknown-linux-musl/release/$repo" | cut -d ' ' -f1)"
+  linux_x64_sha="$(sha256sum "$repo_root/target/x86_64-unknown-linux-musl/release/$repo" | cut -d ' ' -f1)"
   capture PKG_MACOS_ARM_SHA "$macos_arm_sha"
   capture PKG_LINUX_ARM_SHA "$linux_arm_sha"
   capture PKG_LINUX_X64_SHA "$linux_x64_sha"
