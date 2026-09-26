@@ -6,12 +6,14 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Check if compare-changes is in PATH
+    - name: Check binary availability
       id: binary
       shell: sh
+      env:
+        VERSION: "$PKG_VERSION"
       run: |
-        "$$GITHUB_ACTION_PATH/scripts/binary.sh"
-    - if: steps.binary.outputs.installed != 'true'
+        "$$GITHUB_ACTION_PATH/scripts/available.sh"
+    - if: steps.binary.outputs.available != 'true'
       name: Convert target
       id: convert
       shell: sh
@@ -20,16 +22,16 @@ runs:
         ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
       run: |
         "$$GITHUB_ACTION_PATH/scripts/convert.sh"
-    - if: steps.binary.outputs.installed != 'true'
+    - if: steps.binary.outputs.available != 'true'
       name: Cache
       id: cache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        path: /usr/local/bin/compare-changes
-        key: compare-changes_v${PKG_VERSION}_${{ steps.convert.outputs.target }}
-    - if: steps.binary.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
+        path: ${{ steps.binary.outputs.directory }}/compare-changes
+        key: compare-changes_${PKG_VERSION}_${{ steps.convert.outputs.target }}
+    - if: steps.binary.outputs.available != 'true' && steps.cache.outputs.cache-hit != 'true'
       name: Install
-      working-directory: ${{ runner.temp }}
+      working-directory: ${{ steps.binary.outputs.directory }}
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
@@ -51,8 +53,10 @@ runs:
     - name: Run
       id: run
       shell: sh
+      env:
+        BINARY: ${{ steps.binary.outputs.directory }}/compare-changes
       run: |
-        compare-changes --find
+        "$$BINARY" --find
 outputs:
   array:
     description: "JSON array of changed files."
