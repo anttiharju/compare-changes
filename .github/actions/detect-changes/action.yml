@@ -24,27 +24,27 @@ runs:
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
-    - id: action-compare
+    - id: compare-changes-action
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
-          .release/action-compare/**
+          .release/compare-changes-action/**
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
-    - id: action-find
+    - id: find-changes-action
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
-          .release/action-find/**
+          .release/find-changes-action/**
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
-    - id: brew
+    - id: homebrew-tap
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
-          .release/brew/**
+          .release/homebrew-tap/**
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
@@ -60,7 +60,7 @@ runs:
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
-          .release/nix/**
+          .release/nur-packages/**
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
@@ -124,15 +124,15 @@ outputs:
   prettier:
     description: "Whether Prettier has changed"
     value: ${{ steps.prettier.outputs.changed }}
-  action-compare:
-    description: "Whether action-compare has changed"
-    value: ${{ steps.action-compare.outputs.changed }}
-  action-find:
-    description: "Whether action-find has changed"
-    value: ${{ steps.action-find.outputs.changed }}
-  brew:
-    description: "Whether Brew has changed"
-    value: ${{ steps.brew.outputs.changed }}
+  compare-changes-action:
+    description: "Whether compare-changes-action has changed"
+    value: ${{ steps.compare-changes-action.outputs.changed }}
+  find-changes-action:
+    description: "Whether find-changes-action has changed"
+    value: ${{ steps.find-changes-action.outputs.changed }}
+  homebrew-tap:
+    description: "Whether homebrew-tap has changed"
+    value: ${{ steps.homebrew-tap.outputs.changed }}
   github:
     description: "Whether GitHub has changed"
     value: ${{ steps.github.outputs.changed }}
@@ -160,4 +160,4 @@ outputs:
 
   release:
     description: "Whether any release has changed"
-    value: ${{ steps.action-compare.outputs.changed || steps.action-find.outputs.changed || steps.brew.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}
+    value: ${{ steps.compare-changes-action.outputs.changed || steps.find-changes-action.outputs.changed || steps.homebrew-tap.outputs.changed || steps.github.outputs.changed || steps.nix.outputs.changed }}

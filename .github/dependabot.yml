@@ -21,6 +21,8 @@ updates:
     directories:
       - "/"
       - "/.github/actions/*"
+      - "/.release/compare-changes-action"
+      - "/.release/find-changes-action"
     patterns:
       - "*"
     ignore:

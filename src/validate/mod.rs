@@ -196,16 +196,15 @@ fn report_if_no_match(file: &str, line: usize, path: &str, files: &[&str], stder
 
 fn git_ls_files() -> Result<Vec<String>, String> {
     let output = Command::new("git")
-        .args(["ls-files"])
+        .args(["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "."])
         .output()
         .map_err(|e| format!("Failed to run 'git ls-files': {}", e))?;
     if !output.status.success() {
         return Err(format!("'git ls-files' failed: {}", String::from_utf8_lossy(&output.stderr).trim()));
     }
     Ok(String::from_utf8_lossy(&output.stdout)
-        .lines()
-        .map(str::trim)
-        .filter(|l| !l.is_empty())
+        .split('\0')
+        .filter(|path| !path.is_empty())
         .map(ToString::to_string)
         .collect())
 }

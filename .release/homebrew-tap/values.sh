@@ -9,6 +9,7 @@ capture() {
 repo="${GITHUB_REPOSITORY##*/}"
 capture PKG_FILENAME "$repo"
 capture PKG_EXTENSION rb
+capture PKG_OUTPUT "$repo.rb"
 capture PKG_REPO "$repo"
 class="$(echo "$repo" | gawk -F'-' '{for(i=1;i<=NF;i++) printf "%s%s", toupper(substr($i,1,1)), substr($i,2)}')"
 capture PKG_CLASS "$class"
@@ -28,7 +29,7 @@ if [[ "$TAG" = "v0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$TAG" 
 fi
 
 repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root/.release/brew"
+cd "$repo_root/.release/homebrew-tap"
 pattern="$repo-*.tar.gz"
 gh release download "$TAG" --pattern "$pattern" --clobber
 for archive in $pattern; do

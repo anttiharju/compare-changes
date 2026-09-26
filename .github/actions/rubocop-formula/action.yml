@@ -9,10 +9,10 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        .release/render.sh brew
+        .release/render.sh homebrew-tap
     - name: rubocop
       shell: sh
       env:
         repository: ${{ github.event.repository.name }}
       run: |
-        rubocop ".release/brew/$repository.rb"
+        rubocop ".release/homebrew-tap/.output/$repository.rb"

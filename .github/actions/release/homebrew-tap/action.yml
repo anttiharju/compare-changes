@@ -33,7 +33,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        .release/render.sh brew --output release-homebrew-tap/Formula
+        .release/render.sh homebrew-tap --output release-homebrew-tap/Formula
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:

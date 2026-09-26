@@ -14,7 +14,7 @@ if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
 fi
 
 # Parse flags
-output=".release/$pkg"
+output=".release/$pkg/.output"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-cache) export NO_CACHE=1; shift ;;
@@ -73,20 +73,61 @@ fi
 
 # Render
 calculate_key "$pkg" > "$cache_key"
-if [[ -f "$cache" && -z "${NO_CACHE:-}" ]]; then
+if [[ -f "$cache" && -z "${NO_CACHE:-}" && ! "$pkg/values.sh" -nt "$cache" ]]; then
   cat "$cache"
 else
   # shellcheck source=/dev/null
   source "$pkg/values.sh" | tee "$cache"
 fi
 
-cd "$pkg"
+cd -P "$pkg"
 # shellcheck source=/dev/null
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
-mkdir -p "$repo_root/$output"
-envsubst -i "template.$ext" -no-unset -no-empty > "$repo_root/$output/$filename.$ext"
-if [[ "$output" == ".release/$pkg" ]]; then
-  cp "$repo_root/$output/template.$ext" "$repo_root/$output/$filename.tpl.$ext" # easier to visually diff two gitignored files
-fi
+[[ "$output" == /* ]] || output="$repo_root/$output"
+mkdir -p "$output"
+output="$(cd "$output" && pwd -P)"
+read -r -a output_sources <<< "${PKG_OUTPUT:-*}"
+output_patterns=()
+for path in "${output_sources[@]}"; do
+  [[ "$path" == ../* ]] && path="${path##*/}"
+  output_patterns+=("${path%/}")
+  find "$output" -mindepth 1 -name .git -prune -o -path "$output/${path%/}" -prune -exec rm -rf -- {} +
+done
+
+write_output() {
+  local source="$1" path="$2" substitute="${3:-false}" pattern
+  for pattern in "${output_patterns[@]}"; do
+    case "$path/" in
+      $pattern/*)
+        mkdir -p "$output/$(dirname "./$path")"
+        if [[ "$substitute" == true ]]; then
+          envsubst -i "$source" -no-unset -no-empty > "$output/$path"
+        else
+          cp -p "$source" "$output/$path"
+        fi
+        return
+        ;;
+    esac
+  done
+}
+
+write_output "$repo_root/LICENSE" LICENSE
+git ls-files -z --cached --others --exclude-standard -- . |
+  while IFS= read -r -d '' path; do
+    case "$path" in
+      .*|*/.*|values.sh|"${output#"$PWD"/}"/*) continue ;;
+    esac
+    [[ -f "$path" ]] || continue
+    if [[ "$path" != */* && "$path" != *.md ]]; then
+      write_output "./$path" "$filename.$ext" true
+    else
+      write_output "./$path" "$path"
+    fi
+  done
+for path in "${output_sources[@]}"; do
+  if [[ "$path" == ../* ]]; then
+    write_output "$path" "${path##*/}"
+  fi
+done

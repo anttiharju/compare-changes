@@ -9,6 +9,7 @@ capture() {
 repo="${GITHUB_REPOSITORY##*/}"
 capture PKG_FILENAME "default"
 capture PKG_EXTENSION nix
+capture PKG_OUTPUT "* ../../Cargo.lock"
 capture PKG_REPO "$repo"
 capture PKG_VERSION "${TAG#v}"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"

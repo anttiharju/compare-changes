@@ -122,6 +122,93 @@ fn test_find_preserves_git_pathnames() {
     assert_eq!(files, expected);
 }
 
+#[cfg(unix)]
+#[test]
+fn test_validate_includes_non_ignored_files() {
+    let paths = [
+        ("tracked.txt", "tracked.txt"),
+        ("new.rs", "new.rs"),
+        (" leading.rs", " leading.rs"),
+        ("trailing.rs ", "trailing.rs "),
+        ("src/quoted*.rs", "src/quoted\"name.rs"),
+        ("src/line*.rs", "src/line\nbreak.rs"),
+        ("src/\u{e9}vil.rs", "src/\u{e9}vil.rs"),
+    ];
+    let patterns: Vec<&str> = paths.iter().map(|(pattern, _)| *pattern).collect();
+    let temp = prepare_workflow_with_patterns(&patterns);
+    run_git(&temp, &["init", "--quiet"]);
+
+    for (_, path) in paths {
+        let path = temp.path().join(path);
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, "asset").unwrap();
+    }
+
+    for staged in [false, true] {
+        if staged {
+            run_git(&temp, &["add", "tracked.txt"]);
+        }
+
+        let output = cargo_bin_cmd!("compare-changes")
+            .current_dir(temp.path())
+            .arg("--validate")
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "validation failed:\n{}", String::from_utf8_lossy(&output.stderr));
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(
+            stdout.contains(&format!("{} patterns across 1 file match at least one file!", patterns.len())),
+            "expected validation of the untracked workflow, got:\n{}",
+            stdout
+        );
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn test_validate_excludes_ignored_files() {
+    let patterns = ["ignored.txt", "ignored-directory/**", "info-excluded.txt"];
+    let temp = prepare_workflow_with_patterns(&patterns);
+    run_git(&temp, &["init", "--quiet"]);
+    fs::write(
+        temp.path().join(".gitignore"),
+        "ignored.txt\nignored-directory/\n.github/workflows/ignored.yml\n",
+    )
+    .unwrap();
+    fs::write(temp.path().join(".git/info/exclude"), "info-excluded.txt\n").unwrap();
+    fs::create_dir(temp.path().join("ignored-directory")).unwrap();
+    for path in ["ignored.txt", "ignored-directory/file.txt", "info-excluded.txt"] {
+        fs::write(temp.path().join(path), "ignored").unwrap();
+    }
+    fs::write(
+        temp.path().join(".github/workflows/ignored.yml"),
+        "on:\n  push:\n    paths:\n      - missing.rs\n",
+    )
+    .unwrap();
+
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(temp.path())
+        .arg("--validate")
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(5));
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    for pattern in patterns {
+        assert!(
+            stderr.contains(&format!("no match for {}", pattern)),
+            "expected no match for '{}':\n{}",
+            pattern,
+            stderr
+        );
+    }
+    assert!(
+        stderr.contains("3 path patterns did not match any file"),
+        "unexpected validation failures:\n{}",
+        stderr
+    );
+    assert!(!stderr.contains("ignored.yml"), "validated an ignored workflow:\n{}", stderr);
+}
+
 #[test]
 fn test_changes_output() {
     let temp = prepare_workflow_with_patterns(&["1", "2", "3"]);

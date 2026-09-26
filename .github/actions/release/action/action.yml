@@ -52,11 +52,7 @@ runs:
       env:
         action: ${{ inputs.action }}
       run: |
-        git -C "release-$action" rm -rf .
-        .release/render.sh "action-$action" --output "release-$action"
-        cp -r .release/"action-$action"/bin "release-$action/"
-        cp .release/"action-$action"/README.md "release-$action/README.md"
-        cp LICENSE "release-$action/LICENSE"
+        .release/render.sh "$action-changes-action" --output "release-$action"
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:

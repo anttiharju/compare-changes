@@ -40,8 +40,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
         output: "release-nur-packages/pkgs/${{ github.event.repository.name }}"
       run: |
-        .release/render.sh nix -o "$output"
-        cp Cargo.lock "$output/Cargo.lock"
+        .release/render.sh nur-packages -o "$output"
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
