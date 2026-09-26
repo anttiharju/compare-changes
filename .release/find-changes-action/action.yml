@@ -3,11 +3,6 @@ description: "Outputs a JSON array of changed files for downstream actions."
 branding:
   icon: check-circle
   color: blue
-inputs:
-  version:
-    description: "compare-changes version to use, semver format without v prefix"
-    required: false
-    default: "$PKG_VERSION"
 runs:
   using: "composite"
   steps:
@@ -31,14 +26,14 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: /usr/local/bin/compare-changes
-        key: compare-changes_v${{ inputs.version }}_${{ steps.convert.outputs.target }}
+        key: compare-changes_v${PKG_VERSION}_${{ steps.convert.outputs.target }}
     - if: steps.binary.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
       name: Install
       working-directory: ${{ runner.temp }}
       shell: sh
       env:
         GH_TOKEN: ${{ github.token }}
-        VERSION: ${{ inputs.version }}
+        VERSION: "$PKG_VERSION"
         TARGET: ${{ steps.convert.outputs.target }}
       run: |
         "$$GITHUB_ACTION_PATH/bin/install.sh"
