@@ -29,7 +29,7 @@ class ${PKG_CLASS} < Formula
     end
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
       url "https://github.com/${PKG_OWNER}/${PKG_REPO}/releases/download/v#{version}/${PKG_REPO}-x86_64-unknown-linux-musl.tar.gz"
-      sha256 '${PKG_LINUX_INTEL_SHA}'
+      sha256 '${PKG_LINUX_X64_SHA}'
 
       def install
         bin.install '${PKG_REPO}'

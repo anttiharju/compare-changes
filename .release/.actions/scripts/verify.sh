@@ -4,7 +4,7 @@ set -euo pipefail
 case "$TARGET" in
   aarch64-apple-darwin) checksum="$MAC_ARM_SHA" ;;
   aarch64-unknown-linux-musl) checksum="$LINUX_ARM_SHA" ;;
-  x86_64-unknown-linux-musl) checksum="$LINUX_INTEL_SHA" ;;
+  x86_64-unknown-linux-musl) checksum="$LINUX_X64_SHA" ;;
   *) echo "Unsupported target: $TARGET" >&2; exit 1 ;;
 esac
 

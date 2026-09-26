@@ -65,7 +65,7 @@ runs:
         TARGET: ${{ steps.target.outputs.triple }}
         MAC_ARM_SHA: "$PKG_MAC_ARM_SHA"
         LINUX_ARM_SHA: "$PKG_LINUX_ARM_SHA"
-        LINUX_INTEL_SHA: "$PKG_LINUX_INTEL_SHA"
+        LINUX_X64_SHA: "$PKG_LINUX_X64_SHA"
       run: |
         "$$GITHUB_ACTION_PATH/scripts/verify.sh"
     - if: inputs.validate == 'true'
