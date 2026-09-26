@@ -48,24 +48,44 @@ runs:
         LINUX_X64_SHA: "$PKG_LINUX_X64_SHA"
       run: |
         "$$GITHUB_ACTION_PATH/scripts/verify.sh"
+    - name: Prepare checkout
+      shell: sh
+      run: |
+        mkdir .tmp-anttiharju-compare-changes # no -p on purpose: why would you have directory with this name in your repository?
+        printf '*\n' > .tmp-anttiharju-compare-changes/.gitignore
     - if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
       name: Checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
+        path: .tmp-anttiharju-compare-changes/${{ github.repository }}
         fetch-depth: 2
         persist-credentials: true
     - if: github.event_name == 'push'
       name: Checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
+        path: .tmp-anttiharju-compare-changes/${{ github.repository }}
         persist-credentials: true
     - name: Run
       id: run
+      working-directory: .tmp-anttiharju-compare-changes/${{ github.repository }}
       shell: sh
       env:
         BINARY: ${{ steps.check.outputs.directory }}/compare-changes
       run: |
         "$$BINARY" --find
+    - if: always()
+      name: Clean up checkout
+      shell: sh
+      run: |
+        directory=".tmp-anttiharju-compare-changes/$$GITHUB_REPOSITORY"
+        if [ -f "$$directory/.git/config" ]; then
+          credentials="$$(git config --file "$$directory/.git/config" --get "includeIf.gitdir:$$PWD/$$directory/.git.path" || true)"
+          case "$$credentials" in
+            "$$RUNNER_TEMP"/git-credentials-*.config) rm -f "$$credentials" ;;
+          esac
+        fi
+        rm -rf .tmp-anttiharju-compare-changes
 outputs:
   array:
     description: "JSON array of changed files."
