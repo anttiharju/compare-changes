@@ -40,7 +40,7 @@ jobs:
 
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0
+        uses: anttiharju/find-changes-action@v0.12.19
 
       - name: Echo changed files
         shell: sh
@@ -117,9 +117,9 @@ jobs:
           persist-credentials: false
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0
+        uses: anttiharju/find-changes-action@v0.12.19
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.12.19
         with:
           workflow: wildcard/shellcheck.yml # storing the stub workflow under wildcard/ prevents it from polluting your repository's $url/actions UI!
           changes: ${{ steps.changes.outputs.array }}

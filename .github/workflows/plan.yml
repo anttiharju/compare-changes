@@ -32,10 +32,10 @@ jobs:
           persist-credentials: false
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0
+        uses: anttiharju/find-changes-action@v0.12.19
       - name: Compare changes
         id: flake
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.12.19
         with:
           paths: |
             .cargo/zig/**
@@ -146,7 +146,7 @@ jobs:
 
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0
+        uses: anttiharju/find-changes-action@v0.12.19
 
       - name: Detect changes
         id: changed
