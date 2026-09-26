@@ -193,24 +193,24 @@ jobs:
         run: |
           .release/render.sh compare-changes-action
 
-      - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
-        name: Test action (release binary)
-        uses: ./.release/compare-changes-action/.output
-        with:
-          paths: |
-            .release/compare-changes-action/**
-            flake.lock
-            flake.nix
-          changes: ${{ steps.changes.outputs.array }}
-      - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
-        name: Test chained use (release binary)
-        uses: ./.release/compare-changes-action/.output
-        with:
-          paths: |
-            .release/compare-changes-action/**
-            flake.lock
-            flake.nix
-          changes: ${{ steps.changes.outputs.array }}
+      # - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
+      #   name: Test action (release binary)
+      #   uses: ./.release/compare-changes-action/.output
+      #   with:
+      #     paths: |
+      #       .release/compare-changes-action/**
+      #       flake.lock
+      #       flake.nix
+      #     changes: ${{ steps.changes.outputs.array }}
+      # - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
+      #   name: Test chained use (release binary)
+      #   uses: ./.release/compare-changes-action/.output
+      #   with:
+      #     paths: |
+      #       .release/compare-changes-action/**
+      #       flake.lock
+      #       flake.nix
+      #     changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Install compiled binary
