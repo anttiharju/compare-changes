@@ -97,12 +97,12 @@ for path in "${output_sources[@]}"; do
 done
 
 write_output() {
-  local source="$1" path="$2" pattern
+  local source="$1" path="$2" substitute="${3:-false}" pattern
   for pattern in "${output_patterns[@]}"; do
     case "$path/" in
       $pattern/*)
         mkdir -p "$output/$(dirname "./$path")"
-        if [[ "$source" == "template.$ext" ]]; then
+        if [[ "$substitute" == true ]]; then
           envsubst -i "$source" -no-unset -no-empty > "$output/$path"
         else
           cp -p "$source" "$output/$path"
@@ -113,15 +113,18 @@ write_output() {
   done
 }
 
-write_output "template.$ext" "$filename.$ext"
 write_output "$repo_root/LICENSE" LICENSE
 git ls-files -z --cached --others --exclude-standard -- . |
   while IFS= read -r -d '' path; do
     case "$path" in
-      .*|*/.*|values.sh|"template.$ext"|"${output#"$PWD"/}"/*) continue ;;
+      .*|*/.*|values.sh|"${output#"$PWD"/}"/*) continue ;;
     esac
     [[ -f "$path" ]] || continue
-    write_output "./$path" "$path"
+    if [[ "$path" != */* && "$path" != *.md ]]; then
+      write_output "./$path" "$filename.$ext" true
+    else
+      write_output "./$path" "$path"
+    fi
   done
 for path in "${output_sources[@]}"; do
   if [[ "$path" == ../* ]]; then
