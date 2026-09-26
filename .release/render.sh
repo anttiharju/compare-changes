@@ -40,11 +40,11 @@ infer_repository() {
 tag="$(git for-each-ref --sort=-creatordate --count=1 --format='%(refname:strip=2)' refs/tags)"
 export TAG="${tag:-v0.0.0}"
 export VERSION="${TAG#v}"
-export RELEASE_MODE="${RELEASE_MODE:-}"
-if [[ -z "$RELEASE_MODE" && -z "$tag" ]]; then
-  RELEASE_MODE=bootstrap
+export CHECKSUM_MODE="${CHECKSUM_MODE:-}"
+if [[ -z "$CHECKSUM_MODE" && -z "$tag" ]]; then
+  CHECKSUM_MODE=bootstrap
 fi
-if [[ "$RELEASE_MODE" = local ]]; then
+if [[ "$CHECKSUM_MODE" = local ]]; then
   export NO_CACHE=1
 fi
 if [[ -z "${GITHUB_SHA:-}" ]]; then

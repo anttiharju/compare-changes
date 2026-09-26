@@ -11,7 +11,7 @@ capture PKG_EXTENSION yml
 capture PKG_OUTPUT "* ../.actions/bash"
 capture PKG_VERSION "$VERSION"
 
-if [[ "$RELEASE_MODE" = bootstrap ]]; then
+if [[ "$CHECKSUM_MODE" = bootstrap ]]; then
   capture PKG_MACOS_ARM_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
   capture PKG_LINUX_X64_SHA TBD
@@ -20,7 +20,7 @@ fi
 
 repo="${GITHUB_REPOSITORY##*/}"
 
-if [[ "$RELEASE_MODE" = local ]]; then
+if [[ "$CHECKSUM_MODE" = local ]]; then
   repo_root="$(git rev-parse --show-toplevel)"
   macos_arm_sha="$(sha256sum "$repo_root/target/aarch64-apple-darwin/release/$repo" | cut -d ' ' -f1)"
   linux_arm_sha="$(sha256sum "$repo_root/target/aarch64-unknown-linux-musl/release/$repo" | cut -d ' ' -f1)"

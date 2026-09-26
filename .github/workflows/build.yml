@@ -30,7 +30,7 @@ jobs:
       contents: write
       id-token: write
     env:
-      RELEASE_MODE: local # Calculate checksums with locally built binaries instead of downloading from GitHub
+      CHECKSUM_MODE: local # Calculate checksums with locally built binaries instead of downloading from GitHub
     steps:
       - name: Checkout
         uses: actions/checkout@v7
