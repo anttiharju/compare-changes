@@ -15,4 +15,4 @@ runs:
       env:
         repository: ${{ github.event.repository.name }}
       run: |
-        rubocop ".release/brew/$repository.rb"
+        rubocop ".release/brew/.output/$repository.rb"

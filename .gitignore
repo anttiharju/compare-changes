@@ -29,5 +29,6 @@ site
 # Nix
 .direnv
 
-# Nested release checkouts
+# Release output
+/.release/*/.output/
 /release-*

@@ -14,7 +14,7 @@ if [[ -z "$pkg" ]] || [[ ! -d "$pkg" ]]; then
 fi
 
 # Parse flags
-output=".release/$pkg"
+output=".release/$pkg/.output"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-cache) export NO_CACHE=1; shift ;;
@@ -80,13 +80,21 @@ else
   source "$pkg/values.sh" | tee "$cache"
 fi
 
-cd "$pkg"
+cd -P "$pkg"
 # shellcheck source=/dev/null
 source "values.cache"
 filename="$PKG_FILENAME"
 ext="$PKG_EXTENSION"
-mkdir -p "$repo_root/$output"
-envsubst -i "template.$ext" -no-unset -no-empty > "$repo_root/$output/$filename.$ext"
-if [[ "$output" == ".release/$pkg" ]]; then
-  cp "$repo_root/$output/template.$ext" "$repo_root/$output/$filename.tpl.$ext" # easier to visually diff two gitignored files
-fi
+[[ "$output" == /* ]] || output="$repo_root/$output"
+mkdir -p "$output"
+output="$(cd "$output" && pwd -P)"
+envsubst -i "template.$ext" -no-unset -no-empty > "$output/$filename.$ext"
+cp "$repo_root/LICENSE" "$output/LICENSE"
+git ls-files -z --cached --others --exclude-standard -- . |
+  while IFS= read -r -d '' path; do
+    case "$path" in
+      .*|*/.*|values.sh|"template.$ext"|"${output#"$PWD"/}"/*) continue ;;
+    esac
+    mkdir -p "$output/$(dirname "./$path")"
+    cp -p "./$path" "$output/$path"
+  done

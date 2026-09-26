@@ -41,7 +41,6 @@ runs:
         output: "release-nur-packages/pkgs/${{ github.event.repository.name }}"
       run: |
         .release/render.sh nix -o "$output"
-        cp Cargo.lock "$output/Cargo.lock"
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:

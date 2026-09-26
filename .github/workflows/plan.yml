@@ -183,7 +183,7 @@ jobs:
 
       - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test action (release binary)
-        uses: ./.release/action-compare
+        uses: ./.release/action-compare/.output
         with:
           paths: |
             .release/action-compare/**
@@ -192,7 +192,7 @@ jobs:
           changes: ${{ steps.changes.outputs.array }}
       - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test chained use (release binary)
-        uses: ./.release/action-compare
+        uses: ./.release/action-compare/.output
         with:
           paths: |
             .release/action-compare/**
@@ -209,14 +209,14 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
         id: action
-        uses: ./.release/action-compare
+        uses: ./.release/action-compare/.output
         with:
           paths: |
             .release/action-compare/**
             flake.nix
             flake.lock
             .github/workflows/wildcard/release-action-compare.yml
-          changes: '[".release/action-compare/action.yml"]'
+          changes: '[".release/action-compare/.output/action.yml"]'
           debug: true
       - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action output (compiled binary)
