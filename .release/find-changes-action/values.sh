@@ -8,4 +8,5 @@ capture() {
 
 capture PKG_FILENAME action
 capture PKG_EXTENSION yml
+capture PKG_OUTPUT "* ../.actions"
 capture PKG_VERSION "${TAG#v}"
