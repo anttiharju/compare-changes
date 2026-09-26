@@ -213,7 +213,8 @@ jobs:
           changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
-        name: Install compiled binary
+        name: Inject compiled binary
+        id: binary
         env:
           GH_TOKEN: ${{ github.token }}
           binary: ${{ github.event.repository.name }}
@@ -221,6 +222,8 @@ jobs:
           . .release/compare-changes-action/values.cache
           directory="$RUNNER_TEMP/anttiharju/compare-changes/${PKG_VERSION#v}"
           mkdir -p "$directory"
+          mv "$directory/compare-changes" "$directory/compare-changes.original"
+          echo "directory=$directory" >> "$GITHUB_OUTPUT"
           mv "target/x86_64-unknown-linux-musl/debug/$binary" "$directory/compare-changes"
           checksum="$(sha256sum "$directory/compare-changes" | cut -d ' ' -f1)"
           printf 'export PKG_LINUX_X64_SHA="%s"\n' "$checksum" >> .release/compare-changes-action/values.cache
@@ -245,6 +248,14 @@ jobs:
           if [[ "$changed" != "true" ]]; then
             exit 1
           fi
+
+      - if: always() && !cancelled() && steps.binary.outputs.directory != ''
+        name: Restore release binary
+        env:
+          directory: ${{ steps.binary.outputs.directory }}
+        run: |
+          rm "$directory/compare-changes" # the injected one, not needed anymore
+          mv "$directory/compare-changes.original" "$directory/compare-changes"
 
       - if: always() && !cancelled()
         name: action-validator
