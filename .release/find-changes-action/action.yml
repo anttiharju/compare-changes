@@ -10,7 +10,7 @@ runs:
       id: binary
       shell: sh
       run: |
-        "$$GITHUB_ACTION_PATH/bin/binary.sh"
+        "$$GITHUB_ACTION_PATH/scripts/binary.sh"
     - if: steps.binary.outputs.installed != 'true'
       name: Convert target
       id: convert
@@ -19,7 +19,7 @@ runs:
         OS: ${{ runner.os }} # Possible values are Linux, Windows, or macOS.
         ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
       run: |
-        "$$GITHUB_ACTION_PATH/bin/convert.sh"
+        "$$GITHUB_ACTION_PATH/scripts/convert.sh"
     - if: steps.binary.outputs.installed != 'true'
       name: Cache
       id: cache
@@ -36,7 +36,7 @@ runs:
         VERSION: "$PKG_VERSION"
         TARGET: ${{ steps.convert.outputs.target }}
       run: |
-        "$$GITHUB_ACTION_PATH/bin/install.sh"
+        "$$GITHUB_ACTION_PATH/scripts/install.sh"
     - if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
       name: Checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

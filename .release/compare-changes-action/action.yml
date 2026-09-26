@@ -30,7 +30,7 @@ runs:
       id: binary
       shell: sh
       run: |
-        "$$GITHUB_ACTION_PATH/bin/binary.sh"
+        "$$GITHUB_ACTION_PATH/scripts/binary.sh"
     - if: steps.binary.outputs.installed != 'true'
       name: Convert target
       id: convert
@@ -39,7 +39,7 @@ runs:
         OS: ${{ runner.os }} # Possible values are Linux, Windows, or macOS.
         ARCH: ${{ runner.arch }} # Possible values are X86, X64, ARM, or ARM64.
       run: |
-        "$$GITHUB_ACTION_PATH/bin/convert.sh"
+        "$$GITHUB_ACTION_PATH/scripts/convert.sh"
     - if: steps.binary.outputs.installed != 'true'
       name: Cache
       id: cache
@@ -56,7 +56,7 @@ runs:
         VERSION: "$PKG_VERSION"
         TARGET: ${{ steps.convert.outputs.target }}
       run: |
-        "$$GITHUB_ACTION_PATH/bin/install.sh"
+        "$$GITHUB_ACTION_PATH/scripts/install.sh"
     - if: inputs.validate == 'true'
       name: Validate
       shell: sh
@@ -71,7 +71,7 @@ runs:
         CHANGES: ${{ inputs.changes }}
         DEBUG: ${{ inputs.debug }}
       run: |
-        "$$GITHUB_ACTION_PATH/bin/run.sh"
+        "$$GITHUB_ACTION_PATH/scripts/run.sh"
 outputs:
   changed:
     description: "Boolean indicating if any changed files match the configured paths (from 'paths' input or the workflow's on.push.paths)."
