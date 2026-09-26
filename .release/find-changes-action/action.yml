@@ -6,13 +6,13 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Check installation
+    - name: Check cache
       id: check
       shell: sh
       env:
         VERSION: "$PKG_VERSION"
       run: |
-        "$$GITHUB_ACTION_PATH/scripts/install-check.sh"
+        "$$GITHUB_ACTION_PATH/scripts/cache.sh"
     - name: Generate target triple
       id: target
       shell: sh
