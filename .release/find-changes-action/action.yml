@@ -6,15 +6,14 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Check installation
+    - name: Check cache
       id: check
       shell: sh
       env:
         VERSION: "$PKG_VERSION"
       run: |
-        "$$GITHUB_ACTION_PATH/scripts/install-check.sh"
-    - if: steps.check.outputs.installed != 'true'
-      name: Generate target triple
+        "$$GITHUB_ACTION_PATH/scripts/cache.sh"
+    - name: Generate target triple
       id: target
       shell: sh
       env:
@@ -39,6 +38,16 @@ runs:
         TARGET: ${{ steps.target.outputs.triple }}
       run: |
         "$$GITHUB_ACTION_PATH/scripts/install.sh"
+    - name: Verify binary
+      shell: sh
+      env:
+        BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
+        TARGET: ${{ steps.target.outputs.triple }}
+        MACOS_ARM_SHA: "$PKG_MACOS_ARM_SHA"
+        LINUX_ARM_SHA: "$PKG_LINUX_ARM_SHA"
+        LINUX_X64_SHA: "$PKG_LINUX_X64_SHA"
+      run: |
+        "$$GITHUB_ACTION_PATH/scripts/verify.sh"
     - if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
       name: Checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

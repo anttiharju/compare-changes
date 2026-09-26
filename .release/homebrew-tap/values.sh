@@ -21,10 +21,9 @@ capture PKG_VERSION "${TAG#v}"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
 if [[ "$TAG" = "v0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$TAG" &>/dev/null; then
-  capture PKG_MAC_INTEL_SHA TBD
-  capture PKG_MAC_ARM_SHA TBD
+  capture PKG_MACOS_ARM_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
-  capture PKG_LINUX_INTEL_SHA TBD
+  capture PKG_LINUX_X64_SHA TBD
   exit 0
 fi
 
@@ -35,9 +34,9 @@ gh release download "$TAG" --pattern "$pattern" --clobber
 for archive in $pattern; do
   echo "# $archive"
 done
-mac_arm_sha="$([[ -f "$repo-aarch64-apple-darwin.tar.gz" ]] && sha256sum "$repo-aarch64-apple-darwin.tar.gz" | cut -d ' ' -f1 || echo "TBD")"
-capture PKG_MAC_ARM_SHA "$mac_arm_sha"
+macos_arm_sha="$([[ -f "$repo-aarch64-apple-darwin.tar.gz" ]] && sha256sum "$repo-aarch64-apple-darwin.tar.gz" | cut -d ' ' -f1 || echo "TBD")"
+capture PKG_MACOS_ARM_SHA "$macos_arm_sha"
 linux_arm_sha="$([[ -f "$repo-aarch64-unknown-linux-musl.tar.gz" ]] && sha256sum "$repo-aarch64-unknown-linux-musl.tar.gz" | cut -d ' ' -f1 || echo "TBD")"
 capture PKG_LINUX_ARM_SHA "$linux_arm_sha"
-linux_intel_sha="$([[ -f "$repo-x86_64-unknown-linux-musl.tar.gz" ]] && sha256sum "$repo-x86_64-unknown-linux-musl.tar.gz" | cut -d ' ' -f1 || echo "TBD")"
-capture PKG_LINUX_INTEL_SHA "$linux_intel_sha"
+linux_x64_sha="$([[ -f "$repo-x86_64-unknown-linux-musl.tar.gz" ]] && sha256sum "$repo-x86_64-unknown-linux-musl.tar.gz" | cut -d ' ' -f1 || echo "TBD")"
+capture PKG_LINUX_X64_SHA "$linux_x64_sha"

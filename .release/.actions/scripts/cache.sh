@@ -19,5 +19,5 @@ else
 fi
 
 if [[ -f ./compare-changes && -x ./compare-changes ]]; then
-  echo "available=true" >> "$GITHUB_OUTPUT"
+  echo "installed=true" >> "$GITHUB_OUTPUT"
 fi
