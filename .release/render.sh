@@ -23,7 +23,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-mock_github_actions_env() {
+infer_repository() {
   #remote_url=https://example.com/owner/repository.git
   #remote_url=git@example.com:owner/repository.git
   remote_url="$(git remote get-url origin)"
@@ -34,21 +34,25 @@ mock_github_actions_env() {
 
   repo="$(basename --suffix .git "$remote_url")"
   export GITHUB_REPOSITORY="$owner/$repo"
-
-  if [[ "$TAG" = "v0.0.0" ]]; then
-    rev="$(gh api "repos/$GITHUB_REPOSITORY/commits/HEAD" --jq '.sha')"
-  else
-    rev="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" --jq '.object.sha')"
-  fi
-  export GITHUB_SHA="$rev"
 }
 
 # Setup env
-tag="$(git tag --sort=-creatordate | head -n1)"
-tag="${tag:-v0.0.0}"
-export TAG="$tag"
+tag="$(git for-each-ref --sort=-creatordate --count=1 --format='%(refname:strip=2)' refs/tags)"
+export TAG="${tag:-v0.0.0}"
+export VERSION="${TAG#v}"
+export MODE="${MODE:-}"
+if [[ -z "$MODE" && -z "$tag" ]]; then
+  MODE=bootstrap
+fi
+if [[ "$MODE" = release ]]; then
+  export NO_CACHE=1
+fi
+if [[ -z "${GITHUB_SHA:-}" ]]; then
+  GITHUB_SHA="$(git rev-parse "${tag:-HEAD}^{commit}")"
+  export GITHUB_SHA
+fi
 
-[[ -z "${GITHUB_REPOSITORY:-}" ]] && mock_github_actions_env
+[[ -z "${GITHUB_REPOSITORY:-}" ]] && infer_repository
 
 # Paths
 cache="$pkg/values.cache"
@@ -58,7 +62,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 # Check if values.sh changed
 calculate_key() {
   local pkg="$1"
-  content=$(git log -1 --format=%H -- "$repo_root/.release/$pkg" "$repo_root/.release/render.sh")
+  content=$(git log -1 --format=%H -- "$repo_root/.release/$pkg" "$repo_root/.release/render.sh"  "$repo_root/.release/.actions/values.sh")
   tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "no_tag")
   echo "$tag-$content"
 }

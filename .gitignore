@@ -30,5 +30,6 @@ site
 .direnv
 
 # Release output
+/build/
 /.release/*/.output/
 /release-*

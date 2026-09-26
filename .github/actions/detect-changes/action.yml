@@ -29,6 +29,8 @@ runs:
       with:
         paths: |
           .release/compare-changes-action/**
+          .release/.actions/**
+          .release/render.sh
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
@@ -37,6 +39,8 @@ runs:
       with:
         paths: |
           .release/find-changes-action/**
+          .release/.actions/**
+          .release/render.sh
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
@@ -45,6 +49,7 @@ runs:
       with:
         paths: |
           .release/homebrew-tap/**
+          .release/render.sh
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
@@ -61,6 +66,7 @@ runs:
       with:
         paths: |
           .release/nur-packages/**
+          .release/render.sh
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
