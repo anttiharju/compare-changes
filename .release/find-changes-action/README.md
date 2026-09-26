@@ -33,9 +33,14 @@ jobs:
   example:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0 # handles checkout
+        uses: anttiharju/find-changes-action@v0.12.19
 
       - name: Echo changed files
         shell: sh
@@ -106,11 +111,15 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0 # handles checkout
+        uses: anttiharju/find-changes-action@v0.12.19
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.12.19
         with:
           workflow: wildcard/shellcheck.yml # storing the stub workflow under wildcard/ prevents it from polluting your repository's $url/actions UI!
           changes: ${{ steps.changes.outputs.array }}
@@ -118,6 +127,12 @@ jobs:
         name: shellcheck
         run: git ls-files -z '*.sh' | xargs --null shellcheck --color=always
 ```
+
+## Checkout
+
+This action assumes that your repository does not have a directory named `.tmp-anttiharju-compare-changes` for how it uses `actions/checkout` internally. It does not replace your existing checkout. A `.gitignore` file with `*` in `.tmp-anttiharju-compare-changes` hides the temporary files from your Git status. The action also removes the temporary directory and its checkout credentials after use, including after a failed step.
+
+If you need repository files, use `actions/checkout` separately. This way composability of the steps is retained and this action does not need to pass through all inputs and outputs of `actions/checkout`.
 
 ## More information
 

@@ -26,12 +26,16 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0 # handles checkout
+        uses: anttiharju/find-changes-action@v0.12.19
       - name: Compare changes
         id: flake
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v0.12.19
         with:
           paths: |
             .cargo/zig/**
@@ -134,9 +138,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-tags: true
+
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0 # handles checkout
+        uses: anttiharju/find-changes-action@v0.12.19
 
       - name: Detect changes
         id: changed
@@ -181,7 +191,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git fetch origin 'refs/tags/*:refs/tags/*' # TODO: https://github.com/anttiharju/compare-changes/issues/258
           .release/render.sh compare-changes-action
 
       - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
