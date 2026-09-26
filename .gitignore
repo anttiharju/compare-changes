@@ -23,13 +23,12 @@ target
 # MkDocs
 site
 
-# archive.sh
+# build.sh
 *.tar.gz
 
 # Nix
 .direnv
 
 # Release output
-/build/
 /.release/*/.output/
 /release-*

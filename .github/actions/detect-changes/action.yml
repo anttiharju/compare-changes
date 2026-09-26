@@ -57,7 +57,7 @@ runs:
       uses: anttiharju/compare-changes-action@v0.12.19
       with:
         paths: |
-          .release/archive.sh
+          .release/build.sh
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
