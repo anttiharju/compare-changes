@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 debug_flag=""
 if [[ "$DEBUG" = "true" ]]; then
