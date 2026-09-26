@@ -178,6 +178,8 @@ jobs:
 
       - if: always() && !cancelled() && ((steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
         name: Render action.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git fetch origin 'refs/tags/*:refs/tags/*' # TODO: https://github.com/anttiharju/compare-changes/issues/258
           .release/render.sh compare-changes-action
@@ -204,6 +206,7 @@ jobs:
       - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Install compiled binary
         env:
+          GH_TOKEN: ${{ github.token }}
           binary: ${{ github.event.repository.name }}
         run: |
           . .release/compare-changes-action/values.cache
