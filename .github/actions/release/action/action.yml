@@ -51,6 +51,7 @@ runs:
       shell: sh
       env:
         action: ${{ inputs.action }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         .release/render.sh "$action-changes-action" --output "release-$action"
     - name: Commit changes
