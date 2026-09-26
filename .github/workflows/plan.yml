@@ -210,6 +210,9 @@ jobs:
           directory="$RUNNER_TEMP/anttiharju/compare-changes/${PKG_VERSION#v}"
           mkdir -p "$directory"
           mv "target/x86_64-unknown-linux-musl/debug/$binary" "$directory/compare-changes"
+          checksum="$(sha256sum "$directory/compare-changes" | cut -d ' ' -f1)"
+          printf 'export PKG_LINUX_INTEL_SHA="%s"\n' "$checksum" >> .release/compare-changes-action/values.cache
+          .release/render.sh compare-changes-action
       - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
         id: action
