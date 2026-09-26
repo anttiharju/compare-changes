@@ -159,7 +159,7 @@ jobs:
         run: cargo build --locked --all-features --target aarch64-apple-darwin
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
         run: cargo build --locked --all-features --target aarch64-unknown-linux-musl
-      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.action-compare == 'true' )
+      - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push' || steps.changed.outputs.compare-changes-action == 'true' )
         run: cargo build --locked --all-features --target x86_64-unknown-linux-musl
 
       - if: always() && !cancelled() && (steps.changed.outputs.rust == 'true' || github.event_name == 'push')
@@ -176,49 +176,48 @@ jobs:
         run: |
           relcheck all --verbose --color=always
 
-      - if: always() && !cancelled() && ((steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
+      - if: always() && !cancelled() && ((steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
         name: Render action.yml
         run: |
-          .release/render.sh action-compare
+          .release/render.sh compare-changes-action
 
-      - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test action (release binary)
-        uses: ./.release/action-compare/.output
+        uses: ./.release/compare-changes-action/.output
         with:
           paths: |
-            .release/action-compare/**
+            .release/compare-changes-action/**
             flake.lock
             flake.nix
           changes: ${{ steps.changes.outputs.array }}
-      - if: always() && !cancelled() && steps.changed.outputs.action-compare == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
+      - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
         name: Test chained use (release binary)
-        uses: ./.release/action-compare/.output
+        uses: ./.release/compare-changes-action/.output
         with:
           paths: |
-            .release/action-compare/**
+            .release/compare-changes-action/**
             flake.lock
             flake.nix
           changes: ${{ steps.changes.outputs.array }}
 
-      - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Move compiled version to /usr/local/bin
         env:
           binary: ${{ github.event.repository.name }}
         run: |
           mv "target/x86_64-unknown-linux-musl/debug/$binary" /usr/local/bin/
-      - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
         id: action
-        uses: ./.release/action-compare/.output
+        uses: ./.release/compare-changes-action/.output
         with:
           paths: |
-            .release/action-compare/**
+            .release/compare-changes-action/**
             flake.nix
             flake.lock
-            .github/workflows/wildcard/release-action-compare.yml
-          changes: '[".release/action-compare/.output/action.yml"]'
+          changes: '[".release/compare-changes-action/.output/action.yml"]'
           debug: true
-      - if: always() && !cancelled() && (steps.changed.outputs.action-compare == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
+      - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action output (compiled binary)
         env:
           changed: ${{ steps.action.outputs.changed }}

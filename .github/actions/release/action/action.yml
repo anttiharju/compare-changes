@@ -52,7 +52,7 @@ runs:
       env:
         action: ${{ inputs.action }}
       run: |
-        .release/render.sh "action-$action" --output "release-$action"
+        .release/render.sh "$action-changes-action" --output "release-$action"
     - name: Commit changes
       uses: ./.github/actions/commit-changes
       with:
