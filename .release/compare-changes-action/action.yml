@@ -63,7 +63,7 @@ runs:
       env:
         BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
         TARGET: ${{ steps.target.outputs.triple }}
-        MAC_ARM_SHA: "$PKG_MAC_ARM_SHA"
+        MACOS_ARM_SHA: "$PKG_MACOS_ARM_SHA"
         LINUX_ARM_SHA: "$PKG_LINUX_ARM_SHA"
         LINUX_X64_SHA: "$PKG_LINUX_X64_SHA"
       run: |

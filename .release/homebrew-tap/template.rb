@@ -10,7 +10,7 @@ class ${PKG_CLASS} < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/${PKG_OWNER}/${PKG_REPO}/releases/download/v#{version}/${PKG_REPO}-aarch64-apple-darwin.tar.gz"
-      sha256 '${PKG_MAC_ARM_SHA}'
+      sha256 '${PKG_MACOS_ARM_SHA}'
 
       def install
         bin.install '${PKG_REPO}'
