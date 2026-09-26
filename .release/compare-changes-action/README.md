@@ -23,14 +23,14 @@ jobs:
           persist-credentials: false
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0.12.19
+        uses: anttiharju/find-changes-action@v0
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0.12.19
+        uses: anttiharju/compare-changes-action@v0
         with:
           workflow: wildcard/shellcheck.yml # see .github/workflows/wildcard/shellcheck.yml below
           changes: ${{ steps.changes.outputs.array }}
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0.12.19
+        uses: anttiharju/compare-changes-action@v0
         with:
           paths: |
             **.sh

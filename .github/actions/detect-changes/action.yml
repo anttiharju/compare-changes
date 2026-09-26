@@ -8,7 +8,7 @@ runs:
   using: "composite"
   steps:
     - id: actionlint
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .github/*/**.yml
@@ -16,7 +16,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: prettier
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           **.md
@@ -25,7 +25,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: compare-changes-action
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .release/compare-changes-action/**
@@ -35,7 +35,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: find-changes-action
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .release/find-changes-action/**
@@ -45,7 +45,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: homebrew-tap
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .release/homebrew-tap/**
@@ -54,7 +54,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: github
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .release/build.sh
@@ -62,7 +62,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: nix
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .release/nur-packages/**
@@ -71,7 +71,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: rs
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           **.rs
@@ -81,7 +81,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: rust
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           .cargo/**
@@ -93,12 +93,12 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: shellcheck
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         workflow: wildcard/shellcheck.yml
         changes: ${{ inputs.changes }}
     - id: src
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           src/**
@@ -106,7 +106,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: zensical
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           docs/**
@@ -115,7 +115,7 @@ runs:
           flake.nix
         changes: ${{ inputs.changes }}
     - id: zizmor
-      uses: anttiharju/compare-changes-action@v0.12.19
+      uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
           **/action.yml
