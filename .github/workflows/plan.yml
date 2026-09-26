@@ -179,6 +179,7 @@ jobs:
       - if: always() && !cancelled() && ((steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
         name: Render action.yml
         run: |
+          git fetch origin 'refs/tags/*:refs/tags/*' # TODO: https://github.com/anttiharju/compare-changes/issues/258
           .release/render.sh compare-changes-action
 
       - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
