@@ -51,4 +51,4 @@ runs:
         git reset --hard && git clean -df
         git push origin "$tag"
         gh release create "$tag" --title="$title" --generate-notes --draft
-        gh release upload "$tag" "$repository-*.tar.gz"
+        gh release upload "$tag" $repository-*.tar.gz
