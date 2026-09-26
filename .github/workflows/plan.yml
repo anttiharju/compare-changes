@@ -179,6 +179,7 @@ jobs:
       - if: always() && !cancelled() && ((steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major') || (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true'))
         name: Render action.yml
         run: |
+          git fetch origin 'refs/tags/*:refs/tags/*' # TODO: https://github.com/anttiharju/compare-changes/issues/258
           .release/render.sh compare-changes-action
 
       - if: always() && !cancelled() && steps.changed.outputs.compare-changes-action == 'true' && github.event_name != 'push' && steps.semantic.outputs.type != 'major'
@@ -201,11 +202,14 @@ jobs:
           changes: ${{ steps.changes.outputs.array }}
 
       - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
-        name: Move compiled version to /usr/local/bin
+        name: Install compiled binary
         env:
           binary: ${{ github.event.repository.name }}
         run: |
-          mv "target/x86_64-unknown-linux-musl/debug/$binary" /usr/local/bin/
+          . .release/compare-changes-action/values.cache
+          directory="$RUNNER_TEMP/anttiharju/compare-changes/${PKG_VERSION#v}"
+          mkdir -p "$directory"
+          mv "target/x86_64-unknown-linux-musl/debug/$binary" "$directory/compare-changes"
       - if: always() && !cancelled() && (steps.changed.outputs.compare-changes-action == 'true' || github.event_name == 'push' || steps.changed.outputs.rust == 'true')
         name: Test action (compiled binary)
         id: action

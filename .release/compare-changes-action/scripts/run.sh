@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 debug_flag=""
 if [[ "$DEBUG" = "true" ]]; then
@@ -17,8 +18,8 @@ fi
 
 if [[ -n "$WORKFLOW" ]]; then
   printf 'compare-changes --workflow "%s" --changes "%s"\n' "$WORKFLOW" "$CHANGES"
-  compare-changes --workflow "$WORKFLOW" --changes "$CHANGES" $debug_flag
+  "$BINARY" --workflow "$WORKFLOW" --changes "$CHANGES" $debug_flag
 else
   printf 'compare-changes --paths "<inline>" --changes "%s"\n' "$CHANGES"
-  compare-changes --paths "$PATHS" --changes "$CHANGES" $debug_flag
+  "$BINARY" --paths "$PATHS" --changes "$CHANGES" $debug_flag
 fi

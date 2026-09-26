@@ -88,7 +88,20 @@ ext="$PKG_EXTENSION"
 [[ "$output" == /* ]] || output="$repo_root/$output"
 mkdir -p "$output"
 output="$(cd "$output" && pwd -P)"
-read -r -a output_sources <<< "${PKG_OUTPUT:-*}"
+read -r -a output_entries <<< "${PKG_OUTPUT:-*}"
+output_sources=()
+shopt -s dotglob nullglob
+for path in "${output_entries[@]}"; do
+  if [[ "$path" == ../* && -d "$path" ]]; then
+    for source in "$path"/*; do
+      [[ "${source##*/}" == .git ]] && continue
+      output_sources+=("$source")
+    done
+  else
+    output_sources+=("$path")
+  fi
+done
+shopt -u dotglob nullglob
 output_patterns=()
 for path in "${output_sources[@]}"; do
   [[ "$path" == ../* ]] && path="${path##*/}"
@@ -104,14 +117,23 @@ write_output() {
         mkdir -p "$output/$(dirname "./$path")"
         if [[ "$substitute" == true ]]; then
           envsubst -i "$source" -no-unset -no-empty > "$output/$path"
+        elif [[ -d "$source" ]]; then
+          mkdir -p "$output/$path"
+          cp -r -p "$source/." "$output/$path/"
         else
-          cp -p "$source" "$output/$path"
+          cp -r -p "$source" "$output/$path"
         fi
         return
         ;;
     esac
   done
 }
+
+for path in "${output_sources[@]}"; do
+  if [[ "$path" == ../* ]]; then
+    write_output "$path" "${path##*/}"
+  fi
+done
 
 write_output "$repo_root/LICENSE" LICENSE
 git ls-files -z --cached --others --exclude-standard -- . |
@@ -126,8 +148,3 @@ git ls-files -z --cached --others --exclude-standard -- . |
       write_output "./$path" "$path"
     fi
   done
-for path in "${output_sources[@]}"; do
-  if [[ "$path" == ../* ]]; then
-    write_output "$path" "${path##*/}"
-  fi
-done
