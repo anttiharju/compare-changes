@@ -62,7 +62,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 # Check if values.sh changed
 calculate_key() {
   local pkg="$1"
-  content=$(git log -1 --format=%H -- "$repo_root/.release/$pkg" "$repo_root/.release/render.sh"  "$repo_root/.release/.actions/values.sh")
+  content=$(git log -1 --format=%H -- "$repo_root/.release/$pkg" "$repo_root/.release/render.sh"  "$repo_root/.release/.actions")
   tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "no_tag")
   echo "$tag-$content"
 }
