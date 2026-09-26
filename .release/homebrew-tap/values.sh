@@ -21,7 +21,6 @@ capture PKG_VERSION "${TAG#v}"
 capture PKG_OWNER "${GITHUB_REPOSITORY%%/*}"
 
 if [[ "$TAG" = "v0.0.0" ]] || ! gh api "repos/{owner}/{repo}/git/ref/tags/$TAG" &>/dev/null; then
-  capture PKG_MAC_INTEL_SHA TBD
   capture PKG_MAC_ARM_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
   capture PKG_LINUX_X64_SHA TBD
