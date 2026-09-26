@@ -60,7 +60,7 @@ runs:
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
-          .release/nix/**
+          .release/nur-packages/**
           flake.lock
           flake.nix
         changes: ${{ inputs.changes }}
