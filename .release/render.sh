@@ -88,6 +88,7 @@ ext="$PKG_EXTENSION"
 [[ "$output" == /* ]] || output="$repo_root/$output"
 mkdir -p "$output"
 output="$(cd "$output" && pwd -P)"
+find "$output" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
 envsubst -i "template.$ext" -no-unset -no-empty > "$output/$filename.$ext"
 cp "$repo_root/LICENSE" "$output/LICENSE"
 git ls-files -z --cached --others --exclude-standard -- . |
