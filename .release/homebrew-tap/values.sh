@@ -21,14 +21,14 @@ capture PKG_DESC "$desc"
 homepage="$(gh api "repos/{owner}/{repo}" --jq .homepage)"
 capture PKG_HOMEPAGE "$homepage"
 
-if [[ "$MODE" = bootstrap ]]; then
+if [[ "$RELEASE_MODE" = bootstrap ]]; then
   capture PKG_MACOS_ARM_SHA TBD
   capture PKG_LINUX_ARM_SHA TBD
   capture PKG_LINUX_X64_SHA TBD
   exit 0
 fi
 
-if [[ "$MODE" = release ]]; then
+if [[ "$RELEASE_MODE" = local ]]; then
   repo_root="$(git rev-parse --show-toplevel)"
   macos_arm_sha="$(sha256sum "$repo_root/$repo-aarch64-apple-darwin.tar.gz" | cut -d ' ' -f1)"
   linux_arm_sha="$(sha256sum "$repo_root/$repo-aarch64-unknown-linux-musl.tar.gz" | cut -d ' ' -f1)"
