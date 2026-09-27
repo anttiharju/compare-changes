@@ -11,5 +11,5 @@ esac
 if command -v sha256sum >/dev/null 2>&1; then
   printf '%s  %s\n' "$checksum" "$BINARY" | sha256sum --check
 else
-  printf '%s  %s\n' "$checksum" "$BINARY" | shasum -a 256 --check
+  printf '%s  %s\n' "$checksum" "$BINARY" | shasum -a 256 -c
 fi
