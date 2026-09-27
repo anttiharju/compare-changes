@@ -1,0 +1,75 @@
+name: "Filter changes"
+description: "Filter a JSON array of changed files with one GitHub Actions path pattern."
+branding:
+  icon: filter
+  color: green
+inputs:
+  filter:
+    description: "One path pattern. The action evaluates each changed file independently against this pattern."
+    required: true
+  changes:
+    description: "JSON array of changed files (from anttiharju/find-changes-action)"
+    required: true
+  debug:
+    description: "Enable compare-changes --debug output (true/false)"
+    required: false
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Check cache
+      id: check
+      shell: sh
+      env:
+        VERSION: "$PKG_VERSION"
+      run: |
+        "$$GITHUB_ACTION_PATH/scripts/cache.sh"
+    - name: Generate target triple
+      id: target
+      shell: sh
+      env:
+        OS: ${{ runner.os }}
+        ARCH: ${{ runner.arch }}
+      run: |
+        "$$GITHUB_ACTION_PATH/scripts/target.sh"
+    - if: steps.check.outputs.installed != 'true'
+      name: Cache
+      id: cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.check.outputs.directory }}/compare-changes
+        key: compare-changes_${PKG_VERSION}_${{ steps.target.outputs.triple }}
+    - if: steps.check.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
+      name: Install
+      working-directory: ${{ steps.check.outputs.directory }}
+      shell: sh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VERSION: "$PKG_VERSION"
+        TARGET: ${{ steps.target.outputs.triple }}
+      run: |
+        "$$GITHUB_ACTION_PATH/scripts/install.sh"
+    - name: Verify binary
+      shell: sh
+      env:
+        BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
+        TARGET: ${{ steps.target.outputs.triple }}
+        MACOS_ARM_SHA: "$PKG_MACOS_ARM_SHA"
+        LINUX_ARM_SHA: "$PKG_LINUX_ARM_SHA"
+        LINUX_X64_SHA: "$PKG_LINUX_X64_SHA"
+      run: |
+        "$$GITHUB_ACTION_PATH/scripts/verify.sh"
+    - name: Run
+      id: run
+      shell: bash
+      env:
+        BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
+        FILTER: "${{ inputs.filter }}"
+        CHANGES: "${{ inputs.changes }}"
+        DEBUG: "${{ inputs.debug }}"
+      run: |
+        "$$GITHUB_ACTION_PATH/scripts/run.sh"
+outputs:
+  array:
+    description: "JSON array of changed files that match the path pattern."
+    value: ${{ steps.run.outputs.array }}

@@ -23,6 +23,7 @@ updates:
       - "/.github/actions/*"
       - "/.release/compare-changes-action"
       - "/.release/find-changes-action"
+      - "/.release/filter-changes-action"
     patterns:
       - "*"
     ignore:

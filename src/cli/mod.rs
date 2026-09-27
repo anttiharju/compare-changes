@@ -7,23 +7,27 @@ use style::get_style;
 #[derive(Parser)]
 #[command(
     version,
-    about = "Compare wildcard paths to changed files, or detect changed files from GitHub event context with --find.",
+    about = "Compare or filter changed files with wildcard paths, or find changed files from GitHub event context with --find.",
     styles = get_style()
 )]
 pub struct Args {
     /// Find changed files from the git diff base inferred from GitHub Actions event context
-    #[arg(short, long, default_value_t = false, conflicts_with_all = ["workflow", "paths", "changes", "validate"])]
+    #[arg(short, long, default_value_t = false, conflicts_with_all = ["workflow", "paths", "changes", "validate", "filter"])]
     pub find: bool,
 
-    /// Validate that path patterns in workflows and compare-changes-action invocations match at least one file in the repository
-    #[arg(long, default_value_t = false, conflicts_with_all = ["workflow", "paths", "changes", "find"])]
+    /// Return a JSON array of changed files that match one path pattern
+    #[arg(long, default_value_t = false, requires = "paths", conflicts_with_all = ["find", "validate", "workflow"])]
+    pub filter: bool,
+
+    /// Validate that workflow and action path patterns match at least one file in the repository
+    #[arg(long, default_value_t = false, conflicts_with_all = ["workflow", "paths", "changes", "find", "filter"])]
     pub validate: bool,
 
     /// Workflow file under .github/workflows/
     #[arg(short, long, value_name = "FILE", required_unless_present_any = ["find", "validate", "paths"], conflicts_with = "paths")]
     pub workflow: Option<PathBuf>,
 
-    /// Newline-separated inline path patterns (alternative to --workflow)
+    /// Newline-separated comparison patterns, or one pattern with --filter (alternative to --workflow)
     #[arg(short, long, value_name = "PATHS", required_unless_present_any = ["find", "validate", "workflow"])]
     pub paths: Option<String>,
 

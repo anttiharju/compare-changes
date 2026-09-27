@@ -20,7 +20,7 @@ pub fn run(debug: bool) -> Result<(), String> {
     let mut checked_patterns = 0usize;
     let mut header_printed = false;
 
-    // Pre-scan every YAML file for compare-changes-action invocations so we can
+    // Pre-scan every YAML file for comparison and filter action invocations so we can
     // both (a) validate their inline `paths:` blocks below and (b) count how
     // many times each shared workflow is referenced via `workflow: <name>`.
     // Value: list of (referencing file, 1-based line of the `workflow:` key).
@@ -33,7 +33,7 @@ pub fn run(debug: bool) -> Result<(), String> {
         let Ok(content) = fs::read_to_string(file) else {
             continue;
         };
-        if !content.contains("compare-changes-action@") {
+        if !contains_path_action(&content) {
             continue;
         }
         let invocations = extract_action_invocations(&content);
@@ -69,7 +69,7 @@ pub fn run(debug: bool) -> Result<(), String> {
         }
     }
 
-    // 2. Validate `with.paths` in every YAML file that invokes compare-changes-action
+    // 2. Validate `with.paths` in every YAML file that invokes a comparison or filter action
     for (file, invocations) in &action_invocations {
         for inv in invocations {
             if inv.paths.is_empty() {
@@ -217,6 +217,12 @@ fn is_workflow_yaml(path: &str) -> bool {
     is_yaml(path) && path.starts_with(".github/workflows/")
 }
 
+fn contains_path_action(content: &str) -> bool {
+    ["compare-changes-action@", "filter-changes-action@"]
+        .iter()
+        .any(|action| content.contains(action))
+}
+
 fn split_indent(line: &str) -> (usize, &str) {
     let indent = line.chars().take_while(|c| *c == ' ').count();
     (indent, &line[indent..])
@@ -314,12 +320,11 @@ fn extract_on_push_paths(content: &str) -> Vec<(String, usize)> {
     out
 }
 
-/// A single `compare-changes-action@` step, capturing whatever inputs are
-/// relevant for validation.
+/// A single comparison or filter action step with its inputs for validation.
 struct Invocation {
-    /// 1-based line of the `uses: ...compare-changes-action@...` marker.
+    /// 1-based line of the action's `uses:` marker.
     marker_line: usize,
-    /// Path patterns from an inline `with.paths: |` block, with their 1-based lines.
+    /// Patterns from `with.paths` or a single `with.filter` value, with their 1-based lines.
     paths: Vec<(String, usize)>,
     /// A literal `workflow: <name>` value if present, with its 1-based line.
     workflow_ref: Option<(String, usize)>,
@@ -333,7 +338,7 @@ fn resolve_workflow_ref(value: &str) -> String {
     format!(".github/workflows/{}", trimmed)
 }
 
-/// Extract every `compare-changes-action@` invocation from a YAML file. The
+/// Extract comparison and filter action invocations from a YAML file. The
 /// invocation is only harvested when a sibling `changes:` input is present,
 /// matching the safeguard described in the CLI docs.
 fn extract_action_invocations(content: &str) -> Vec<Invocation> {
@@ -342,13 +347,18 @@ fn extract_action_invocations(content: &str) -> Vec<Invocation> {
     let mut i = 0;
 
     while i < lines.len() {
-        if !lines[i].contains("compare-changes-action@") {
+        if !contains_path_action(lines[i]) {
             i += 1;
             continue;
         }
 
         let marker_line = i + 1;
         let marker_indent = split_indent(lines[i]).0;
+        let paths_key = if lines[i].contains("filter-changes-action@") {
+            "filter:"
+        } else {
+            "paths:"
+        };
         let mut paths_indent: Option<usize> = None;
         let mut paths: Vec<(String, usize)> = Vec::new();
         let mut workflow_ref: Option<(String, usize)> = None;
@@ -376,8 +386,24 @@ fn extract_action_invocations(content: &str) -> Vec<Invocation> {
                 paths_indent = None;
             }
 
-            if trimmed.starts_with("paths:") {
-                let rest = trimmed[6..].trim();
+            if let Some(rest) = trimmed.strip_prefix(paths_key) {
+                if paths_key == "filter:" {
+                    let filter_line = j;
+                    j += 1;
+                    while j < lines.len() && (lines[j].trim().is_empty() || split_indent(lines[j]).0 > indent) {
+                        j += 1;
+                    }
+                    let input = format!("{}\n", lines[filter_line..j].join("\n"));
+                    if let Ok(input) = serde_saphyr::from_str::<serde_json::Value>(&input)
+                        && let Some(pattern) = input.get("filter").and_then(serde_json::Value::as_str)
+                        && !pattern.contains("${{")
+                    {
+                        paths.push((pattern.to_string(), filter_line + 1));
+                        has_paths = true;
+                    }
+                    continue;
+                }
+                let rest = rest.trim();
                 if matches!(rest, "|" | "|-" | "|+") {
                     paths_indent = Some(indent);
                     has_paths = true;
