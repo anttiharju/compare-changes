@@ -6,7 +6,7 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Check cache
+    - name: Prepare cache
       id: check
       shell: sh
       env:
@@ -29,7 +29,7 @@ runs:
         path: ${{ steps.check.outputs.directory }}/compare-changes
         key: compare-changes_${PKG_VERSION}_${{ steps.target.outputs.triple }}
     - if: steps.check.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
-      name: Install
+      name: Download executable
       working-directory: ${{ steps.check.outputs.directory }}
       shell: sh
       env:
@@ -38,7 +38,7 @@ runs:
         TARGET: ${{ steps.target.outputs.triple }}
       run: |
         "$$GITHUB_ACTION_PATH/scripts/install.sh"
-    - name: Verify binary
+    - name: Verify checksum
       shell: sh
       env:
         BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
@@ -54,19 +54,19 @@ runs:
         mkdir .tmp-anttiharju-compare-changes # no -p on purpose: why would you have directory with this name in your repository?
         printf '*\n' > .tmp-anttiharju-compare-changes/.gitignore
     - if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
-      name: Checkout
+      name: Checkout (pull_request / merge_group)
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: .tmp-anttiharju-compare-changes/${{ github.repository }}
         fetch-depth: 2
         persist-credentials: true
     - if: github.event_name == 'push'
-      name: Checkout
+      name: Checkout (push)
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: .tmp-anttiharju-compare-changes/${{ github.repository }}
         persist-credentials: true
-    - name: Run
+    - name: Find changes
       id: run
       working-directory: .tmp-anttiharju-compare-changes/${{ github.repository }}
       shell: sh
@@ -75,7 +75,7 @@ runs:
       run: |
         "$$BINARY" --find
     - if: always()
-      name: Remove temporary checkout
+      name: Remove checkout
       shell: sh
       run: |
         rm -rf .tmp-anttiharju-compare-changes

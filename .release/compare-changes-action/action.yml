@@ -1,4 +1,4 @@
-name: "Compare changes"
+name: Compare changes
 description: "Conditionally run jobs and steps based on find-changes-action output."
 branding:
   icon: minimize-2
@@ -26,7 +26,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Check cache
+    - name: Prepare cache
       id: check
       shell: sh
       env:
@@ -49,7 +49,7 @@ runs:
         path: ${{ steps.check.outputs.directory }}/compare-changes
         key: compare-changes_${PKG_VERSION}_${{ steps.target.outputs.triple }}
     - if: steps.check.outputs.installed != 'true' && steps.cache.outputs.cache-hit != 'true'
-      name: Install
+      name: Download executable
       working-directory: ${{ steps.check.outputs.directory }}
       shell: sh
       env:
@@ -58,7 +58,7 @@ runs:
         TARGET: ${{ steps.target.outputs.triple }}
       run: |
         "$$GITHUB_ACTION_PATH/scripts/install.sh"
-    - name: Verify binary
+    - name: Verify checksum
       shell: sh
       env:
         BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
@@ -69,13 +69,13 @@ runs:
       run: |
         "$$GITHUB_ACTION_PATH/scripts/verify.sh"
     - if: inputs.validate == 'true'
-      name: Validate
+      name: Validate paths
       shell: sh
       env:
         BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
       run: |
         "$$BINARY" --validate
-    - name: Run
+    - name: Compare changes
       id: run
       shell: bash
       env:
