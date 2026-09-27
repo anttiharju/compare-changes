@@ -17,13 +17,13 @@ There is additional documentation available on
 
 ### Cargo
 
-### CLI
+CLI
 
 ```sh
 cargo install --features=cli compare-changes
 ```
 
-### Library
+Library
 
 ```sh
 cargo add compare-changes

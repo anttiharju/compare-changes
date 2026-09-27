@@ -14,11 +14,11 @@ runs:
   steps:
     - name: Get labels
       id: label
-      uses: anttiharju/actions/get-labels@v0
+      uses: ./.github/actions/get-labels
 
     - name: Check for major-release label
       id: major
-      uses: anttiharju/actions/require-label@v0
+      uses: ./.github/actions/require-label
       with:
         labels: ${{ steps.label.outputs.names }}
         name: "major-release"
@@ -26,7 +26,7 @@ runs:
 
     - name: Check for minor-release label
       id: minor
-      uses: anttiharju/actions/require-label@v0
+      uses: ./.github/actions/require-label
       with:
         labels: ${{ steps.label.outputs.names }}
         name: "minor-release"
@@ -35,7 +35,7 @@ runs:
 
     - name: Check for patch-release label
       id: patch
-      uses: anttiharju/actions/require-label@v0
+      uses: ./.github/actions/require-label
       with:
         labels: ${{ steps.label.outputs.names }}
         name: "patch-release"
@@ -44,7 +44,7 @@ runs:
 
     - name: Check for dependencies label
       id: dependencies
-      uses: anttiharju/actions/require-label@v0
+      uses: ./.github/actions/require-label
       with:
         labels: ${{ steps.label.outputs.names }}
         name: "dependencies"
