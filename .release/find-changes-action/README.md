@@ -51,6 +51,10 @@ jobs:
 
 In case you are looking for pre-made change comparison action, check out the this action's sibling, [`compare-changes-action`](https://github.com/anttiharju/find-changes-action).
 
+## Filtering the array
+
+[filter-changes-action](https://github.com/anttiharju/filter-changes-action) filters this action's `array` output. Its `filter` input accepts one path pattern, and its `changes` input accepts the original array. Its `array` output contains only matching files.
+
 ## Validation example
 
 ```sh

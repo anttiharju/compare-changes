@@ -77,6 +77,14 @@ jobs:
           anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
+      - name: filter-changes-action
+        uses: ./.github/actions/release/action
+        with:
+          action: filter
+          version: ${{ needs.plan.outputs.version }}
+          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
+          anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+
       - name: Documentation
         uses: ./.github/actions/release/documentation
 

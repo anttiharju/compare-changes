@@ -1,5 +1,6 @@
 mod cli;
 mod exitcode;
+mod filter;
 mod find;
 mod parse;
 mod validate;
@@ -29,7 +30,9 @@ fn main() {
     let inline_paths = args.paths.as_deref();
     let changes = args.changes.as_ref().expect("changes is required unless --find");
 
-    let paths_result = if let Some(inline) = inline_paths {
+    let paths_result = if args.filter {
+        Ok(Vec::new())
+    } else if let Some(inline) = inline_paths {
         parse::parse_inline_paths(inline).map(|paths| {
             if args.debug {
                 println!("inline paths:");
@@ -77,8 +80,17 @@ fn main() {
     };
 
     let file_refs: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
-    let path_refs: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
 
+    if args.filter {
+        let pattern = inline_paths.expect("--paths is required with --filter");
+        if let Err(err) = filter::run(pattern, &file_refs) {
+            eprintln!("{}", err);
+            std::process::exit(exitcode::filter_error());
+        }
+        return;
+    }
+
+    let path_refs: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
     let changed = match paths_match(&path_refs, &file_refs) {
         Ok(Some((pi, fi))) => {
             println!("path '{}' matched file '{}'", paths[pi], files[fi]);

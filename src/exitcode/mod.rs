@@ -21,4 +21,5 @@ define_exitcodes! {
     match_error  => MatchError  = 3,
     find_error => FindError = 4,
     validate_error => ValidateError = 5,
+    filter_error => FilterError = 6,
 }

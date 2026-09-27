@@ -59,6 +59,177 @@ fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (Strin
     (stdout, stderr)
 }
 
+#[test]
+fn test_filter_cli_matches_each_file() {
+    let files = [
+        "src/main.rs",
+        "docs/guide.md",
+        "docs/generated/reference.md",
+        "docs/generated/keep.md",
+        "docs/setup.sh",
+        "docs/line\nbreak.md",
+        "docs/guide.md",
+    ];
+    let patterns = [
+        "docs/**",
+        "docs/generated/*.md",
+        "missing/**",
+        "docs/*",
+        "docs/line\nbreak.md",
+        "docs/**\n*.rs",
+        " docs/**",
+        "docs/** ",
+        "\"docs/**\"",
+    ];
+
+    for pattern in patterns {
+        let expected: Vec<&str> = files
+            .iter()
+            .copied()
+            .filter(|file| compare_changes::path_matches(pattern, &[*file]).unwrap().is_some())
+            .collect();
+        let output = cargo_bin_cmd!("compare-changes")
+            .args(["--filter", "--paths", pattern, "--changes"])
+            .arg(serde_json::to_string(&files).unwrap())
+            .env_remove("GITHUB_OUTPUT")
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        let stdout = String::from_utf8(output.stdout).unwrap();
+        let filtered: Vec<String> = serde_json::from_str(stdout.trim().strip_prefix("array=").unwrap()).unwrap();
+        assert_eq!(filtered, expected, "pattern: {:?}", pattern);
+    }
+}
+
+#[test]
+fn test_filter_cli_output() {
+    let temp = tempdir().unwrap();
+    let output_path = temp.path().join("github-output.txt");
+    let files = [
+        "src/main.rs",
+        "docs/setup.sh",
+        "docs/generated/reference.md",
+        "docs/generated/keep.md",
+        "docs/ leading.md",
+        "docs/file name.md",
+        "docs/quote\"name.md",
+        "docs/\u{e9}vil.md",
+        "docs/trailing.md ",
+    ];
+    let expected = &files[1..];
+    let array = serde_json::to_string(&expected).unwrap();
+
+    for debug in [false, true] {
+        fs::write(&output_path, "existing=value\n").unwrap();
+        let mut command = cargo_bin_cmd!("compare-changes");
+        command
+            .current_dir(temp.path())
+            .args(["--filter", "--paths", "docs/**", "--changes"])
+            .arg(serde_json::to_string(&files).unwrap())
+            .env("GITHUB_OUTPUT", &output_path);
+        if debug {
+            command.arg("--debug");
+        }
+
+        let output = command.output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        assert_eq!(fs::read_to_string(&output_path).unwrap(), format!("existing=value\narray={}\n", array));
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(stdout.ends_with(&format!("array={}\n", array)), "{}", stdout);
+        assert!(!stdout.contains("changed="));
+    }
+}
+
+#[test]
+fn test_filter_cli_empty_output() {
+    for (paths, changes) in [
+        ("docs/**", "[]"),
+        ("docs/**", r#"["src/main.rs"]"#),
+        ("docs/*.sh", r#"["docs/guide.md"]"#),
+    ] {
+        let temp = tempdir().unwrap();
+        let output_path = temp.path().join("github-output.txt");
+        let output = cargo_bin_cmd!("compare-changes")
+            .args(["--filter", "--paths", paths, "--changes", changes])
+            .env("GITHUB_OUTPUT", &output_path)
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        assert_eq!(output.stdout, b"array=[]\n");
+        assert_eq!(fs::read_to_string(output_path).unwrap(), "array=[]\n");
+    }
+}
+
+#[test]
+fn test_filter_cli_and_compare_workflow() {
+    let temp = prepare_workflow_with_patterns(&["**.sh"]);
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(temp.path())
+        .args([
+            "--filter",
+            "--paths",
+            "docs/**",
+            "--changes",
+            r#"["src/main.rs","docs/setup.sh","docs/guide.md"]"#,
+        ])
+        .env_remove("GITHUB_OUTPUT")
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    let array = stdout.trim().strip_prefix("array=").unwrap();
+    assert_eq!(array, r#"["docs/setup.sh","docs/guide.md"]"#);
+
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(temp.path())
+        .args(["--workflow", "template.yml", "--changes", array])
+        .env_remove("GITHUB_OUTPUT")
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+    assert!(String::from_utf8_lossy(&output.stdout).contains("changed=true"));
+}
+
+#[test]
+fn test_filter_cli_rejects_invalid_inputs() {
+    let cases: &[(&[&str], i32)] = &[
+        (&["--paths", "", "--changes", "[]"], 6),
+        (&["--paths", "docs/**", "--changes", "not JSON"], 2),
+        (&["--paths", "docs/**", "--changes", "[1]"], 2),
+        (&["--paths", "[abc", "--changes", r#"["file"]"#], 6),
+        (&["--paths", "docs/**"], 2),
+        (&["--changes", "[]"], 2),
+        (&["--workflow", "template.yml", "--changes", "[]"], 2),
+        (&["--find"], 2),
+        (&["--validate"], 2),
+    ];
+
+    for (args, code) in cases {
+        let output = cargo_bin_cmd!("compare-changes")
+            .arg("--filter")
+            .args(*args)
+            .env_remove("GITHUB_OUTPUT")
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(*code), "arguments: {:?}", args);
+        assert!(!output.stderr.is_empty());
+        assert!(!String::from_utf8_lossy(&output.stdout).contains("array="));
+    }
+}
+
+#[test]
+fn test_filter_cli_output_write_failure() {
+    let temp = tempdir().unwrap();
+    let output = cargo_bin_cmd!("compare-changes")
+        .args(["--filter", "--paths", "docs/**", "--changes", "[]"])
+        .env("GITHUB_OUTPUT", temp.path())
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(6));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Failed to write GITHUB_OUTPUT"));
+    assert!(output.stdout.is_empty());
+}
+
 #[cfg(unix)]
 fn run_git(temp: &TempDir, args: &[&str]) {
     let output = Command::new("git").current_dir(temp.path()).args(args).output().unwrap();
@@ -120,6 +291,59 @@ fn test_find_preserves_git_pathnames() {
     let github_output = fs::read_to_string(output_path).unwrap();
     let files: Vec<String> = serde_json::from_str(github_output.trim().strip_prefix("array=").unwrap()).unwrap();
     assert_eq!(files, expected);
+}
+
+#[cfg(unix)]
+#[test]
+fn test_validate_action_paths() {
+    let temp = tempdir().unwrap();
+    run_git(&temp, &["init", "--quiet"]);
+    fs::create_dir(temp.path().join("docs")).unwrap();
+    fs::write(temp.path().join("docs/guide.md"), "guide").unwrap();
+
+    let cases = [
+        ("compare", "paths", "|\n          docs/**\n          !docs/guide.md", Some(2)),
+        ("compare", "paths", "|\n          missing/**", None),
+        ("filter", "filter", "docs/**", Some(1)),
+        ("filter", "filter", "'docs/**' # comment", Some(1)),
+        ("filter", "filter", "|-\n          docs/**", Some(1)),
+        ("filter", "filter", ">-\n          docs/**", Some(1)),
+        ("filter", "filter", "missing/**", None),
+        ("filter", "filter", "|-\n          docs/**\n          docs/guide.md", None),
+    ];
+
+    for (action, paths_input, value, expected_count) in cases {
+        fs::write(
+            temp.path().join("action.yml"),
+            format!(
+                "name: Validate paths\nruns:\n  using: composite\n  steps:\n    - uses: anttiharju/{}-changes-action@v0\n      with:\n        changes: '[]'\n        {}: {}\n",
+                action, paths_input, value
+            ),
+        )
+        .unwrap();
+        let output = cargo_bin_cmd!("compare-changes")
+            .current_dir(temp.path())
+            .arg("--validate")
+            .output()
+            .unwrap();
+        assert_eq!(
+            output.status.code(),
+            Some(if expected_count.is_some() { 0 } else { 5 }),
+            "{}: {}",
+            action,
+            String::from_utf8_lossy(&output.stderr)
+        );
+        if let Some(count) = expected_count {
+            let expected = format!(
+                "{} pattern{} across 1 file match at least one file",
+                count,
+                if count == 1 { "" } else { "s" }
+            );
+            assert!(String::from_utf8_lossy(&output.stdout).contains(&expected));
+        } else {
+            assert!(String::from_utf8_lossy(&output.stderr).contains("no match for"));
+        }
+    }
 }
 
 #[cfg(unix)]
