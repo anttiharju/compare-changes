@@ -71,6 +71,7 @@
           gitMinimal
           jq.bin
           prettier
+          python3
           rubocop
           rustToolchain
           shellcheck
