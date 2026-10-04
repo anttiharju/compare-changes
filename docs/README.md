@@ -1,6 +1,7 @@
 # compare-changes
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/anttiharju/compare-changes/plan.yml?label=Tests)](https://github.com/anttiharju/compare-changes/actions/workflows/plan.yml)
 
 compare-changes is a CLI and a library:
 

@@ -1,6 +1,7 @@
 # compare-changes-action
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/anttiharju/compare-changes/plan.yml?label=Tests)](https://github.com/anttiharju/compare-changes/actions/workflows/plan.yml)
 
 Takes a workflow file under `.github/workflows/` and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs, to output true/false based on whether any of the `on.push.paths` of the workflow match a file in the JSON array.
 
