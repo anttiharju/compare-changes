@@ -10,6 +10,7 @@ capture PKG_FILENAME action
 capture PKG_EXTENSION yml
 capture PKG_OUTPUT "* ../.actions/bash"
 capture PKG_VERSION "$VERSION"
+capture PKG_MAJOR_VERSION "${PKG_VERSION%%.*}"
 
 if [[ "$CHECKSUM_MODE" = bootstrap ]]; then
   capture PKG_MACOS_ARM_SHA TBD
