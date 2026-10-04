@@ -1,4 +1,7 @@
-<!--This repository uses PR labels for determining the version to release:-->
-<!--major-release-->
+<!--Choose exactly one release label:-->
+<!--no-release-->
+<!--patch-release-->
 <!--minor-release-->
-<!--patch-release ('dependencies' label is treated the same)-->
+<!--major-release-->
+<!--The dependencies label does not select a release.-->
+<!--A maintainer or a release-label workflow selects the label for dependency PRs.-->

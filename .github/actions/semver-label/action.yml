@@ -8,7 +8,7 @@ inputs:
   error-message:
     description: "Message to echo upon failure"
     required: false
-    default: "PR must have exactly one of the following labels: major-release, minor-release, patch-release, dependencies"
+    default: "PR must have exactly one release label: no-release, patch-release, minor-release, major-release"
 runs:
   using: "composite"
   steps:
@@ -42,16 +42,16 @@ runs:
         error-message: ${{ inputs.error-message }}
         fail-on-match: ${{ steps.minor.outputs.match == 'true' || steps.major.outputs.match == 'true' }}
 
-    - name: Check for dependencies label
-      id: dependencies
+    - name: Check for no-release label
+      id: none
       uses: ./.github/actions/require-label
       with:
         labels: ${{ steps.label.outputs.names }}
-        name: "dependencies"
+        name: "no-release"
         error-message: ${{ inputs.error-message }}
         fail-on-match: ${{ steps.minor.outputs.match == 'true' || steps.major.outputs.match == 'true' || steps.patch.outputs.match == 'true' }}
 
-    - if: ${{ steps.major.outputs.match == 'false' && steps.minor.outputs.match == 'false' && steps.patch.outputs.match == 'false' && steps.dependencies.outputs.match == 'false' }}
+    - if: ${{ steps.major.outputs.match == 'false' && steps.minor.outputs.match == 'false' && steps.patch.outputs.match == 'false' && steps.none.outputs.match == 'false' }}
       id: fail
       name: Fail if no semver label matched
       shell: sh
@@ -68,14 +68,15 @@ runs:
         fi
 
     # This is not baked into output value to avoid falsely setting release type if a step fails
-    - if: steps.fail.outputs.skipped != 'true'
+    - if: steps.fail.outputs.skipped != 'true' && steps.none.outputs.match != 'true'
       name: Set output
       id: release
       shell: sh
       run: |
-        echo "type=${{ steps.major.outputs.match == 'true' && 'major' || steps.minor.outputs.match == 'true' && 'minor' || (steps.patch.outputs.match == 'true' || steps.dependencies.outputs.match == 'true') && 'patch' }}" >> "$GITHUB_OUTPUT"
+        echo "type=${{ steps.major.outputs.match == 'true' && 'major' || steps.minor.outputs.match == 'true' && 'minor' || steps.patch.outputs.match == 'true' && 'patch' }}" >> "$GITHUB_OUTPUT"
 
-    - name: Parse latest release
+    - if: steps.release.outputs.type != ''
+      name: Parse latest release
       id: latest
       shell: sh
       env:
@@ -94,7 +95,7 @@ runs:
         } >> "$GITHUB_OUTPUT"
         echo "current=$version(as-is)=$major.$minor.$patch(parsed)"
 
-    - if: steps.fail.outputs.skipped != 'true'
+    - if: steps.release.outputs.type != ''
       name: Bump version
       id: bump
       shell: bash
@@ -115,7 +116,7 @@ runs:
           exit 1
         fi
 
-    - if: steps.fail.outputs.skipped != 'true'
+    - if: steps.release.outputs.type != ''
       name: Log next version
       shell: sh
       env:

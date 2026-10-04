@@ -6,14 +6,20 @@ multi-ecosystem-groups:
   dependency:
     schedule:
       interval: "weekly"
+    labels:
+      - "dependencies"
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
+    labels:
+      - "dependencies"
     patterns:
       - "*"
     multi-ecosystem-group: "dependency"
   - package-ecosystem: "nix"
     directory: "/"
+    labels:
+      - "dependencies"
     patterns:
       - "*"
     multi-ecosystem-group: "dependency"
@@ -24,6 +30,8 @@ updates:
       - "/.release/compare-changes-action"
       - "/.release/find-changes-action"
       - "/.release/filter-changes-action"
+    labels:
+      - "dependencies"
     patterns:
       - "*"
     ignore:
