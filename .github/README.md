@@ -15,6 +15,13 @@ There is additional documentation available on
 
 ## Installation
 
+### Release Archives
+
+[GitHub Releases](https://github.com/anttiharju/compare-changes/releases/latest) provides prebuilt CLI archives.
+
+The Windows x86-64 archive is `compare-changes-x86_64-pc-windows-gnullvm.tar.gz`.
+It contains `compare-changes.exe`, which uses the GNU-LLVM ABI and UCRT.
+
 ### Cargo
 
 CLI

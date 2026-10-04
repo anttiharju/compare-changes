@@ -8,7 +8,11 @@ echo "$0 $target"
 
 remote_url="$(git remote get-url origin)"
 repo="$(basename --suffix .git "$remote_url")"
+binary="$repo"
+if [[ "$target" == *-windows-* ]]; then
+  binary="$repo.exe"
+fi
 cargo build --locked --all-features --target "$target" --release
 
 cd "target/$target/release"
-tar -czf "$repo_root/$repo-$target.tar.gz" "$repo"
+tar -czf "$repo_root/$repo-$target.tar.gz" "$binary"
