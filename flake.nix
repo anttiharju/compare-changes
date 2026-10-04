@@ -63,7 +63,6 @@
         [
           action-validator
           actionlint
-          anttiharju.compare-changes
           anttiharju.relcheck
           curl.bin
           editorconfig-checker
