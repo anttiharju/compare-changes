@@ -307,8 +307,17 @@ fn test_filter_cli_output_write_failure() {
 }
 
 #[cfg(unix)]
-fn run_git(temp: &TempDir, args: &[&str]) {
-    let output = Command::new("git").current_dir(temp.path()).args(args).output().unwrap();
+fn run_git(temp: &TempDir, args: &[&str]) -> std::process::Output {
+    let output = Command::new("git")
+        .current_dir(temp.path())
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_COMMON_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_PREFIX")
+        .args(args)
+        .output()
+        .unwrap();
 
     assert!(
         output.status.success(),
@@ -316,6 +325,20 @@ fn run_git(temp: &TempDir, args: &[&str]) {
         args,
         String::from_utf8_lossy(&output.stderr)
     );
+    output
+}
+
+#[cfg(unix)]
+fn repository_binary(temp: &TempDir) -> assert_cmd::Command {
+    let mut command = cargo_bin_cmd!("compare-changes");
+    command
+        .current_dir(temp.path())
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_COMMON_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_PREFIX");
+    command
 }
 
 #[cfg(unix)]
@@ -349,8 +372,7 @@ fn test_find_preserves_git_pathnames() {
     let output_path = temp.path().join("github-output.txt");
     fs::write(&event_path, r#"{"pull_request":{}}"#).unwrap();
 
-    let output = cargo_bin_cmd!("compare-changes")
-        .current_dir(temp.path())
+    let output = repository_binary(&temp)
         .arg("--find")
         .env("GITHUB_EVENT_NAME", "pull_request")
         .env("GITHUB_EVENT_PATH", event_path)
@@ -384,8 +406,7 @@ fn test_find_workflow_event_selection() {
     run_git(&temp, &["config", "commit.gpgSign", "false"]);
     run_git(&temp, &["add", "--all"]);
     run_git(&temp, &["commit", "--quiet", "-m", "baseline"]);
-    let before = Command::new("git").current_dir(temp.path()).args(["rev-parse", "HEAD"]).output().unwrap();
-    assert!(before.status.success());
+    let before = run_git(&temp, &["rev-parse", "HEAD"]);
     let before = String::from_utf8(before.stdout).unwrap().trim().to_string();
 
     let files = [
@@ -431,9 +452,8 @@ fn test_find_workflow_event_selection() {
     for event_name in ["pull_request", "merge_group", "push"] {
         for (use_workflow, workflow_event, expected) in cases {
             fs::write(&output_path, "existing=value\n").unwrap();
-            let mut command = cargo_bin_cmd!("compare-changes");
+            let mut command = repository_binary(&temp);
             command
-                .current_dir(temp.path())
                 .arg("--find")
                 .env("GITHUB_EVENT_NAME", event_name)
                 .env("GITHUB_EVENT_PATH", &event_path)
@@ -457,8 +477,7 @@ fn test_find_workflow_event_selection() {
     fs::write(&event_path, r#"{"before":"0000000000000000000000000000000000000000"}"#).unwrap();
     for workflow_event in ["push", "pull_request"] {
         fs::write(&output_path, "").unwrap();
-        let output = cargo_bin_cmd!("compare-changes")
-            .current_dir(temp.path())
+        let output = repository_binary(&temp)
             .args(["--find", "--workflow", "template.yml", "--workflow-event", workflow_event])
             .env("GITHUB_EVENT_NAME", "push")
             .env("GITHUB_EVENT_PATH", &event_path)
@@ -514,11 +533,7 @@ fn test_validate_action_paths() {
             ),
         )
         .unwrap();
-        let output = cargo_bin_cmd!("compare-changes")
-            .current_dir(temp.path())
-            .arg("--validate")
-            .output()
-            .unwrap();
+        let output = repository_binary(&temp).arg("--validate").output().unwrap();
         assert_eq!(
             output.status.code(),
             Some(if expected_count.is_some() { 0 } else { 5 }),
@@ -566,11 +581,7 @@ fn test_validate_includes_non_ignored_files() {
             run_git(&temp, &["add", "tracked.txt"]);
         }
 
-        let output = cargo_bin_cmd!("compare-changes")
-            .current_dir(temp.path())
-            .arg("--validate")
-            .output()
-            .unwrap();
+        let output = repository_binary(&temp).arg("--validate").output().unwrap();
         assert!(output.status.success(), "validation failed:\n{}", String::from_utf8_lossy(&output.stderr));
         let stdout = String::from_utf8_lossy(&output.stdout);
         assert!(
@@ -603,11 +614,7 @@ fn test_validate_excludes_ignored_files() {
     )
     .unwrap();
 
-    let output = cargo_bin_cmd!("compare-changes")
-        .current_dir(temp.path())
-        .arg("--validate")
-        .output()
-        .unwrap();
+    let output = repository_binary(&temp).arg("--validate").output().unwrap();
     assert_eq!(output.status.code(), Some(5));
     let stderr = String::from_utf8_lossy(&output.stderr);
     for pattern in patterns {
