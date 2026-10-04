@@ -32,7 +32,7 @@ on:
           if (pull.state !== 'open' || pull.user.login !== 'dependabot[bot]' ||
               pull.head.repo?.id !== repository.id || pull.base.repo.id !== repository.id ||
               pull.base.ref !== repository.default_branch || pull.head.sha !== run.head_sha ||
-              pull.labels.some(label => allowed.includes(label.name))) {
+              pull.labels.some(label => allowed.includes(label.name) || label.name === 'no-release')) {
             return;
           }
           core.setOutput('number', pull.number);
@@ -119,7 +119,7 @@ safe-outputs:
                 core.info('The pull request is no longer eligible. No labels changed.');
                 return;
               }
-              if (pull.labels.some(label => allowed.includes(label.name))) {
+              if (pull.labels.some(label => allowed.includes(label.name) || label.name === 'no-release')) {
                 core.info('An explicit release label exists. No labels changed.');
                 return;
               }
