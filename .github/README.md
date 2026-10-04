@@ -39,6 +39,22 @@ brew install anttiharju/tap/compare-changes
 
 Via [anttiharju's nur-packages](https://github.com/anttiharju/nur-packages). Please note that as of writing it is not connected to the upstream NUR.
 
+## Dependency updates
+
+The weekly [Cargo update workflow](workflows/update-cargo.yml) proposes changes to `Cargo.lock` with the stable toolchain from the CI container.
+The publication gate requires every new crates.io version to be at least 72 hours old, including transitive dependencies.
+Versions that already exist in the base lockfile do not need another cooldown.
+
+If one version is too young, the workflow skips the whole candidate and retries the next week.
+Frequent upstream releases can delay older updates.
+Missing or invalid publication metadata and new external sources other than crates.io stop the job.
+
+The workflow reuses the `automation/cargo-update` branch for one open PR with the `dependencies` label.
+The existing GitHub App needs Contents and Pull requests write access to this repository.
+The workflow uses `ANTTIHARJU_BOT_ID` and `ANTTIHARJU_BOT_PRIVATE_KEY` from the `release` environment.
+The environment rules must permit scheduled runs from the default branch.
+The CI container includes Python 3.11 or later for TOML and timestamp parsing.
+
 ## License
 
 The following licenses apply to this project:
