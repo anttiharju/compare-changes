@@ -49,7 +49,10 @@ jobs:
 
           if [[ "$RELEASE_REQUIRED" == "true" || "$HAS_RELEASE" == "true" ]]; then
             if [[ "$HAS_NO_RELEASE" == "true" ]]; then
-              gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label no-release
+              LABEL_ACTOR=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/events?per_page=100" --paginate --slurp --jq '[.[][] | select(.event == "labeled" and .label.name == "no-release")] | max_by(.id) | .actor.login // ""')
+              if [[ "$LABEL_ACTOR" == "github-actions[bot]" ]]; then
+                gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label no-release
+              fi
             fi
           elif [[ "$HAS_NO_RELEASE" != "true" ]]; then
             gh label create no-release --repo "$GITHUB_REPOSITORY" --color ededed --description "Changes do not require a release." --force
