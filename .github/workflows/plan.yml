@@ -18,6 +18,14 @@ on:
         value: ${{ jobs.container.outputs.image }}
 
 jobs:
+  labels:
+    if: "!endsWith(github.event.repository.name, '-starter')"
+    name: Labels
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/labels.yml
+
   container:
     if: "!endsWith(github.event.repository.name, '-starter')"
     name: Container
@@ -127,7 +135,7 @@ jobs:
 
   validate:
     name: Validate
-    needs: container
+    needs: [container, labels]
     runs-on: ubuntu-latest
     permissions:
       contents: read

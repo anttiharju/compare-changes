@@ -5,15 +5,14 @@ runs:
   steps:
     - name: Output labels
       id: label
-      shell: sh
+      shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
         # On pull requests, github.sha is the merge commit SHA, so head SHA is used instead. See `GITHUB_SHA` column at:
         # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
         # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#push
         COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      run: |
-        NAMES=$(gh api graphql -f query='
+        QUERY: |
           query($sha: String!) {
             search(query: $sha, type: ISSUE, first: 1) {
               edges {
@@ -21,7 +20,7 @@ runs:
                   ... on PullRequest {
                     number
                     title
-                    labels(first: 10) {
+                    labels(first: 100) {
                       nodes {
                         name
                       }
@@ -31,10 +30,24 @@ runs:
               }
             }
           }
-        ' -f sha="$COMMIT_SHA"  --jq '(.data.search.edges[0].node.labels.nodes // []) | map(.name)')
+      run: |
+        for ATTEMPT in 1 2 3 4 5; do
+          NAMES=$(gh api graphql -f query="$QUERY" -f sha="$COMMIT_SHA" --jq '(.data.search.edges[0].node.labels.nodes // []) | map(.name)')
 
-        echo "$NAMES"
-        echo "names=$NAMES" >> "$GITHUB_OUTPUT"
+          if [[ -n "$NAMES" && "$NAMES" != "[]" ]]; then
+            echo "$NAMES"
+            echo "names=$NAMES" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$ATTEMPT" != "5" ]]; then
+            echo "::warning::GitHub returned no PR labels. Retry after attempt $ATTEMPT."
+            sleep 2
+          fi
+        done
+
+        echo "::error::GitHub returned no PR labels after 5 attempts."
+        exit 1
 outputs:
   names:
     description: "Labels of the PR associated with github.sha"
