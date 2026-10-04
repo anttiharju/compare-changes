@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
 
-Takes a workflow file under `.github/workflows/` and a JSON array generated with [find-changes-action](https://github.com/anttiharju/find-changes-action) as inputs, to output true/false based on whether any of the `on.push.paths` of the workflow match a file in the JSON array.
+This action accepts a workflow under `.github/workflows/` and a JSON array from [find-changes-action](https://github.com/anttiharju/find-changes-action). It outputs true or false based on whether the selected workflow paths match a file in the array. By default, it reads `on.push.paths`.
 
 This is useful to introduce job and step granularity to your workflows. One can save a lot of time (and money by reducing runner usage) by executing long-running jobs conditionally.
 
@@ -57,6 +57,26 @@ A very extendable and easy-to-modify monorepo Pull Request workflow can look lik
 ```
 
 The setup described above makes it fairly simple to work on the CI because one is free to add/remove jobs without coordinating changes to branch protection rules with repository admins.
+
+## Workflow event
+
+The `workflow-event` input accepts `push` or `pull_request`. Its default is `push`. The value `pull_request` selects `on.pull_request.paths` and requires `workflow`. It does not change the Git diff base or the inline `paths` input.
+
+```yml
+- uses: anttiharju/compare-changes-action@v0
+  with:
+    workflow: checks.yml
+    workflow-event: pull_request
+    changes: ${{ steps.changes.outputs.array }}
+```
+
+The same selector works with the CLI:
+
+```sh
+compare-changes --workflow checks.yml --workflow-event pull_request --changes '["docs/guide.md"]'
+```
+
+An absent or empty path list for the selected event causes an error. The action does not fall back to another event.
 
 ## More information
 

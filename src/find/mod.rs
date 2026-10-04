@@ -1,6 +1,9 @@
+use crate::parse;
+use compare_changes::paths_match;
 use serde_json::Value;
 use std::env;
 use std::fs;
+use std::path::Path;
 use std::process::Command;
 
 const INITIAL_PUSH_BEFORE: &str = "0000000000000000000000000000000000000000";
@@ -122,11 +125,28 @@ fn print_changes(files: &[String]) {
     }
 }
 
-pub fn run(debug: bool) -> Result<(), String> {
+pub fn run(workflow: Option<&Path>, workflow_event: &str, debug: bool) -> Result<(), String> {
+    let paths = workflow.map(|workflow| parse::get_paths(workflow, workflow_event)).transpose()?;
     let event_name = get_event_name()?;
     let event_data = get_event_data(debug)?;
     let diff_base = fetch_diff_base(&event_name, &event_data)?;
     let files = run_git_diff(diff_base.as_deref())?;
+
+    let files = if let Some(paths) = paths {
+        let path_refs: Vec<&str> = paths.iter().map(String::as_str).collect();
+        let mut filtered = Vec::new();
+        for file in files {
+            if paths_match(&path_refs, &[&file])
+                .map_err(|error| format!("Failed to compare paths: {}", error))?
+                .is_some()
+            {
+                filtered.push(file);
+            }
+        }
+        filtered
+    } else {
+        files
+    };
 
     write_output(&files)?;
     print_changes(&files);
