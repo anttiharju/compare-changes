@@ -1,0 +1,60 @@
+name: Labels
+permissions: {}
+on:
+  workflow_call:
+
+jobs:
+  no-release:
+    name: No release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout trusted base
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Find changes
+        id: changes
+        uses: anttiharju/find-changes-action@v0
+
+      - name: Detect changes
+        id: changed
+        uses: ./.github/actions/detect-changes
+        with:
+          changes: ${{ steps.changes.outputs.array }}
+
+      - if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+        name: Update no-release label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_SHA: ${{ github.sha }}
+          RELEASE_REQUIRED: ${{ steps.changed.outputs.rust == 'true' || steps.changed.outputs.release == 'true' }}
+        run: |
+          if [[ -z "$PR_NUMBER" ]]; then
+            PR_NUMBER=$(gh api "repos/$GITHUB_REPOSITORY/commits/$COMMIT_SHA/pulls" --jq '.[0].number // empty')
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "::error::GitHub returned no PR for this commit."
+              exit 1
+            fi
+          fi
+
+          LABELS=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels?per_page=100" --paginate --slurp --jq '[.[][] | .name]')
+          HAS_RELEASE=$(jq -r 'any(.[]; . == "major-release" or . == "minor-release" or . == "patch-release" or . == "dependencies")' <<< "$LABELS")
+          HAS_NO_RELEASE=$(jq -r 'index("no-release") != null' <<< "$LABELS")
+
+          if [[ "$RELEASE_REQUIRED" == "true" || "$HAS_RELEASE" == "true" ]]; then
+            if [[ "$HAS_NO_RELEASE" == "true" ]]; then
+              LABEL_ACTOR=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/events?per_page=100" --paginate --slurp --jq '[.[][] | select(.event == "labeled" and .label.name == "no-release")] | max_by(.id) | .actor.login // ""')
+              if [[ "$LABEL_ACTOR" == "github-actions[bot]" ]]; then
+                gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label no-release
+              fi
+            fi
+          elif [[ "$HAS_NO_RELEASE" != "true" ]]; then
+            gh label create no-release --repo "$GITHUB_REPOSITORY" --color ededed --description "Changes do not require a release." --force
+            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --add-label no-release
+          fi
