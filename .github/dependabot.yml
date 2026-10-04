@@ -8,13 +8,11 @@ multi-ecosystem-groups:
       interval: "weekly"
     labels:
       - "dependencies"
-      - "patch-release"
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
     labels:
       - "dependencies"
-      - "patch-release"
     patterns:
       - "*"
     multi-ecosystem-group: "dependency"
@@ -22,7 +20,6 @@ updates:
     directory: "/"
     labels:
       - "dependencies"
-      - "patch-release"
     patterns:
       - "*"
     multi-ecosystem-group: "dependency"
@@ -35,7 +32,6 @@ updates:
       - "/.release/filter-changes-action"
     labels:
       - "dependencies"
-      - "patch-release"
     patterns:
       - "*"
     ignore:
