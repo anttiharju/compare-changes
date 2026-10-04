@@ -29,6 +29,7 @@ jobs:
       pages: write
       contents: write
       id-token: write
+      pull-requests: read
     env:
       CHECKSUM_MODE: local # Calculate checksums with locally built binaries instead of downloading from GitHub
     steps:
