@@ -66,4 +66,4 @@ jobs:
           body: |
             This PR updates Cargo.lock with the stable Cargo toolchain.
             Every new crates.io version, including transitive dependencies, passed the 72-hour publication cooldown.
-          labels: dependencies
+          labels: patch-release
