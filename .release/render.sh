@@ -121,6 +121,9 @@ write_output() {
         mkdir -p "$output/$(dirname "./$path")"
         if [[ "$substitute" == true ]]; then
           envsubst -i "$source" -no-unset -no-empty > "$output/$path"
+        elif [[ "$substitute" == markdown ]]; then
+          sed -E 's/[$]/&&/g; s/[$]([$]\{PKG_[A-Z0-9_]+\})/\1/g' "$source" |
+            envsubst -no-unset -no-empty > "$output/$path"
         elif [[ -d "$source" ]]; then
           mkdir -p "$output/$path"
           cp -r -p "$source/." "$output/$path/"
@@ -148,6 +151,8 @@ git ls-files -z --cached --others --exclude-standard -- . |
     [[ -f "$path" ]] || continue
     if [[ "$path" != */* && "$path" != *.md ]]; then
       write_output "./$path" "$filename.$ext" true
+    elif [[ "$path" == *.md ]] && grep -Eq '\$\{PKG_[A-Z0-9_]+\}' "$path"; then
+      write_output "./$path" "$path" markdown
     else
       write_output "./$path" "$path"
     fi

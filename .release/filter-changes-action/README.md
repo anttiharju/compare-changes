@@ -26,16 +26,16 @@ jobs:
 
       - name: Find changes
         id: changes
-        uses: anttiharju/find-changes-action@v0
+        uses: anttiharju/find-changes-action@v${PKG_MAJOR_VERSION}
 
       - id: filter
-        uses: anttiharju/filter-changes-action@v0
+        uses: anttiharju/filter-changes-action@v${PKG_MAJOR_VERSION}
         with:
           changes: ${{ steps.changes.outputs.array }}
           filter: .github/** # we are only interested in CI shell scripts
 
       - id: shellcheck
-        uses: anttiharju/compare-changes-action@v0
+        uses: anttiharju/compare-changes-action@v${PKG_MAJOR_VERSION}
         with:
           changes: ${{ steps.filter.outputs.array }}
           paths: |
