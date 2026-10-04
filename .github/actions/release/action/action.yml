@@ -31,7 +31,8 @@ runs:
         repository: ${{ github.repository }}
         tag: "v${{ inputs.version }}"
       run: |
-        gh release view "$tag" --repo "$repository" --json body --jq .body > "$RUNNER_TEMP/release-notes.md"
+        gh release view "$tag" --repo "$repository" --json body > "$RUNNER_TEMP/release-notes.json"
+        jq --join-output .body "$RUNNER_TEMP/release-notes.json" > "$RUNNER_TEMP/release-notes.md"
     - name: Generate commit token
       id: generate-token
       uses: actions/create-github-app-token@v3
