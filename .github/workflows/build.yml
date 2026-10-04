@@ -61,14 +61,6 @@ jobs:
           anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
 
-      - name: compare-changes-action
-        uses: ./.github/actions/release/action
-        with:
-          action: compare
-          version: ${{ needs.plan.outputs.version }}
-          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
-          anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
-
       - name: find-changes-action
         uses: ./.github/actions/release/action
         with:
@@ -81,6 +73,14 @@ jobs:
         uses: ./.github/actions/release/action
         with:
           action: filter
+          version: ${{ needs.plan.outputs.version }}
+          anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
+          anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
+
+      - name: compare-changes-action
+        uses: ./.github/actions/release/action
+        with:
+          action: compare
           version: ${{ needs.plan.outputs.version }}
           anttiharju-bot-id: ${{ vars.ANTTIHARJU_BOT_ID }}
           anttiharju-bot-private-key: ${{ secrets.ANTTIHARJU_BOT_PRIVATE_KEY }}
