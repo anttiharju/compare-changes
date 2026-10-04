@@ -69,7 +69,7 @@ runs:
       env:
         BINARY: ${{ steps.check.outputs.directory }}/compare-changes
       run: |
-        "$$BINARY" --find
+        "$$GITHUB_ACTION_PATH/scripts/run.sh"
 
     - if: github.event_name == 'push'
       name: Checkout (push)
@@ -88,9 +88,7 @@ runs:
         GIT_CONFIG_COUNT: "1"
         GIT_CONFIG_KEY_0: http.${{ github.server_url }}/.extraheader
       run: |
-        authorization="$$(printf 'x-access-token:%s' "$$GITHUB_TOKEN" | base64 | tr -d '\n')"
-        printf '::add-mask::%s\n' "$$authorization"
-        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $$authorization" "$$BINARY" --find
+        "$$GITHUB_ACTION_PATH/scripts/run-push.sh"
 
     - if: always()
       name: Remove checkout
