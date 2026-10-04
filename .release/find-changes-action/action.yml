@@ -3,6 +3,15 @@ description: "Outputs a JSON array of changed files for downstream actions."
 branding:
   icon: check-circle
   color: blue
+inputs:
+  workflow:
+    description: "Optional workflow file under .github/workflows/. Only changed files that match its selected event paths remain in the array."
+    required: false
+    default: ""
+  workflow-event:
+    description: "Workflow event that supplies paths: push or pull_request. A nondefault value requires 'workflow'."
+    required: false
+    default: "push"
 runs:
   using: "composite"
   steps:
@@ -68,8 +77,16 @@ runs:
       shell: sh
       env:
         BINARY: ${{ steps.check.outputs.directory }}/compare-changes
+        WORKFLOW: ${{ inputs.workflow }}
+        WORKFLOW_EVENT: ${{ inputs.workflow-event }}
       run: |
-        "$$BINARY" --find
+        set -- --find
+        if [ -n "$$WORKFLOW" ]; then
+          set -- "$$@" --workflow "$$WORKFLOW" --workflow-event "$$WORKFLOW_EVENT"
+        elif [ "$$WORKFLOW_EVENT" != push ]; then
+          set -- "$$@" --workflow-event "$$WORKFLOW_EVENT"
+        fi
+        "$$BINARY" "$$@"
 
     - if: github.event_name == 'push'
       name: Checkout (push)
@@ -84,13 +101,21 @@ runs:
       shell: sh
       env:
         BINARY: ${{ steps.check.outputs.directory }}/compare-changes
+        WORKFLOW: ${{ inputs.workflow }}
+        WORKFLOW_EVENT: ${{ inputs.workflow-event }}
         GITHUB_TOKEN: ${{ github.token }}
         GIT_CONFIG_COUNT: "1"
         GIT_CONFIG_KEY_0: http.${{ github.server_url }}/.extraheader
       run: |
+        set -- --find
+        if [ -n "$$WORKFLOW" ]; then
+          set -- "$$@" --workflow "$$WORKFLOW" --workflow-event "$$WORKFLOW_EVENT"
+        elif [ "$$WORKFLOW_EVENT" != push ]; then
+          set -- "$$@" --workflow-event "$$WORKFLOW_EVENT"
+        fi
         authorization="$$(printf 'x-access-token:%s' "$$GITHUB_TOKEN" | base64 | tr -d '\n')"
         printf '::add-mask::%s\n' "$$authorization"
-        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $$authorization" "$$BINARY" --find
+        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $$authorization" "$$BINARY" "$$@"
 
     - if: always()
       name: Remove checkout

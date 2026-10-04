@@ -9,9 +9,13 @@ inputs:
     required: false
     default: ""
   workflow:
-    description: "Workflow file under .github/workflows/. Uses the on.push.paths as input. Mutually exclusive with 'paths'; exactly one of the two must be set."
+    description: "The workflow file under .github/workflows/ supplies the selected event paths. Exactly one of 'workflow' or 'paths' is required."
     required: false
     default: ""
+  workflow-event:
+    description: "Workflow event that supplies paths: push or pull_request. A nondefault value requires 'workflow'."
+    required: false
+    default: "push"
   changes:
     description: "JSON array of changed files (from anttiharju/find-changes-action)"
     required: true
@@ -81,6 +85,7 @@ runs:
       env:
         BINARY: "${{ steps.check.outputs.directory }}/compare-changes"
         WORKFLOW: "${{ inputs.workflow }}"
+        WORKFLOW_EVENT: "${{ inputs.workflow-event }}"
         PATHS: "${{ inputs.paths }}"
         CHANGES: "${{ inputs.changes }}"
         DEBUG: "${{ inputs.debug }}"
@@ -88,5 +93,5 @@ runs:
         "$$GITHUB_ACTION_PATH/scripts/run.sh"
 outputs:
   changed:
-    description: "Boolean indicating if any changed files match the configured paths (from 'paths' input or the workflow's on.push.paths)."
+    description: "Boolean indicating if any changed files match the configured paths (from 'paths' or the selected workflow event)."
     value: ${{ steps.run.outputs.changed }}

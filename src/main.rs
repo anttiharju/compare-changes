@@ -11,7 +11,7 @@ fn main() {
     let args = cli::parse_args();
 
     if args.find {
-        if let Err(err) = find::run(args.debug) {
+        if let Err(err) = find::run(args.workflow.as_deref(), &args.workflow_event, args.debug) {
             eprintln!("{}", err);
             std::process::exit(exitcode::find_error());
         }
@@ -44,9 +44,9 @@ fn main() {
         })
     } else {
         let workflow = workflow.expect("workflow is required unless --find or --paths");
-        parse::get_paths(workflow).map(|paths| {
+        parse::get_paths(workflow, &args.workflow_event).map(|paths| {
             if args.debug {
-                println!("{}.on.push.paths:", workflow.display());
+                println!("{}.on.{}.paths:", workflow.display(), args.workflow_event);
                 for path in &paths {
                     println!("- {}", path);
                 }

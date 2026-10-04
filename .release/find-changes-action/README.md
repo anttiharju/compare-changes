@@ -55,6 +55,29 @@ In case you are looking for pre-made change comparison action, check out the thi
 
 [filter-changes-action](https://github.com/anttiharju/filter-changes-action) filters this action's `array` output. Its `filter` input accepts one path pattern, and its `changes` input accepts the original array. Its `array` output contains only matching files.
 
+## Workflow paths
+
+The optional `workflow` input selects a file under `.github/workflows/`. The action returns only changed files that match its selected event paths. Without `workflow`, the action returns all changed files as before.
+
+The `workflow-event` input accepts `push` or `pull_request`. Its default is `push`, which selects `on.push.paths`. The value `pull_request` selects `on.pull_request.paths` and requires `workflow`.
+
+```yml
+- name: Find changes
+  id: changes
+  uses: anttiharju/find-changes-action@v0
+  with:
+    workflow: checks.yml
+    workflow-event: pull_request
+```
+
+The CLI equivalent is:
+
+```sh
+compare-changes --find --workflow checks.yml --workflow-event pull_request
+```
+
+The selected paths control which files remain in the array. The GitHub event still controls the Git diff base. Patterns retain their order, including exclusions and re-inclusions. An absent or empty path list causes an error. The action does not fall back to another event.
+
 ## Validation example
 
 ```sh

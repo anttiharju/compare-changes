@@ -60,6 +60,82 @@ fn run_bin_with_changes(temp: &TempDir, changes: &[&str], debug: bool) -> (Strin
 }
 
 #[test]
+fn test_workflow_event_selection() {
+    let temp = prepare_workflow_with_patterns(&["src/**"]);
+    let workflow_path = temp.path().join(".github/workflows/template.yml");
+    let mut workflow: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(&workflow_path).unwrap()).unwrap();
+    workflow["on"]["pull_request"] = serde_json::json!({"paths": ["docs/**"]});
+    fs::write(&workflow_path, serde_saphyr::to_string(&workflow).unwrap()).unwrap();
+    let output_path = temp.path().join("github-output.txt");
+
+    for (event, changed_file, changed) in [
+        (None, "src/main.rs", true),
+        (None, "docs/guide.md", false),
+        (Some("push"), "src/main.rs", true),
+        (Some("push"), "docs/guide.md", false),
+        (Some("pull_request"), "src/main.rs", false),
+        (Some("pull_request"), "docs/guide.md", true),
+    ] {
+        fs::write(&output_path, "existing=value\n").unwrap();
+        let mut command = cargo_bin_cmd!("compare-changes");
+        command
+            .current_dir(temp.path())
+            .args(["--workflow", "template.yml", "--changes"])
+            .arg(serde_json::to_string(&[changed_file]).unwrap())
+            .arg("--debug")
+            .env("GITHUB_OUTPUT", &output_path);
+        if let Some(event) = event {
+            command.args(["--workflow-event", event]);
+        }
+        let output = command.output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(stdout.contains(&format!(".on.{}.paths:", event.unwrap_or("push"))), "{}", stdout);
+        assert!(stdout.contains(&format!("changed={}", changed)), "{}", stdout);
+        assert_eq!(
+            fs::read_to_string(&output_path).unwrap(),
+            format!("existing=value\nchanged={}\n", changed)
+        );
+    }
+}
+
+#[test]
+fn test_workflow_event_missing_paths() {
+    let temp = prepare_workflow_with_patterns(&["src/**"]);
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(temp.path())
+        .args(["--workflow", "template.yml", "--workflow-event", "pull_request", "--changes", "[]"])
+        .env_remove("GITHUB_OUTPUT")
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("No on.pull_request.paths found"));
+    assert!(output.stdout.is_empty());
+}
+
+#[test]
+fn test_workflow_event_rejects_invalid_inputs() {
+    let cases: &[&[&str]] = &[
+        &["--workflow", "template.yml", "--workflow-event", "push.paths", "--changes", "[]"],
+        &["--workflow", "template.yml", "--workflow-event", "pull-request", "--changes", "[]"],
+        &["--workflow-event", "pull_request", "--paths", "src/**", "--changes", "[]"],
+        &["--workflow-event", "pull_request", "--filter", "--paths", "src/**", "--changes", "[]"],
+        &["--workflow-event", "pull_request", "--find"],
+        &["--workflow-event", "pull_request", "--validate"],
+    ];
+    for args in cases {
+        let output = cargo_bin_cmd!("compare-changes")
+            .args(*args)
+            .env_remove("GITHUB_OUTPUT")
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(2), "arguments: {:?}", args);
+        assert!(!output.stderr.is_empty());
+        assert!(output.stdout.is_empty());
+    }
+}
+
+#[test]
 fn test_filter_cli_matches_each_file() {
     let files = [
         "src/main.rs",
@@ -231,8 +307,17 @@ fn test_filter_cli_output_write_failure() {
 }
 
 #[cfg(unix)]
-fn run_git(temp: &TempDir, args: &[&str]) {
-    let output = Command::new("git").current_dir(temp.path()).args(args).output().unwrap();
+fn run_git(temp: &TempDir, args: &[&str]) -> std::process::Output {
+    let output = Command::new("git")
+        .current_dir(temp.path())
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_COMMON_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_PREFIX")
+        .args(args)
+        .output()
+        .unwrap();
 
     assert!(
         output.status.success(),
@@ -240,6 +325,20 @@ fn run_git(temp: &TempDir, args: &[&str]) {
         args,
         String::from_utf8_lossy(&output.stderr)
     );
+    output
+}
+
+#[cfg(unix)]
+fn repository_binary(temp: &TempDir) -> assert_cmd::Command {
+    let mut command = cargo_bin_cmd!("compare-changes");
+    command
+        .current_dir(temp.path())
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_COMMON_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_PREFIX");
+    command
 }
 
 #[cfg(unix)]
@@ -273,8 +372,7 @@ fn test_find_preserves_git_pathnames() {
     let output_path = temp.path().join("github-output.txt");
     fs::write(&event_path, r#"{"pull_request":{}}"#).unwrap();
 
-    let output = cargo_bin_cmd!("compare-changes")
-        .current_dir(temp.path())
+    let output = repository_binary(&temp)
         .arg("--find")
         .env("GITHUB_EVENT_NAME", "pull_request")
         .env("GITHUB_EVENT_PATH", event_path)
@@ -291,6 +389,120 @@ fn test_find_preserves_git_pathnames() {
     let github_output = fs::read_to_string(output_path).unwrap();
     let files: Vec<String> = serde_json::from_str(github_output.trim().strip_prefix("array=").unwrap()).unwrap();
     assert_eq!(files, expected);
+}
+
+#[cfg(unix)]
+#[test]
+fn test_find_workflow_event_selection() {
+    let temp = prepare_workflow_with_patterns(&["src/**"]);
+    let workflow_path = temp.path().join(".github/workflows/template.yml");
+    let mut workflow: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(&workflow_path).unwrap()).unwrap();
+    workflow["on"]["pull_request"] = serde_json::json!({"paths": ["docs/**", "!docs/generated/**", "docs/generated/keep.md", "docs/line\nbreak.md"]});
+    fs::write(&workflow_path, serde_saphyr::to_string(&workflow).unwrap()).unwrap();
+
+    run_git(&temp, &["init", "--quiet"]);
+    run_git(&temp, &["config", "user.email", "test@example.com"]);
+    run_git(&temp, &["config", "user.name", "Test User"]);
+    run_git(&temp, &["config", "commit.gpgSign", "false"]);
+    run_git(&temp, &["add", "--all"]);
+    run_git(&temp, &["commit", "--quiet", "-m", "baseline"]);
+    let before = run_git(&temp, &["rev-parse", "HEAD"]);
+    let before = String::from_utf8(before.stdout).unwrap().trim().to_string();
+
+    let files = [
+        "data.bin",
+        "docs/file name.md",
+        "docs/generated/ignored.md",
+        "docs/generated/keep.md",
+        "docs/guide.md",
+        "docs/line\nbreak.md",
+        "docs/quote\"name.md",
+        "src/main.rs",
+    ];
+    for file in files {
+        let path = temp.path().join(file);
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, "changed").unwrap();
+    }
+    run_git(&temp, &["add", "--all"]);
+    run_git(&temp, &["commit", "--quiet", "-m", "changed files"]);
+    let origin = tempdir().unwrap();
+    run_git(&temp, &["clone", "--quiet", "--bare", ".", origin.path().to_str().unwrap()]);
+    run_git(&temp, &["remote", "add", "origin", origin.path().to_str().unwrap()]);
+
+    let event_path = temp.path().join("event.json");
+    let output_path = temp.path().join("github-output.txt");
+    fs::write(&event_path, serde_json::to_string(&serde_json::json!({"before": before})).unwrap()).unwrap();
+    let cases: &[(bool, Option<&str>, &[&str])] = &[
+        (false, None, &files),
+        (true, None, &["src/main.rs"]),
+        (true, Some("push"), &["src/main.rs"]),
+        (
+            true,
+            Some("pull_request"),
+            &[
+                "docs/file name.md",
+                "docs/generated/keep.md",
+                "docs/guide.md",
+                "docs/line\nbreak.md",
+                "docs/quote\"name.md",
+            ],
+        ),
+    ];
+    for event_name in ["pull_request", "merge_group", "push"] {
+        for (use_workflow, workflow_event, expected) in cases {
+            fs::write(&output_path, "existing=value\n").unwrap();
+            let mut command = repository_binary(&temp);
+            command
+                .arg("--find")
+                .env("GITHUB_EVENT_NAME", event_name)
+                .env("GITHUB_EVENT_PATH", &event_path)
+                .env("GITHUB_OUTPUT", &output_path);
+            if *use_workflow {
+                command.args(["--workflow", "template.yml"]);
+            }
+            if let Some(workflow_event) = workflow_event {
+                command.args(["--workflow-event", workflow_event]);
+            }
+            let output = command.output().unwrap();
+            assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+            let github_output = fs::read_to_string(&output_path).unwrap();
+            let array = github_output.strip_prefix("existing=value\narray=").unwrap().trim();
+            let actual: Vec<String> = serde_json::from_str(array).unwrap();
+            assert_eq!(&actual, expected, "event: {}, workflow event: {:?}", event_name, workflow_event);
+            assert!(!String::from_utf8_lossy(&output.stdout).contains("changed="));
+        }
+    }
+
+    fs::write(&event_path, r#"{"before":"0000000000000000000000000000000000000000"}"#).unwrap();
+    for workflow_event in ["push", "pull_request"] {
+        fs::write(&output_path, "").unwrap();
+        let output = repository_binary(&temp)
+            .args(["--find", "--workflow", "template.yml", "--workflow-event", workflow_event])
+            .env("GITHUB_EVENT_NAME", "push")
+            .env("GITHUB_EVENT_PATH", &event_path)
+            .env("GITHUB_OUTPUT", &output_path)
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+        assert_eq!(fs::read_to_string(&output_path).unwrap(), "array=[]\n");
+    }
+}
+
+#[test]
+fn test_find_workflow_event_missing_paths() {
+    let temp = prepare_workflow_with_patterns(&["src/**"]);
+    let output_path = temp.path().join("github-output.txt");
+    fs::write(&output_path, "existing=value\n").unwrap();
+    let output = cargo_bin_cmd!("compare-changes")
+        .current_dir(temp.path())
+        .args(["--find", "--workflow", "template.yml", "--workflow-event", "pull_request"])
+        .env("GITHUB_OUTPUT", &output_path)
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("No on.pull_request.paths found"));
+    assert_eq!(fs::read_to_string(output_path).unwrap(), "existing=value\n");
 }
 
 #[cfg(unix)]
@@ -321,11 +533,7 @@ fn test_validate_action_paths() {
             ),
         )
         .unwrap();
-        let output = cargo_bin_cmd!("compare-changes")
-            .current_dir(temp.path())
-            .arg("--validate")
-            .output()
-            .unwrap();
+        let output = repository_binary(&temp).arg("--validate").output().unwrap();
         assert_eq!(
             output.status.code(),
             Some(if expected_count.is_some() { 0 } else { 5 }),
@@ -373,11 +581,7 @@ fn test_validate_includes_non_ignored_files() {
             run_git(&temp, &["add", "tracked.txt"]);
         }
 
-        let output = cargo_bin_cmd!("compare-changes")
-            .current_dir(temp.path())
-            .arg("--validate")
-            .output()
-            .unwrap();
+        let output = repository_binary(&temp).arg("--validate").output().unwrap();
         assert!(output.status.success(), "validation failed:\n{}", String::from_utf8_lossy(&output.stderr));
         let stdout = String::from_utf8_lossy(&output.stdout);
         assert!(
@@ -410,11 +614,7 @@ fn test_validate_excludes_ignored_files() {
     )
     .unwrap();
 
-    let output = cargo_bin_cmd!("compare-changes")
-        .current_dir(temp.path())
-        .arg("--validate")
-        .output()
-        .unwrap();
+    let output = repository_binary(&temp).arg("--validate").output().unwrap();
     assert_eq!(output.status.code(), Some(5));
     let stderr = String::from_utf8_lossy(&output.stderr);
     for pattern in patterns {
