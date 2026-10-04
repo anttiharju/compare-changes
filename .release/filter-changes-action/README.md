@@ -1,6 +1,7 @@
 # filter-changes-action
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/anttiharju/compare-changes/plan.yml?label=Tests)](https://github.com/anttiharju/compare-changes/actions/workflows/plan.yml)
 
 This action filters a JSON array of changed files with one GitHub Actions path pattern.
 The `array` output contains only matching files, in their original order.

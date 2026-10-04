@@ -1,6 +1,7 @@
 # find-changes-action
 
 [![Build](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml/badge.svg)](https://github.com/anttiharju/compare-changes/actions/workflows/build.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/anttiharju/compare-changes/plan.yml?label=Tests)](https://github.com/anttiharju/compare-changes/actions/workflows/plan.yml)
 
 People tend to start crafting custom scripts and setups to run logic in GitHub Actions conditionally. What they usually fail at are:
 
