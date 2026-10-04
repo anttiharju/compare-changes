@@ -2,6 +2,10 @@ output:
   - success
   - failure
 
+all:
+  jobs:
+    - run: lefthook run pre-commit --all-files --no-stage-fixed && lefthook run pre-push --all-files
+
 pre-push:
   parallel: true
   jobs:
@@ -22,7 +26,7 @@ pre-commit:
       stage_fixed: true
 
     - glob: "*.rs"
-      run: cargo clippy --fix --allow-staged
+      run: cargo clippy --fix --allow-staged --allow-dirty
       stage_fixed: true
 
     - name: action-validator

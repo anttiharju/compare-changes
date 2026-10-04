@@ -1,0 +1,5 @@
+- Run all shell commands from Git repo root
+- If user has `nix` and `direnv` in PATH, activate development environment with `direnv allow`
+- Fix all issues reported by `lefthook run all` before stopping
+- If more context is needed, additional git checkouts may be placed under `./.tmp/`
+- Each not-hidden (not prefixed with a `.`) directory under `./.release/` is a GitHub repository with the same owner where `./.github/workflows/build.yml` makes a downstream release.

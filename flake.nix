@@ -124,6 +124,7 @@
         {
           default = pkgs.mkShell {
             packages = (devPackages pkgs anttiharju system zig_cc_wrappers) ++ [
+              pkgs.bashInteractive
               fenix.packages.${system}.stable.rust-analyzer
             ];
 
