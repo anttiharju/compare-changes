@@ -58,6 +58,7 @@
             fenix.packages.${system}.targets.aarch64-apple-darwin.stable.rust-std
             fenix.packages.${system}.targets.aarch64-unknown-linux-musl.stable.rust-std
             fenix.packages.${system}.targets.x86_64-unknown-linux-musl.stable.rust-std
+            fenix.packages.${system}.targets.x86_64-pc-windows-gnullvm.stable.rust-std
           ];
         in
         [
@@ -89,6 +90,7 @@
           CC_aarch64_apple_darwin = "${zig_cc_wrappers}/bin/cc-aarch64-apple-darwin";
           CC_x86_64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-x86_64-unknown-linux-musl";
           CC_aarch64_unknown_linux_musl = "${zig_cc_wrappers}/bin/cc-aarch64-unknown-linux-musl";
+          CC_x86_64_pc_windows_gnullvm = "${zig_cc_wrappers}/bin/cc-x86_64-pc-windows-gnullvm";
           CC = "${zig_cc_wrappers}/bin/cc";
           RANLIB = "zig ranlib";
           SDKROOT = "/dev/null";

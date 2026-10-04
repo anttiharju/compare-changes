@@ -11,3 +11,7 @@ rustflags = ["-Clink-self-contained=no"]
 [target.x86_64-unknown-linux-musl]
 linker = ".cargo/zig/cc-x86_64-unknown-linux-musl.sh"
 rustflags = ["-Clink-self-contained=no"]
+
+[target.x86_64-pc-windows-gnullvm]
+linker = ".cargo/zig/cc-x86_64-pc-windows-gnullvm.sh"
+rustflags = ["-Clink-self-contained=no"]
