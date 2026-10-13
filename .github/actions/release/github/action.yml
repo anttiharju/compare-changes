@@ -52,3 +52,9 @@ runs:
         git push origin "$tag"
         gh release create "$tag" --title="$title" --generate-notes --draft
         gh release upload "$tag" $repository-*.tar.gz
+    - name: Apply handwritten release notes
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        tag: "v${{ inputs.version }}"
+      run: bash "$GITHUB_ACTION_PATH/release-notes.sh" "$tag"
