@@ -39,6 +39,12 @@ runs:
         VERSION: ${{ inputs.version }}
       run: |
         .release/build.sh x86_64-unknown-linux-musl
+    - name: Create x86_64-pc-windows-gnullvm archive
+      shell: sh
+      env:
+        VERSION: ${{ inputs.version }}
+      run: |
+        .release/build.sh x86_64-pc-windows-gnullvm
     - name: Release
       shell: sh
       env:
