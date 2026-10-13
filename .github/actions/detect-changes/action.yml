@@ -11,6 +11,7 @@ runs:
       uses: anttiharju/compare-changes-action@v0
       with:
         paths: |
+          .github/actionlint.yml
           .github/*/**.yml
           flake.lock
           flake.nix

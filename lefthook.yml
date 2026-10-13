@@ -30,10 +30,10 @@ pre-commit:
       stage_fixed: true
 
     - name: action-validator
-      run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' | xargs --null action-validator --verbose
+      run: git ls-files -z '.github/workflows/*.yml' '*/action.yml' ':(exclude).github/workflows/build.yml' | xargs --null action-validator --verbose
 
     - name: actionlint
-      glob: ".github/*/*.yml"
+      glob: "{.github/actionlint.yml,.github/*/*.yml}"
       run: git ls-files -z '.github/workflows/*.yml' | xargs --null actionlint -color
 
     # https://github.com/anttiharju/relcheck
