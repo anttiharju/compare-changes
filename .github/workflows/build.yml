@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: build
+  queue: max
+
 jobs:
   plan:
     name: Plan
